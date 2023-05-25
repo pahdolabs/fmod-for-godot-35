@@ -31,7 +31,7 @@ def get_fmod_paths(env: Dict) -> Dict:
         fmod_library = "fmod_vc"
         fmodstudio_library = "fmodstudio_vc"
         fmodstudioL_library = "fmodstudioL_vc"
-    elif env["platform"] == "macos":
+    elif env["platform"] == "osx":
         fmod_api_core_libs_path = fmod_api + "/api/core/lib/"
         fmod_api_studio_libs_path = fmod_api + "/api/studio/lib/"
         fmodL_library = "libfmodL"
@@ -71,7 +71,7 @@ def get_fmod_paths(env: Dict) -> Dict:
         "fmodstudioL_library": fmodstudioL_library,
     }
 
-env = SConscript("godot-cpp/SConstruct")
+fmod_module = env_modules.Clone()
 
 opts = Variables([], ARGUMENTS)
 
@@ -104,14 +104,14 @@ fmod_library = fmod_paths["fmod_library"]
 fmodstudio_library = fmod_paths["fmodstudio_library"]
 fmodstudioL_library = fmod_paths["fmodstudioL_library"]
 
-if env["target"] == "template_debug":
+if env["target"] == "debug":
     env.Append(CPPDEFINES=["FMOD_DEBUG"])
 
 if env["platform"] == "windows":
     env["target_path"] += "/win64/"
-    if env["target"] in ("template_debug"):
+    if env["target"] == "debug":
         env["target_path"] += "debug/"
-        env.Append(CCFLAGS=["/FS", "/Zi", "/Fd\"godot-cpp\\bin\\debug.pdb\""])
+        env.Append(CCFLAGS=["/FS", "/Zi"])
     else:
         env["target_path"] += "release/"
 
@@ -121,7 +121,7 @@ if env["platform"] == "windows":
 
 elif env["platform"] == "macos":
     env["target_path"] += "/macos/"
-    if env["target"] in ("template_debug"):
+    if env["target"] == "debug":
         env["target_path"] += "debug/"
     else:
         env["target_path"] += "release/"
@@ -149,7 +149,7 @@ elif env["platform"] == "linux":
     env.Append(LINKFLAGS=["-Wl,-R,'$$ORIGIN'"])
     env.Append(LINKFLAGS=["-m64", "-fuse-ld=gold"])
 
-    if env["target"] in ("template_debug"):
+    if env["target"] == "debug":
         env["target_path"] += "debug/"
     else:
         env["target_path"] += "release/"
@@ -159,7 +159,7 @@ elif env["platform"] == "linux":
 elif env["platform"] == "android":
     env["target_path"] += "/android/" + env["android_arch"] + "/"
 
-    if env["target"] in ("template_debug"):
+    if env["target"] == "debug":
         env["target_path"] += "debug/"
     else:
         env["target_path"] += "release/"
@@ -172,7 +172,7 @@ elif env["platform"] == "ios":
     if env["ios_arch"] == "arm64":
         env["target_path"] += "arm64/"
 
-    if env["target"] in ("template_debug"):
+    if env["target"] == "debug":
         env["target_path"] += "debug/"
     else:
         env["target_path"] += "release/"
@@ -240,22 +240,10 @@ elif env["platform"] == "ios":
 env.Append(CPPPATH=[fmod_api_core_headers_path, fmod_api_studio_headers_path])
 env.Append(LIBPATH=[fmod_api_studio_libs_path, fmod_api_core_libs_path])
 
-if env["target"] in ("template_debug") or env["platform"] == "android":
+if env["target"] == "debug" or env["platform"] == "android":
     env.Append(LIBS=[fmodL_library, fmodstudioL_library])
 else:
     env.Append(LIBS=[fmod_library, fmodstudio_library])
-
-env.Append(
-    CPPPATH=["src/", "src/api/", "src/misc/", "src/scene/", "src/utils/", "src/editor/"]
-)
-
-sources = []
-sources.append(Glob("src/*.cpp"))
-sources.append(Glob("src/api/*.cpp"))
-sources.append(Glob("src/misc/*.cpp"))
-sources.append(Glob("src/utils/*.cpp"))
-sources.append(Glob("src/scene/*.cpp"))
-sources.append(Glob("src/editor/*.cpp"))
 
 if env["platform"] == "windows":
     library = env.SharedLibrary(
@@ -265,7 +253,7 @@ if env["platform"] == "windows":
     )
 
     def copy_libs(self, arg, env, executor=None):
-        if env["target"] == "template_debug":
+        if env["target"] == "debug":
             Execute(
                 Copy(
                     env["target_path"] + "fmodL.dll",
@@ -305,7 +293,7 @@ if env["platform"] == "macos":
     )
 
     def copy_libs(self, arg, env, executor=None):
-        if env["target"] == "template_debug":
+        if env["target"] == "debug":
             Execute(
                 Copy(
                     env["target_path"]
@@ -361,7 +349,7 @@ if env["platform"] == "linux":
         dst_dir = env["target_path"]
         core_src_dir = fmod_api_core_libs_path
         studio_src_dir = fmod_api_studio_libs_path
-        if env["target"] == "template_debug":
+        if env["target"] == "debug":
             for filename in os.listdir(core_src_dir):
                 if filename.startswith("libfmodL"):
                     src_file = os.path.join(core_src_dir, filename)
@@ -458,7 +446,7 @@ if env["platform"] == "android":
     )
 
     def copy_libs(self, arg, env, executor=None):
-        if env["target"] == "template_debug":
+        if env["target"] == "debug":
             Execute(
                 Copy(
                     env["target_path"] + "libfmodL.so",
@@ -488,6 +476,4 @@ if env["platform"] == "android":
     copy_libs_action = Action("", copy_libs)
     AddPostAction(library, copy_libs_action)
 
-Default(library)
-
-Help(opts.GenerateHelpText(env))
+fmod_module.add_source_files(env.modules_sources, "*.cpp")
