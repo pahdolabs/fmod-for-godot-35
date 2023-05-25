@@ -3,17 +3,17 @@
 
 #include "fmod_studio_module.h"
 #include "fmod_types.h"
-#include <godot_cpp/classes/character_body2d.hpp>
-#include <godot_cpp/classes/character_body3d.hpp>
-#include <godot_cpp/classes/rigid_body2d.hpp>
-#include <godot_cpp/classes/rigid_body3d.hpp>
-#include <godot_cpp/core/binder_common.hpp>
-#include <godot_cpp/core/class_db.hpp>
-#include <godot_cpp/godot.hpp>
+#include "scene/2d/physics_body_2d.h"
+#include "scene/3d/physics_body.h"
+#include "scene/3d/physics_body_2d.h"
+#include "scene/3d/physics_body.h"
 
-class RuntimeUtils : public RefCounted
+#include "core/class_db.h"
+
+
+class RuntimeUtils : public Reference
 {
-	GDCLASS(RuntimeUtils, RefCounted);
+	GDCLASS(RuntimeUtils, Reference);
 
 protected:
 	static void _bind_methods();

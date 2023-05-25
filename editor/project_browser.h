@@ -3,31 +3,30 @@
 
 #include "fmod_assets.h"
 #include "fmod_studio_editor_module.h"
-#include <godot_cpp/classes/button.hpp>
-#include <godot_cpp/classes/check_box.hpp>
-#include <godot_cpp/classes/display_server.hpp>
-#include <godot_cpp/classes/editor_inspector_plugin.hpp>
-#include <godot_cpp/classes/editor_property.hpp>
-#include <godot_cpp/classes/editor_spin_slider.hpp>
-#include <godot_cpp/classes/grid_container.hpp>
-#include <godot_cpp/classes/h_box_container.hpp>
-#include <godot_cpp/classes/input_event.hpp>
-#include <godot_cpp/classes/input_event_mouse_button.hpp>
-#include <godot_cpp/classes/label.hpp>
-#include <godot_cpp/classes/line_edit.hpp>
-#include <godot_cpp/classes/link_button.hpp>
-#include <godot_cpp/classes/margin_container.hpp>
-#include <godot_cpp/classes/option_button.hpp>
-#include <godot_cpp/classes/packed_scene.hpp>
-#include <godot_cpp/classes/panel.hpp>
-#include <godot_cpp/classes/popup_menu.hpp>
-#include <godot_cpp/classes/spin_box.hpp>
-#include <godot_cpp/classes/style_box_flat.hpp>
-#include <godot_cpp/classes/tree.hpp>
-#include <godot_cpp/classes/tree_item.hpp>
-#include <godot_cpp/classes/v_box_container.hpp>
-#include <godot_cpp/classes/v_separator.hpp>
-#include <godot_cpp/classes/window.hpp>
+#include "scene/gui/button.h"
+#include "scene/gui/check_box.h"
+#include "servers/visual_server.h"
+#include "editor/editor_inspector.h"
+#include "editor/editor_spin_slider.h"
+#include "scene/gui/grid_container.h"
+#include "scene/gui/box_container.h"
+#include "core/os/input_event.h"
+
+#include "scene/gui/label.h"
+#include "scene/gui/line_edit.h"
+#include "scene/gui/link_button.h"
+#include "scene/gui/margin_container.h"
+#include "scene/gui/option_button.h"
+#include "scene/resources/packed_scene.h"
+#include "scene/gui/panel.h"
+#include "scene/gui/popup_menu.h"
+#include "scene/gui/spin_box.h"
+#include "scene/resources/style_box.h"
+#include "scene/gui/tree.h"
+
+#include "scene/gui/box_container.h"
+#include "scene/gui/separator.h"
+#include "scene/main/viewport.h"
 
 using namespace godot;
 

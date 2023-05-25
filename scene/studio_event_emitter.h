@@ -4,8 +4,8 @@
 #include "fmod_assets.h"
 #include "fmod_studio_editor_module.h"
 #include "scene/studio_listener.h"
-#include <godot_cpp/classes/scene_tree.hpp>
-#include <godot_cpp/classes/scene_tree_timer.hpp>
+#include "scene/main/scene_tree.h"
+
 
 template <typename T>
 struct StudioEventEmitterImpl

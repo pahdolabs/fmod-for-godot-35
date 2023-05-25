@@ -4,9 +4,9 @@
 // License: godotengine.org/license
 
 #include "scene/studio_event_emitter.h"
-#include <godot_cpp/classes/editor_node3d_gizmo_plugin.hpp>
-#include <godot_cpp/classes/standard_material3d.hpp>
-#include <godot_cpp/templates/vector.hpp>
+#include "editor/plugins/spatial_editor_plugin.h"
+#include "scene/resources/material.h"
+#include "core/vector.h"
 
 class StudioEventEmitter3DGizmoPlugin : public EditorNode3DGizmoPlugin
 {

@@ -2,10 +2,9 @@
 #define REGISTER_TYPES_H
 
 #include "gdextension_interface.h"
-#include <godot_cpp/classes/engine.hpp>
-#include <godot_cpp/core/class_db.hpp>
-#include <godot_cpp/core/defs.hpp>
-#include <godot_cpp/godot.hpp>
+#include "core/engine.h"
+#include "core/class_db.h"
+
 
 #include "api/studio_api.h"
 #include "editor/inspector_browser.h"

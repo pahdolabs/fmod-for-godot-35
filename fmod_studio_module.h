@@ -4,8 +4,8 @@
 #include "api/studio_api.h"
 #include "misc/fmod_io.h"
 #include "misc/fmod_memory.h"
-#include <godot_cpp/classes/engine.hpp>
-#include <godot_cpp/classes/os.hpp>
+#include "core/engine.h"
+#include "core/os/os.h"
 
 #ifdef FMOD_OSX
 #include <AudioToolbox/AudioToolbox.h>

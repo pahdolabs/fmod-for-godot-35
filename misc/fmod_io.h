@@ -2,7 +2,7 @@
 #define FMOD_IO_H
 
 #include "fmod_common.h"
-#include <godot_cpp/classes/file_access.hpp>
+#include "core/os/file_access.h"
 
 namespace godot
 {

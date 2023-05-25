@@ -4,7 +4,7 @@
 #include "utils/fmod_utils.h"
 #include <fmod.hpp>
 #include <fmod_studio.hpp>
-#include <godot_cpp/classes/ref_counted.hpp>
+#include "core/reference.h"
 
 namespace FmodTypes
 {
@@ -69,9 +69,9 @@ public:
 	void get_parameter_description(::FMOD_STUDIO_PARAMETER_DESCRIPTION& out_description) const;
 };
 
-class FMOD_STUDIO_USER_PROPERTY : public RefCounted
+class FMOD_STUDIO_USER_PROPERTY : public Reference
 {
-	GDCLASS(FMOD_STUDIO_USER_PROPERTY, RefCounted);
+	GDCLASS(FMOD_STUDIO_USER_PROPERTY, Reference);
 
 protected:
 	static void _bind_methods();
@@ -102,9 +102,9 @@ public:
 	void get_user_property(::FMOD_STUDIO_USER_PROPERTY& out_user_property) const;
 };
 
-class FMOD_3D_ATTRIBUTES : public RefCounted
+class FMOD_3D_ATTRIBUTES : public Reference
 {
-	GDCLASS(FMOD_3D_ATTRIBUTES, RefCounted);
+	GDCLASS(FMOD_3D_ATTRIBUTES, Reference);
 
 protected:
 	static void _bind_methods();
@@ -129,9 +129,9 @@ public:
 	void get_3d_attributes(::FMOD_3D_ATTRIBUTES& out_attributes) const;
 };
 
-class FMOD_STUDIO_BUFFER_INFO : public RefCounted
+class FMOD_STUDIO_BUFFER_INFO : public Reference
 {
-	GDCLASS(FMOD_STUDIO_BUFFER_INFO, RefCounted);
+	GDCLASS(FMOD_STUDIO_BUFFER_INFO, Reference);
 
 protected:
 	static void _bind_methods();
@@ -159,9 +159,9 @@ public:
 	void get_buffer_info(::FMOD_STUDIO_BUFFER_INFO& out_buffer_info) const;
 };
 
-class FMOD_STUDIO_BUFFER_USAGE : public RefCounted
+class FMOD_STUDIO_BUFFER_USAGE : public Reference
 {
-	GDCLASS(FMOD_STUDIO_BUFFER_USAGE, RefCounted);
+	GDCLASS(FMOD_STUDIO_BUFFER_USAGE, Reference);
 
 protected:
 	static void _bind_methods();
@@ -180,9 +180,9 @@ public:
 	void get_buffer_usage(::FMOD_STUDIO_BUFFER_USAGE& out_buffer_usage) const;
 };
 
-class FMOD_STUDIO_CPU_USAGE : public RefCounted
+class FMOD_STUDIO_CPU_USAGE : public Reference
 {
-	GDCLASS(FMOD_STUDIO_CPU_USAGE, RefCounted);
+	GDCLASS(FMOD_STUDIO_CPU_USAGE, Reference);
 
 protected:
 	static void _bind_methods();
@@ -198,9 +198,9 @@ public:
 	void get_cpu_usage(::FMOD_STUDIO_CPU_USAGE& out_cpu_usage) const;
 };
 
-class FMOD_CPU_USAGE : public RefCounted
+class FMOD_CPU_USAGE : public Reference
 {
-	GDCLASS(FMOD_CPU_USAGE, RefCounted);
+	GDCLASS(FMOD_CPU_USAGE, Reference);
 
 protected:
 	static void _bind_methods();
@@ -231,9 +231,9 @@ public:
 	void get_cpu_usage(::FMOD_CPU_USAGE& out_memory_usage) const;
 };
 
-class FMOD_STUDIO_MEMORY_USAGE : public RefCounted
+class FMOD_STUDIO_MEMORY_USAGE : public Reference
 {
-	GDCLASS(FMOD_STUDIO_MEMORY_USAGE, RefCounted);
+	GDCLASS(FMOD_STUDIO_MEMORY_USAGE, Reference);
 
 protected:
 	static void _bind_methods();

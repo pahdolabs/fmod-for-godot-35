@@ -2,7 +2,7 @@
 #define FMOD_MEMORY_H
 
 #include "fmod_common.h"
-#include <godot_cpp/core/memory.hpp>
+#include "core/os/memory.h"
 
 namespace godot
 {

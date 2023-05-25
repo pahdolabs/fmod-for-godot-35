@@ -4,9 +4,9 @@
 #include "fmod_assets.h"
 #include "fmod_studio_module.h"
 #include "utils/runtime_utils.h"
-#include <godot_cpp/classes/node.hpp>
-#include <godot_cpp/classes/scene_tree.hpp>
-#include <godot_cpp/classes/scene_tree_timer.hpp>
+#include "scene/main/node.h"
+#include "scene/main/scene_tree.h"
+
 
 class StudioBankLoader : public Node
 {

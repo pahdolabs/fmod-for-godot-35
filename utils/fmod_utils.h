@@ -3,13 +3,13 @@
 
 #include <fmod_errors.h>
 #include <fmod_studio_common.h>
-#include <godot_cpp/classes/character_body2d.hpp>
-#include <godot_cpp/classes/character_body3d.hpp>
-#include <godot_cpp/classes/project_settings.hpp>
-#include <godot_cpp/classes/rigid_body2d.hpp>
-#include <godot_cpp/classes/rigid_body3d.hpp>
-#include <godot_cpp/core/object.hpp>
-#include <godot_cpp/variant/utility_functions.hpp>
+#include "scene/2d/physics_body_2d.h"
+#include "scene/3d/physics_body.h"
+#include "core/project_settings.h"
+#include "scene/3d/physics_body_2d.h"
+#include "scene/3d/physics_body.h"
+#include "core/object.h"
+
 
 using namespace godot;
 

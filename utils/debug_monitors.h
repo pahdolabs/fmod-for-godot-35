@@ -2,8 +2,8 @@
 #define FMOD_DEBUG_MONITOR_H
 
 #include "fmod_studio_module.h"
-#include <godot_cpp/classes/performance.hpp>
-#include <godot_cpp/classes/time.hpp>
+#include "main/performance.h"
+#include "scene/main/time.h"
 
 class FMODDebugMonitor : public Node
 {

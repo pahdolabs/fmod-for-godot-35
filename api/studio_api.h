@@ -14,9 +14,9 @@ class VCA;
 class Bank;
 class CommandReplay;
 
-class StudioSystem : public RefCounted
+class StudioSystem : public Reference
 {
-	GDCLASS(StudioSystem, RefCounted);
+	GDCLASS(StudioSystem, Reference);
 
 protected:
 	static void _bind_methods();
@@ -94,9 +94,9 @@ public:
 			Ref<FmodTypes::FMOD_STUDIO_MEMORY_USAGE> memory_usage) const;
 };
 
-class EventDescription : public RefCounted
+class EventDescription : public Reference
 {
-	GDCLASS(EventDescription, RefCounted);
+	GDCLASS(EventDescription, Reference);
 
 protected:
 	static void _bind_methods();
@@ -148,9 +148,9 @@ public:
 	bool set_callback(Variant callable, FMOD_STUDIO_EVENT_CALLBACK_TYPE callback_mask) const;
 };
 
-class EventInstance : public RefCounted
+class EventInstance : public Reference
 {
-	GDCLASS(EventInstance, RefCounted);
+	GDCLASS(EventInstance, Reference);
 
 protected:
 	static void _bind_methods();
@@ -220,9 +220,9 @@ public:
 	bool set_callback(Variant callable, FMOD_STUDIO_EVENT_CALLBACK_TYPE callback_mask) const;
 };
 
-class Bus : public RefCounted
+class Bus : public Reference
 {
-	GDCLASS(Bus, RefCounted);
+	GDCLASS(Bus, Reference);
 
 protected:
 	static void _bind_methods();
@@ -258,9 +258,9 @@ public:
 	void get_memory_usage(Ref<FmodTypes::FMOD_STUDIO_MEMORY_USAGE> memory_usage_ref) const;
 };
 
-class VCA : public RefCounted
+class VCA : public Reference
 {
-	GDCLASS(VCA, RefCounted);
+	GDCLASS(VCA, Reference);
 
 protected:
 	static void _bind_methods();
@@ -280,9 +280,9 @@ public:
 	bool set_volume(float volume) const;
 };
 
-class Bank : public RefCounted
+class Bank : public Reference
 {
-	GDCLASS(Bank, RefCounted);
+	GDCLASS(Bank, Reference);
 
 protected:
 	static void _bind_methods();
@@ -313,9 +313,9 @@ public:
 	TypedArray<VCA> get_vca_list(int capacity);
 };
 
-class CommandReplay : public RefCounted
+class CommandReplay : public Reference
 {
-	GDCLASS(CommandReplay, RefCounted);
+	GDCLASS(CommandReplay, Reference);
 
 protected:
 	static void _bind_methods();

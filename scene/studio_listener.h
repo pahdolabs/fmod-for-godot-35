@@ -5,8 +5,8 @@
 #include "utils/runtime_utils.h"
 #include <float.h>
 #include <algorithm>
-#include <godot_cpp/classes/node2d.hpp>
-#include <godot_cpp/classes/node3d.hpp>
+#include "scene/2d/node_2d.h"
+#include "scene/3d/spatial.h"
 
 struct ListenerImpl
 {

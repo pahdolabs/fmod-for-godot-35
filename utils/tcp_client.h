@@ -1,11 +1,11 @@
 #ifndef TCP_CLIENT_H
 #define TCP_CLIENT_H
 
-#include <godot_cpp/classes/stream_peer_tcp.hpp>
-#include <godot_cpp/classes/timer.hpp>
-#include <godot_cpp/core/binder_common.hpp>
-#include <godot_cpp/core/class_db.hpp>
-#include <godot_cpp/variant/string.hpp>
+#include "core/io/stream_peer_tcp.h"
+#include "scene/main/timer.h"
+
+#include "core/class_db.h"
+#include "core/ustring.h"
 
 class FmodTCPClient : public StreamPeerTCP
 {

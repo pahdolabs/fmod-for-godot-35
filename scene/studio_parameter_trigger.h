@@ -3,8 +3,8 @@
 
 #include "fmod_studio_module.h"
 #include "studio_event_emitter.h"
-#include <godot_cpp/classes/node.hpp>
-#include <godot_cpp/variant/node_path.hpp>
+#include "scene/main/node.h"
+#include "core/node_path.h"
 
 class StudioParameterTrigger : public Node
 {

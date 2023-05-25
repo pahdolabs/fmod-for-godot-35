@@ -8,17 +8,17 @@
 #include "misc/fmod_memory.h"
 #include "utils/tcp_client.h"
 #include <algorithm>
-#include <godot_cpp/classes/dir_access.hpp>
-#include <godot_cpp/classes/file_access.hpp>
-#include <godot_cpp/classes/project_settings.hpp>
-#include <godot_cpp/classes/resource_loader.hpp>
-#include <godot_cpp/classes/resource_saver.hpp>
-#include <godot_cpp/classes/timer.hpp>
-#include <godot_cpp/classes/tree.hpp>
-#include <godot_cpp/classes/tree_item.hpp>
-#include <godot_cpp/core/binder_common.hpp>
-#include <godot_cpp/core/class_db.hpp>
-#include <godot_cpp/godot.hpp>
+#include "core/os/dir_access.h"
+#include "core/os/file_access.h"
+#include "core/project_settings.h"
+#include "core/io/resource_loader.h"
+#include "core/io/resource_saver.h"
+#include "scene/main/timer.h"
+#include "scene/gui/tree.h"
+
+
+#include "core/class_db.h"
+
 #include <map>
 #include <unordered_map>
 
@@ -28,9 +28,9 @@
 
 class ProjectCache;
 
-class FMODSettings : public RefCounted
+class FMODSettings : public Reference
 {
-	GDCLASS(FMODSettings, RefCounted);
+	GDCLASS(FMODSettings, Reference);
 
 protected:
 	static void _bind_methods();

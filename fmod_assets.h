@@ -5,12 +5,12 @@
 #include "fmod_types.h"
 #include "misc/fmod_io.h"
 #include "misc/fmod_memory.h"
-#include <godot_cpp/classes/engine.hpp>
-#include <godot_cpp/classes/node.hpp>
-#include <godot_cpp/classes/os.hpp>
-#include <godot_cpp/core/binder_common.hpp>
-#include <godot_cpp/core/class_db.hpp>
-#include <godot_cpp/godot.hpp>
+#include "core/engine.h"
+#include "scene/main/node.h"
+#include "core/os/os.h"
+
+#include "core/class_db.h"
+
 #include <string>
 #include <type_traits>
 #include <unordered_map>

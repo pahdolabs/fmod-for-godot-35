@@ -3,19 +3,18 @@
 
 #include "fmod_assets.h"
 #include "fmod_studio_editor_module.h"
-#include <godot_cpp/classes/button.hpp>
-#include <godot_cpp/classes/display_server.hpp>
-#include <godot_cpp/classes/editor_inspector_plugin.hpp>
-#include <godot_cpp/classes/editor_property.hpp>
-#include <godot_cpp/classes/input_event.hpp>
-#include <godot_cpp/classes/input_event_mouse_button.hpp>
-#include <godot_cpp/classes/line_edit.hpp>
-#include <godot_cpp/classes/packed_scene.hpp>
-#include <godot_cpp/classes/popup_menu.hpp>
-#include <godot_cpp/classes/tree.hpp>
-#include <godot_cpp/classes/tree_item.hpp>
-#include <godot_cpp/classes/v_box_container.hpp>
-#include <godot_cpp/classes/window.hpp>
+#include "scene/gui/button.h"
+#include "servers/visual_server.h"
+#include "editor/editor_inspector.h"
+#include "core/os/input_event.h"
+
+#include "scene/gui/line_edit.h"
+#include "scene/resources/packed_scene.h"
+#include "scene/gui/popup_menu.h"
+#include "scene/gui/tree.h"
+
+#include "scene/gui/box_container.h"
+#include "scene/main/viewport.h"
 
 using namespace godot;
 
