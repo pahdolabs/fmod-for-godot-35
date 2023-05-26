@@ -41,7 +41,7 @@ public:
 		if (connect_to_host(HOST, PORT) == Error::OK)
 		{
 			timer = memnew(Timer);
-			timer->connect("timeout", Callable(this, "on_connection_timeout"));
+			timer->connect("timeout", this, "on_connection_timeout");
 			timer->set_wait_time(0.3);
 			timer->set_autostart(true);
 
@@ -57,7 +57,6 @@ public:
 
 	void on_connection_timeout()
 	{
-		poll();
 		if (get_status() == Status::STATUS_CONNECTED)
 		{
 			client_is_connected = true;
@@ -84,7 +83,7 @@ public:
 		{
 			if (!timer->is_queued_for_deletion())
 			{
-				timer->queue_free();
+				timer->queue_delete();
 			}
 		}
 	}

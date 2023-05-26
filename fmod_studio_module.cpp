@@ -152,7 +152,7 @@ bool FMODStudioModule::initialize_fmod()
 	{
 		String warning_message = "[WARNING]: " + String("Failed to set the selected Output Type. Initializing FMOD with OUTPUTTYPE_NOSOUND.") + " " + __FUNCTION__ + " in " + __FILE__ +
 				":" + String::num(__LINE__);
-		UtilityFunctions::push_warning(warning_message);
+		WARN_PRINT(warning_message);
 		core_system->setOutput(FMOD_OUTPUTTYPE_NOSOUND);
 	}
 
@@ -339,7 +339,7 @@ bool FMODStudioModule::init()
 	}
 
 	String message = "[FMOD] Initialized Runtime System";
-	UtilityFunctions::print(message);
+	(message);
 
 	result = true;
 
@@ -360,7 +360,7 @@ void FMODStudioModule::shutdown()
 	if (shutdown_fmod())
 	{
 		String message = "[FMOD] Shut down Runtime System";
-		UtilityFunctions::print(message);
+		(message);
 	}
 }
 

@@ -2,6 +2,7 @@
 #define STUDIO_API
 
 #include "fmod_types.h"
+#include "core/vector.h"
 #include <memory>
 
 namespace StudioApi
@@ -79,9 +80,9 @@ public:
 	bool reset_buffer_usage() const;
 
 	int get_bank_count() const;
-	TypedArray<Bank> get_bank_list(int capacity) const;
+	Vector<Bank> get_bank_list(int capacity) const;
 	int get_parameter_description_count() const;
-	TypedArray<FmodTypes::FMOD_STUDIO_PARAMETER_DESCRIPTION> get_parameter_description_list(int capacity) const;
+	Vector<FmodTypes::FMOD_STUDIO_PARAMETER_DESCRIPTION> get_parameter_description_list(int capacity) const;
 
 	bool start_command_capture(const String& file_name, const FMOD_STUDIO_COMMANDCAPTURE_FLAGS flags) const;
 	bool stop_command_capture() const;
@@ -137,7 +138,7 @@ public:
 
 	Ref<EventInstance> create_instance();
 	int get_instance_count() const;
-	TypedArray<EventInstance> get_instance_list(int capacity);
+	Vector<EventInstance> get_instance_list(int capacity);
 
 	bool load_sample_data() const;
 	bool unload_sample_data() const;
@@ -306,11 +307,11 @@ public:
 	FMOD_STUDIO_LOADING_STATE get_sample_loading_state() const;
 
 	int get_event_count() const;
-	TypedArray<EventDescription> get_event_list(int capacity);
+	Vector<EventDescription> get_event_list(int capacity);
 	int get_bus_count() const;
-	TypedArray<Bus> get_bus_list(int capacity);
+	Vector<Bus> get_bus_list(int capacity);
 	int get_vca_count() const;
-	TypedArray<VCA> get_vca_list(int capacity);
+	Vector<VCA> get_vca_list(int capacity);
 };
 
 class CommandReplay : public Reference

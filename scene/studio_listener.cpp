@@ -23,14 +23,14 @@ void ListenerImpl::add_listener()
 	{
 		if (listeners[i] == this)
 		{
-			UtilityFunctions::push_warning("[FMOD] Listener has already been added.");
+			WARN_PRINT("[FMOD] Listener has already been added.");
 			return;
 		}
 	}
 
 	if (listeners.size() >= MAX_LISTENERS)
 	{
-		UtilityFunctions::push_warning("[FMOD] Max number of listeners reached.");
+		WARN_PRINT("[FMOD] Max number of listeners reached.");
 	}
 
 	listeners.push_back(this);

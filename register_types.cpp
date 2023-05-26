@@ -6,10 +6,9 @@ static FMODStudioModule* fmod_module;
 static FMODStudioEditorModule* fmod_editor_module;
 static FMODSettings* fmod_settings;
 
-void register_fmod_types(ModuleInitializationLevel p_level)
+void register_fmod_types()
 {
-	if (p_level == MODULE_INITIALIZATION_LEVEL_EDITOR)
-	{
+#ifdef TOOLS_ENABLED
 		ClassDB::register_class<FmodTCPClient>();
 		ClassDB::register_class<FMODStudioEditorModule>();
 		fmod_editor_module = memnew(FMODStudioEditorModule);
@@ -33,10 +32,8 @@ void register_fmod_types(ModuleInitializationLevel p_level)
 
 		ClassDB::register_class<ProjectBrowserTree>();
 		ClassDB::register_class<ProjectBrowserWindow>();
-	}
+#endif //TOOLS_ENABLED
 
-	if (p_level == MODULE_INITIALIZATION_LEVEL_SCENE)
-	{
 		// FMOD modules
 		ClassDB::register_class<FMODStudioModule>();
 		fmod_module = memnew(FMODStudioModule);
@@ -87,38 +84,15 @@ void register_fmod_types(ModuleInitializationLevel p_level)
 
 		// Custom performance monitors
 		ClassDB::register_class<FMODDebugMonitor>();
-	}
 }
 
-void unregister_fmod_types(ModuleInitializationLevel p_level)
+void unregister_fmod_types()
 {
-	if (p_level == MODULE_INITIALIZATION_LEVEL_EDITOR)
-	{
+#ifdef TOOLS_ENABLED
 		Engine::get_singleton()->unregister_singleton("FMODStudioEditorModule");
 		memdelete(fmod_editor_module);
-	}
+#endif //TOOLS_ENABLED
 
-	if (p_level == MODULE_INITIALIZATION_LEVEL_SCENE)
-	{
 		Engine::get_singleton()->unregister_singleton("FMODStudioModule");
 		memdelete(fmod_module);
-	}
-}
-
-extern "C"
-{
-	// Initialization.
-
-	GDExtensionBool GDE_EXPORT fmod_library_init(const GDExtensionInterface* p_interface,
-			const GDExtensionClassLibraryPtr p_library,
-			GDExtensionInitialization* r_initialization)
-	{
-		godot::GDExtensionBinding::InitObject init_obj(p_interface, p_library, r_initialization);
-
-		init_obj.register_initializer(register_fmod_types);
-		init_obj.register_terminator(unregister_fmod_types);
-		init_obj.set_minimum_library_initialization_level(MODULE_INITIALIZATION_LEVEL_EDITOR);
-
-		return init_obj.init();
-	}
 }

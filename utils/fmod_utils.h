@@ -1,17 +1,15 @@
 #ifndef FMOD_UTILS
 #define FMOD_UTILS
 
-#include <fmod_errors.h>
-#include <fmod_studio_common.h>
+#include "fmod_errors.h"
+#include "fmod_studio_common.h"
 #include "scene/2d/physics_body_2d.h"
 #include "scene/3d/physics_body.h"
 #include "core/project_settings.h"
-#include "scene/3d/physics_body_2d.h"
+#include "scene/2d/physics_body_2d.h"
 #include "scene/3d/physics_body.h"
 #include "core/object.h"
-
-
-using namespace godot;
+#include "core/vector.h"
 
 enum class PlatformSettingsPath
 {
@@ -31,7 +29,7 @@ static bool error_check(const FMOD_RESULT result, const char* function, const ch
 #ifdef FMOD_DEBUG
 		String warning_message = "[WARNING]: " + String(FMOD_ErrorString(result)) + " " + function + " in " + file +
 				":" + String::num(line);
-		UtilityFunctions::push_warning(warning_message);
+		WARN_PRINT(warning_message);
 #endif
 		return false;
 	}
@@ -45,15 +43,15 @@ static void debug_monitor(FMOD_DEBUG_FLAGS flags, const char* file, int line, co
 {
 	if (flags & FMOD_DEBUG_LEVEL_ERROR)
 	{
-		UtilityFunctions::print(String("[ERROR]: "), String(message));
+		print_line("[ERROR]: " + String(message));
 	}
 	else if (flags & FMOD_DEBUG_LEVEL_WARNING)
 	{
-		UtilityFunctions::print(String("[WARNING]: "), String(message));
+		print_line("[WARNING]: " + String(message));
 	}
 	else if (flags & FMOD_DEBUG_LEVEL_LOG)
 	{
-		UtilityFunctions::print(String("[LOG]: "), String(message));
+		print_line("[LOG]: " + String(message));
 	}
 }
 
@@ -111,7 +109,7 @@ static Variant get_platform_project_setting(const String& setting, bool force_pl
 	}
 	else
 	{
-		UtilityFunctions::print("[FMOD] Failed to get setting: " + platformSetting);
+		print_line("[FMOD] Failed to get setting: " + platformSetting);
 		return "";
 	}
 }
@@ -146,8 +144,8 @@ static inline void vector2_to_fmod_vector(const Vector2& in_vector, FMOD_VECTOR&
 	out_vector.z = 0.0f;
 }
 
-static inline void transform3d_to_fmod_vector(const Transform3D& in_transform, FMOD_VECTOR& out_vector,
-		const VectorType& type, Object* physicsbody3d = nullptr)
+static inline void transform3d_to_fmod_vector(const Transform& in_transform, FMOD_VECTOR& out_vector,
+		const VectorType& type, Object* physicsbody = nullptr)
 {
 	switch (type)
 	{
@@ -161,19 +159,19 @@ static inline void transform3d_to_fmod_vector(const Transform3D& in_transform, F
 			vector3_to_fmod_vector(in_transform.get_basis().get_column(1).normalized(), out_vector);
 			break;
 		case VectorType::VELOCITY:
-			if (physicsbody3d)
+			if (physicsbody)
 			{
-				const RigidBody3D* rigidbody3d = Object::cast_to<RigidBody3D>(physicsbody3d);
-				if (rigidbody3d)
+				const RigidBody* rigidbody = Object::cast_to<RigidBody>(physicsbody);
+				if (rigidbody)
 				{
-					vector3_to_fmod_vector(rigidbody3d->get_linear_velocity(), out_vector);
+					vector3_to_fmod_vector(rigidbody->get_linear_velocity(), out_vector);
 				}
 				else
 				{
-					const CharacterBody3D* characterbody3d = Object::cast_to<CharacterBody3D>(physicsbody3d);
-					if (characterbody3d)
+					const KinematicBody* kinematicbody = Object::cast_to<KinematicBody>(physicsbody);
+					if (kinematicbody)
 					{
-						vector3_to_fmod_vector(characterbody3d->get_velocity(), out_vector);
+						vector3_to_fmod_vector(Vector3(0.0f, 0.0f, 0.0f), out_vector);
 					}
 				}
 			}
@@ -187,12 +185,12 @@ static inline void transform3d_to_fmod_vector(const Transform3D& in_transform, F
 	}
 }
 
-static inline void transform3d_to_3dattributes(const Transform3D& in_transform, FMOD_3D_ATTRIBUTES& out_attributes, Object* physicsbody3d = nullptr)
+static inline void transform_to_3dattributes(const Transform& in_transform, FMOD_3D_ATTRIBUTES& out_attributes, Object* physicsbody = nullptr)
 {
 	transform3d_to_fmod_vector(in_transform, out_attributes.position, VectorType::POSITION);
 	transform3d_to_fmod_vector(in_transform, out_attributes.forward, VectorType::FORWARD);
 	transform3d_to_fmod_vector(in_transform, out_attributes.up, VectorType::UP);
-	transform3d_to_fmod_vector(in_transform, out_attributes.velocity, VectorType::VELOCITY, physicsbody3d);
+	transform3d_to_fmod_vector(in_transform, out_attributes.velocity, VectorType::VELOCITY, physicsbody);
 }
 
 static inline void transform2d_to_fmod_vector(const Transform2D& in_transform, FMOD_VECTOR& out_vector,
@@ -204,7 +202,7 @@ static inline void transform2d_to_fmod_vector(const Transform2D& in_transform, F
 			vector3_to_fmod_vector(Vector3(in_transform.get_origin().x / distance_scale_2d, (in_transform.get_origin().y * -1.0f) / distance_scale_2d, 0.0f), out_vector);
 			break;
 		case VectorType::FORWARD:
-			vector3_to_fmod_vector(Vector3(in_transform.columns[1].x, 0.0f, in_transform.columns[1].y).normalized(),
+			vector3_to_fmod_vector(Vector3(in_transform.elements[1].x, 0.0f, in_transform.elements[1].y).normalized(),
 					out_vector);
 			break;
 		case VectorType::UP:
@@ -221,10 +219,10 @@ static inline void transform2d_to_fmod_vector(const Transform2D& in_transform, F
 				}
 				else
 				{
-					const CharacterBody2D* characterbody2d = Object::cast_to<CharacterBody2D>(physicsbody2d);
+					const KinematicBody2D* characterbody2d = Object::cast_to<KinematicBody2D>(physicsbody2d);
 					if (characterbody2d)
 					{
-						vector3_to_fmod_vector(Vector3(characterbody2d->get_velocity().x, characterbody2d->get_velocity().y, 0),
+						vector3_to_fmod_vector(Vector3(0.0f, 0.0f, 0.0f),
 								out_vector);
 					}
 				}
@@ -249,11 +247,12 @@ static inline void transform2d_to_3dattributes(const Transform2D& in_transform, 
 
 static inline String guid_to_string(const FMOD_GUID& guid)
 {
-	std::array<char, 40> output{};
-	snprintf(output.data(), output.size(), "{%08x-%04hx-%04hx-%02x%02x-%02x%02x%02x%02x%02x%02x}", guid.Data1,
+	Vector<char> output;
+	output.resize(40);
+	snprintf(output.ptrw(), output.size(), "{%08x-%04hx-%04hx-%02x%02x-%02x%02x%02x%02x%02x%02x}", guid.Data1,
 			guid.Data2, guid.Data3, guid.Data4[0], guid.Data4[1], guid.Data4[2], guid.Data4[3], guid.Data4[4],
 			guid.Data4[5], guid.Data4[6], guid.Data4[7]);
-	return String(output.data());
+	return String(output.ptrw());
 }
 
 template <class T>

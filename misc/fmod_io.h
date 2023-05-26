@@ -18,19 +18,18 @@ public:
 	{
 		String file_path = name;
 
-		FileHandle* const file_handle = memnew(FileHandle);
-		Ref<FileAccess> file = FileAccess::open(file_path, FileAccess::ModeFlags::READ);
-		file_handle->file = file;
-
-		*handle = static_cast<void*>(file_handle);
-
-		if (FileAccess::get_open_error() != Error::OK)
+		Error err;
+		FileAccess *file = FileAccess::open(file_path, FileAccess::READ, &err);
+		
+		*handle = static_cast<void*>(file);
+		
+		if (err != OK)
 		{
 			*filesize = 0;
 			return FMOD_ERR_FILE_NOTFOUND;
 		}
 
-		*filesize = file->get_length();
+		*filesize = file->get_len();
 
 		return FMOD_OK;
 	}
@@ -43,8 +42,11 @@ public:
 		{
 			return result;
 		}
-
-		memfree(handle);
+		
+		FileAccess *file = static_cast<FileAccess*>(handle);
+		if (file) {
+			file->close();
+		}
 
 		result = FMOD_OK;
 		return result;
@@ -53,12 +55,12 @@ public:
 	static FMOD_RESULT F_CALLBACK file_read(void* handle, void* buffer, unsigned int sizebytes, unsigned int* bytesread,
 			void* userdata)
 	{
-		FileHandle* const file_handle = static_cast<FileHandle*>(handle);
-		Ref<FileAccess> file = file_handle->file;
+		FileAccess *file = static_cast<FileAccess*>(handle);
 
-		PackedByteArray file_buffer = file->get_buffer(sizebytes);
+		Vector<uint8_t> file_buffer;
+		file->get_buffer(file_buffer.ptrw(), sizebytes);
 		int64_t size = file_buffer.size();
-		const uint8_t* data = file_buffer.ptr();
+		const uint8_t* data = file_buffer.ptrw();
 
 		memcpy(buffer, data, size * sizeof(uint8_t));
 
@@ -73,8 +75,7 @@ public:
 
 	static FMOD_RESULT F_CALLBACK file_seek(void* handle, unsigned int pos, void* userdata)
 	{
-		FileHandle* const file_handle = static_cast<FileHandle*>(handle);
-		Ref<FileAccess> file = file_handle->file;
+		FileAccess *file = static_cast<FileAccess*>(handle);
 
 		const uint64_t file_read_position = file->get_position();
 		const uint64_t wanted_file_read_position = pos;

@@ -237,7 +237,7 @@ void EventAsset::set_event_ref(FMOD::Studio::EventDescription* event_description
 
 						if (result == FMOD_ERR_EVENT_NOTFOUND || result == FMOD_ERR_INVALID_PARAM)
 						{
-							UtilityFunctions::printerr("[FMOD] Failed to get Parameter Label", __FUNCTION__, __FILE__,
+							err("[FMOD] Failed to get Parameter Label", __FUNCTION__, __FILE__,
 									__LINE__);
 							break;
 						}
@@ -505,7 +505,7 @@ void ParameterAsset::set_parameter_ref(const FMOD_STUDIO_PARAMETER_DESCRIPTION& 
 
 		if (result == FMOD_ERR_EVENT_NOTFOUND)
 		{
-			UtilityFunctions::printerr("Failed to get Path", __FUNCTION__, __FILE__, __LINE__);
+			err("Failed to get Path", __FUNCTION__, __FILE__, __LINE__);
 			break;
 		}
 	} while (result == FMOD_ERR_TRUNCATED);
@@ -548,7 +548,7 @@ void ParameterAsset::set_parameter_ref(const FMOD_STUDIO_PARAMETER_DESCRIPTION& 
 
 				if (result == FMOD_ERR_EVENT_NOTFOUND || result == FMOD_ERR_INVALID_PARAM)
 				{
-					UtilityFunctions::printerr("[FMOD] Failed to get Parameter Label", __FUNCTION__, __FILE__,
+					err("[FMOD] Failed to get Parameter Label", __FUNCTION__, __FILE__,
 							__LINE__);
 					break;
 				}

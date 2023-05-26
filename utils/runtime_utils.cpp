@@ -56,7 +56,7 @@ void RuntimeUtils::to_3d_attributes_transform_physicsbody(Ref<FmodTypes::FMOD_3D
 	}
 	else
 	{
-		UtilityFunctions::push_warning(
+		WARN_PRINT(
 				"[FMOD] Converting to 3D Attributes is only available for Transform3D and Transfom2D. ", __FUNCTION__,
 				__FILE__, __LINE__);
 	}
@@ -103,7 +103,7 @@ void RuntimeUtils::to_3d_attributes(Ref<FmodTypes::FMOD_3D_ATTRIBUTES> attribute
 		}
 		default:
 		{
-			UtilityFunctions::push_warning(
+			WARN_PRINT(
 					"[FMOD] Converting to 3D Attributes is only available for Transform3D, Transform2D, Vector3 and Vector2.",
 					__FUNCTION__, __FILE__, __LINE__);
 			break;

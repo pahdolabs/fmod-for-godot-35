@@ -476,13 +476,13 @@ void ProjectBrowserWindow::on_generate_guids_button_pressed()
 
 	if (err == Error::FAILED)
 	{
-		UtilityFunctions::push_warning("[FMOD] Failed to generate GUIDs. Please verify that an FMOD Studio project is open and the path to the Banks in the Project Settings is correct.");
+		WARN_PRINT("[FMOD] Failed to generate GUIDs. Please verify that an FMOD Studio project is open and the path to the Banks in the Project Settings is correct.");
 	}
 	else
 	{
 		ResourceLoader::get_singleton()->load(guids_path, "",
 				ResourceLoader::CacheMode::CACHE_MODE_REPLACE);
-		UtilityFunctions::print(String("[FMOD] GUIDs generated in {0}").format(Array::make(guids_path)));
+		(String("[FMOD] GUIDs generated in {0}").format(Array::make(guids_path)));
 	}
 }
 

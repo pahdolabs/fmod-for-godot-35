@@ -222,7 +222,7 @@ Ref<FmodTypes::FMOD_STUDIO_PARAMETER_DESCRIPTION> StudioSystem::get_parameter_de
 
 	if (parameter_id.is_null())
 	{
-		UtilityFunctions::push_warning("The Parameter ID is invalid");
+		WARN_PRINT("The Parameter ID is invalid");
 		return ref;
 	}
 
@@ -541,9 +541,9 @@ int StudioSystem::get_bank_count() const
 	return bank_count;
 }
 
-TypedArray<Bank> StudioSystem::get_bank_list(int capacity) const
+Vector<Bank> StudioSystem::get_bank_list(int capacity) const
 {
-	TypedArray<Bank> bank_list;
+	Vector<Bank> bank_list;
 	std::unique_ptr<FMOD::Studio::Bank*[]> banks = std::make_unique<FMOD::Studio::Bank*[]>(capacity);
 
 	int bank_count{};
@@ -572,9 +572,9 @@ int StudioSystem::get_parameter_description_count() const
 	return parameter_description_count;
 }
 
-TypedArray<FmodTypes::FMOD_STUDIO_PARAMETER_DESCRIPTION> StudioSystem::get_parameter_description_list(int capacity) const
+Vector<FmodTypes::FMOD_STUDIO_PARAMETER_DESCRIPTION> StudioSystem::get_parameter_description_list(int capacity) const
 {
-	TypedArray<FmodTypes::FMOD_STUDIO_PARAMETER_DESCRIPTION> parameter_description_list;
+	Vector<FmodTypes::FMOD_STUDIO_PARAMETER_DESCRIPTION> parameter_description_list;
 
 	std::unique_ptr<FMOD_STUDIO_PARAMETER_DESCRIPTION[]> parameter_descriptions =
 			std::make_unique<FMOD_STUDIO_PARAMETER_DESCRIPTION[]>(capacity);
@@ -869,7 +869,7 @@ String EventDescription::get_parameter_label_by_name(const String& name, int lab
 
 		if (result == FMOD_ERR_INVALID_PARAM || result == FMOD_ERR_EVENT_NOTFOUND)
 		{
-			UtilityFunctions::printerr("Failed to get Parameter Label By Name", __FUNCTION__, __FILE__, __LINE__);
+			err("Failed to get Parameter Label By Name", __FUNCTION__, __FILE__, __LINE__);
 			break;
 		}
 	} while (result == FMOD_ERR_TRUNCATED);
@@ -900,7 +900,7 @@ String EventDescription::get_parameter_label_by_id(const Ref<FmodTypes::FMOD_STU
 
 		if (result == FMOD_ERR_INVALID_PARAM || result == FMOD_ERR_EVENT_NOTFOUND)
 		{
-			UtilityFunctions::printerr("Failed to get Parameter Label By ID", __FUNCTION__, __FILE__, __LINE__);
+			err("Failed to get Parameter Label By ID", __FUNCTION__, __FILE__, __LINE__);
 			break;
 		}
 	} while (result == FMOD_ERR_TRUNCATED);
@@ -1088,9 +1088,9 @@ int EventDescription::get_instance_count() const
 	return count;
 }
 
-TypedArray<EventInstance> EventDescription::get_instance_list(int capacity)
+Vector<EventInstance> EventDescription::get_instance_list(int capacity)
 {
-	TypedArray<EventInstance> instance_list;
+	Vector<EventInstance> instance_list;
 
 	std::unique_ptr<FMOD::Studio::EventInstance*[]> instances =
 			std::make_unique<FMOD::Studio::EventInstance*[]>(capacity);
@@ -2027,9 +2027,9 @@ int Bank::get_event_count() const
 	return count;
 }
 
-TypedArray<EventDescription> Bank::get_event_list(int capacity)
+Vector<EventDescription> Bank::get_event_list(int capacity)
 {
-	TypedArray<EventDescription> event_list;
+	Vector<EventDescription> event_list;
 	std::unique_ptr<FMOD::Studio::EventDescription*[]> descriptions =
 			std::make_unique<FMOD::Studio::EventDescription*[]>(capacity);
 
@@ -2063,9 +2063,9 @@ int Bank::get_bus_count() const
 	return count;
 }
 
-TypedArray<Bus> Bank::get_bus_list(int capacity)
+Vector<Bus> Bank::get_bus_list(int capacity)
 {
-	TypedArray<Bus> bus_list;
+	Vector<Bus> bus_list;
 	std::unique_ptr<FMOD::Studio::Bus*[]> busses = std::make_unique<FMOD::Studio::Bus*[]>(capacity);
 
 	int count{};
@@ -2098,9 +2098,9 @@ int Bank::get_vca_count() const
 	return count;
 }
 
-TypedArray<VCA> Bank::get_vca_list(int capacity)
+Vector<VCA> Bank::get_vca_list(int capacity)
 {
-	TypedArray<VCA> vca_list;
+	Vector<VCA> vca_list;
 	std::unique_ptr<FMOD::Studio::VCA*[]> vcas = std::make_unique<FMOD::Studio::VCA*[]>(capacity);
 
 	int count{};

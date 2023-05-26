@@ -22,7 +22,7 @@ FMODSettings::FMODSettings()
 		}
 		else
 		{
-			UtilityFunctions::print("[FMOD] Saved Project Settings");
+			("[FMOD] Saved Project Settings");
 		}
 	}
 }
@@ -433,7 +433,7 @@ bool FMODStudioEditorModule::init()
 	}
 
 	String message = "[FMOD] Initialized Editor System";
-	UtilityFunctions::print(message);
+	(message);
 
 	project_cache = get_project_cache();
 
@@ -446,7 +446,7 @@ void FMODStudioEditorModule::shutdown()
 	if (shutdown_fmod())
 	{
 		String message = "[FMOD] Shut down Editor System";
-		UtilityFunctions::print(message);
+		(message);
 	}
 }
 
@@ -461,7 +461,7 @@ void FMODStudioEditorModule::load_all_banks()
 	if (bank_files_infos.size() == 0)
 	{
 		first_run = false;
-		UtilityFunctions::push_warning("[FMOD] No Banks found in the banks folder. Add a path to a folder containing Banks in the FMOD Project Settings and refresh the Project.");
+		WARN_PRINT("[FMOD] No Banks found in the banks folder. Add a path to a folder containing Banks in the FMOD Project Settings and refresh the Project.");
 		return;
 	}
 
@@ -481,7 +481,7 @@ void FMODStudioEditorModule::load_all_banks()
 	if (index == -1)
 	{
 		first_run = false;
-		UtilityFunctions::push_warning(
+		WARN_PRINT(
 				"[FMOD] No .strings bank found in the bank path. Check the Banks Path setting in the Project Settings and make sure to export a .strings Master Bank.");
 		return;
 	}
@@ -540,7 +540,7 @@ Ref<Texture2D> FMODStudioEditorModule::get_icon(FMODIconType icon_type)
 		return texture;
 	}
 
-	UtilityFunctions::push_warning(String("[FMOD] Failed to get icon: ") + itos(icon_type));
+	WARN_PRINT(String("[FMOD] Failed to get icon: ") + itos(icon_type));
 
 	return Ref<Texture2D>();
 }
@@ -1189,7 +1189,7 @@ void FMODStudioEditorModule::poll_banks_loading_state(Timer* timer)
 			}
 
 			emit_signal("banks_loaded");
-			UtilityFunctions::print("[FMOD] Loaded Editor Banks");
+			("[FMOD] Loaded Editor Banks");
 		}
 
 		if (retries == max_retries)
@@ -1200,7 +1200,7 @@ void FMODStudioEditorModule::poll_banks_loading_state(Timer* timer)
 				timer->queue_free();
 				retries = 0;
 
-				UtilityFunctions::push_warning("[FMOD] Failed to load editor banks. Please verify that the banks path location in the Project Settings is correct. Refresh the project afterwards.");
+				WARN_PRINT("[FMOD] Failed to load editor banks. Please verify that the banks path location in the Project Settings is correct. Refresh the project afterwards.");
 				return;
 			}
 		}
@@ -1295,7 +1295,7 @@ void ProjectCache::initialize_cache(const Dictionary& project_info)
 	take_over_path(cache_path);
 	ResourceSaver::get_singleton()->save(this, cache_path);
 	String message = "[FMOD] Cache created in {0}";
-	UtilityFunctions::print(message.format(Array::make(cache_path)));
+	(message.format(Array::make(cache_path)));
 	emit_changed();
 }
 

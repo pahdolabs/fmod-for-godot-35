@@ -1,15 +1,16 @@
 #ifndef REGISTER_TYPES_H
 #define REGISTER_TYPES_H
 
-#include "gdextension_interface.h"
 #include "core/engine.h"
 #include "core/class_db.h"
 
 
 #include "api/studio_api.h"
+#ifdef TOOLS_ENABLED
 #include "editor/inspector_browser.h"
 #include "editor/project_browser.h"
 #include "editor/studio_event_emitter_3d_gizmo_plugin.h"
+#endif // TOOLS_ENABLED
 #include "fmod_assets.h"
 #include "fmod_studio_editor_module.h"
 #include "fmod_studio_module.h"
@@ -22,9 +23,7 @@
 #include "utils/runtime_utils.h"
 #include "utils/tcp_client.h"
 
-using namespace godot;
-
-void register_fmod_types(ModuleInitializationLevel p_level);
-void unregister_fmod_types(ModuleInitializationLevel p_level);
+void register_fmod_types();
+void unregister_fmod_types();
 
 #endif // REGISTER_TYPES_H
