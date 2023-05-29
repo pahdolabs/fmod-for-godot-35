@@ -13,13 +13,13 @@ void InspectorBrowserTree::initialize(FMODStudioEditorModule::FMODAssetType item
 {
 	type = item_type;
 	window = Object::cast_to<InspectorBrowser>(get_parent()->get_parent());
-	window->connect("size_changed", Callable(this, "on_size_changed"));
+	window->connect("size_changed", this, "on_size_changed");
 
 	search_text = window->search_text;
 
-	connect("item_collapsed", Callable(this, "on_item_collapsed"));
+	connect("item_collapsed", this, "on_item_collapsed");
 
-	search_text->connect("text_changed", Callable(this, "on_text_changed"));
+	search_text->connect("text_changed", this, "on_text_changed");
 
 	project_cache = FMODStudioEditorModule::get_singleton()->get_project_cache();
 
@@ -62,8 +62,6 @@ void InspectorBrowserTree::populate_browser()
 						events_root);
 				FMODStudioEditorModule::get_singleton()->create_tree_items(this, project_cache->get_snapshot_tree(),
 						snapshots_root);
-				events_root->set_visible(true);
-				snapshots_root->set_visible(true);
 			}
 			break;
 			case FMODStudioEditorModule::FMODAssetType::FMOD_ASSETTYPE_BANK:
@@ -75,7 +73,6 @@ void InspectorBrowserTree::populate_browser()
 				window->search_text->set_placeholder("Search Banks...");
 				FMODStudioEditorModule::get_singleton()->create_tree_items(this, project_cache->get_bank_tree(),
 						banks_root);
-				banks_root->set_visible(true);
 			}
 			break;
 			case FMODStudioEditorModule::FMODAssetType::FMOD_ASSETTYPE_BUS:
@@ -87,7 +84,6 @@ void InspectorBrowserTree::populate_browser()
 				window->search_text->set_placeholder("Search Busses...");
 				FMODStudioEditorModule::get_singleton()->create_tree_items(this, project_cache->get_bus_tree(),
 						busses_root);
-				busses_root->set_visible(true);
 			}
 			break;
 			case FMODStudioEditorModule::FMODAssetType::FMOD_ASSETTYPE_VCA:
@@ -98,7 +94,6 @@ void InspectorBrowserTree::populate_browser()
 						0, FMODStudioEditorModule::get_singleton()->get_icon(FMODStudioEditorModule::FMOD_ICONTYPE_FOLDER_CLOSED));
 				window->search_text->set_placeholder("Search VCAs...");
 				FMODStudioEditorModule::get_singleton()->create_tree_items(this, project_cache->get_vca_tree(), vcas_root);
-				vcas_root->set_visible(true);
 			}
 			break;
 			case FMODStudioEditorModule::FMODAssetType::FMOD_ASSETTYPE_GLOBAL_PARAMETER:
@@ -110,7 +105,6 @@ void InspectorBrowserTree::populate_browser()
 				window->search_text->set_placeholder("Search Parameters...");
 				FMODStudioEditorModule::get_singleton()->create_tree_items(this, project_cache->get_parameter_tree(),
 						parameters_root);
-				parameters_root->set_visible(true);
 			}
 			break;
 			default:
@@ -138,26 +132,22 @@ bool InspectorBrowserTree::update_filter(TreeItem* p_parent, bool p_scroll_to_se
 	}
 
 	bool keep = false;
-	for (TreeItem* child = p_parent->get_first_child(); child; child = child->get_next())
+	for (TreeItem* child = p_parent->get_children(); child; child = child->get_next())
 	{
 		keep = update_filter(child, p_scroll_to_selected) || keep;
 	}
 
 	if (!keep)
 	{
-		keep = filter.is_subsequence_ofn(p_parent->get_text(0));
+		keep = filter.is_subsequence_ofi(p_parent->get_text(0));
 	}
-
-	p_parent->set_visible(keep);
 
 	p_parent->set_collapsed(!keep && filter != "");
 
 	TreeItem* root = root_item;
-	TypedArray<TreeItem> children = root->get_children();
 
-	for (int i = 0; i < children.size(); i++)
+	for (TreeItem* child = root->get_children(); child; child = child->get_next())
 	{
-		TreeItem* child = Object::cast_to<TreeItem>(children[i].operator godot::Object*());
 		if (filter == "")
 		{
 			collapse_all(child);
@@ -246,7 +236,7 @@ void InspectorBrowserTree::collapse_all(TreeItem* p_parent)
 			break;
 	}
 
-	for (TreeItem* child = p_parent->get_first_child(); child; child = child->get_next())
+	for (TreeItem* child = p_parent->get_children(); child; child = child->get_next())
 	{
 		child->set_collapsed(true);
 		collapse_all(child);
@@ -293,7 +283,6 @@ void InspectorBrowser::initialize()
 {
 	set_name("Window");
 	set_title("FMOD Browser");
-	set_disable_3d(true);
 
 	root_vbox = memnew(VBoxContainer);
 	root_vbox->set_name("ParentVBoxContainer");
@@ -335,7 +324,7 @@ void InspectorBrowserProperty::popup_menu(PopupType type, Vector2 pos)
 	{
 		case InspectorBrowserProperty::POPUP_EVENT:
 		{
-			event_popup->popup_on_parent(Rect2(pos, Vector2(0, 0)));
+			event_popup->popup(Rect2(pos, Vector2(0, 0)));
 		}
 		break;
 		default:
@@ -353,8 +342,8 @@ void InspectorBrowserProperty::init(FMODStudioEditorModule::FMODAssetType asset_
 	add_child(property_control);
 	property_control->set_clip_text(true);
 	inspector_browser->set_exclusive(true);
-	inspector_browser->connect("close_requested", Callable(this, "reset"));
-	inspector_browser->connect("focus_exited", Callable(this, "reset"));
+	inspector_browser->connect("close_requested", this, "reset");
+	inspector_browser->connect("focus_exited", this, "reset");
 	InspectorBrowserTree* tree = inspector_browser->tree;
 	tree->initialize(type);
 
@@ -384,14 +373,14 @@ void InspectorBrowserProperty::init(FMODStudioEditorModule::FMODAssetType asset_
 			break;
 	}
 
-	tree->connect("item_selected", Callable(this, "on_item_selected"));
-	property_control->connect("pressed", Callable(this, "on_button_pressed"));
+	tree->connect("item_selected", this, "on_item_selected");
+	property_control->connect("pressed", this, "on_button_pressed");
 
 	event_popup = memnew(PopupMenu);
 	event_popup->add_item("Copy Path", EventPopupItems::EVENT_POPUP_COPY_PATH);
 	event_popup->add_item("Copy GUID", EventPopupItems::EVENT_POPUP_COPY_GUID);
 	event_popup->add_item("Open in Studio", EventPopupItems::EVENT_POPUP_OPEN_IN_STUDIO);
-	event_popup->connect("id_pressed", Callable(this, "on_event_popup_id_pressed"));
+	event_popup->connect("id_pressed", this, "on_event_popup_id_pressed");
 	add_child(event_popup);
 	event_popup->set_owner(this);
 }
@@ -401,7 +390,7 @@ void InspectorBrowserProperty::_input(const Ref<InputEvent>& event)
 	Ref<InputEventMouseButton> mouse_button_event = event;
 	if (mouse_button_event.is_valid())
 	{
-		if (mouse_button_event->get_button_index() == MouseButton::MOUSE_BUTTON_RIGHT && mouse_button_event->is_pressed())
+		if (mouse_button_event->get_button_index() == BUTTON_RIGHT && mouse_button_event->is_pressed())
 		{
 			if (Rect2(get_global_position(), get_size()).has_point(mouse_button_event->get_position()))
 			{
@@ -417,14 +406,14 @@ void InspectorBrowserProperty::_input(const Ref<InputEvent>& event)
 	}
 }
 
-void InspectorBrowserProperty::_update_property()
+void InspectorBrowserProperty::update_property()
 {
 	Variant new_value = get_edited_object()->get(get_edited_property());
 
 	if (new_value.get_type() == Variant::NIL)
 	{
 		close_popup();
-		get_edited_object()->notify_property_list_changed();
+		get_edited_object()->_change_notify();
 		return;
 	}
 	if (new_value.get_type() == Variant::OBJECT)
@@ -433,7 +422,7 @@ void InspectorBrowserProperty::_update_property()
 		if (obj == nullptr)
 		{
 			close_popup();
-			get_edited_object()->notify_property_list_changed();
+			get_edited_object()->_change_notify();
 			return;
 		}
 	}
@@ -448,10 +437,10 @@ void InspectorBrowserProperty::_update_property()
 		return;
 	}
 
-	if (!new_value.get("name").operator String().is_empty())
+	if (!new_value.get("name").operator String().empty())
 	{
 		property_control->set_text(new_value.get("name").operator String());
-		property_control->set_button_icon(icon);
+		property_control->set_icon(icon);
 	}
 	else
 	{
@@ -475,11 +464,11 @@ void InspectorBrowserProperty::_update_property()
 			default:
 				break;
 		}
-		property_control->set_button_icon(Ref<Texture2D>());
+		property_control->set_icon(Ref<Texture>());
 	}
 
 	close_popup();
-	get_edited_object()->notify_property_list_changed();
+	get_edited_object()->_change_notify();
 	updating = false;
 }
 
@@ -489,7 +478,7 @@ void InspectorBrowserProperty::on_button_pressed()
 	{
 		return;
 	}
-	inspector_browser->set_min_size(
+	inspector_browser->set_custom_minimum_size(
 			Vector2(inspector_browser->root_vbox->get_size().x, inspector_browser->root_vbox->get_size().y));
 	open_popup();
 }
@@ -573,13 +562,13 @@ void InspectorBrowserProperty::on_event_popup_id_pressed(int32_t id)
 		case EventPopupItems::EVENT_POPUP_COPY_PATH:
 		{
 			String path = event->get_path();
-			DisplayServer::get_singleton()->clipboard_set(path);
+			OS::get_singleton()->set_clipboard(path);
 		}
 		break;
 		case EventPopupItems::EVENT_POPUP_COPY_GUID:
 		{
 			String guid = event->get_guid();
-			DisplayServer::get_singleton()->clipboard_set(guid);
+			OS::get_singleton()->set_clipboard(guid);
 		}
 		break;
 		case EventPopupItems::EVENT_POPUP_OPEN_IN_STUDIO:

@@ -262,7 +262,7 @@ void StudioGlobalParameterTrigger::set_parameter(const Ref<ParameterAsset>& para
 			}
 
 			Ref<SceneTreeTimer> timer = get_tree()->create_timer(0.001);
-			timer->connect("timeout", this, "notify_property_list_changed");
+			timer->connect("timeout", this, "_change_notify");
 		}
 	}
 }

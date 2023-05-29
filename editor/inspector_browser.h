@@ -14,7 +14,7 @@
 #include "scene/gui/tree.h"
 
 #include "scene/gui/box_container.h"
-#include "scene/main/viewport.h"
+#include "scene/gui/dialogs.h"
 
 using namespace godot;
 
@@ -22,7 +22,6 @@ class InspectorBrowser;
 
 class InspectorBrowserTree : public Tree
 {
-	GDCLASS(InspectorBrowserTree, Tree);
 
 protected:
 	static void _bind_methods();
@@ -38,7 +37,7 @@ private:
 	TreeItem* busses_root = nullptr;
 	TreeItem* vcas_root = nullptr;
 	TreeItem* parameters_root = nullptr;
-	Ref<Texture2D> icon;
+	Ref<Texture> icon;
 	Ref<ProjectCache> project_cache;
 	InspectorBrowser* window = nullptr;
 	String filter = "";
@@ -53,9 +52,9 @@ public:
 	void on_item_collapsed(Object* item);
 };
 
-class InspectorBrowser : public Window
+class InspectorBrowser : public WindowDialog
 {
-	GDCLASS(InspectorBrowser, Window);
+	GDCLASS(InspectorBrowser, WindowDialog);
 
 protected:
 	static void _bind_methods();
@@ -90,7 +89,7 @@ protected:
 
 private:
 	Button* property_control;
-	Ref<Texture2D> icon;
+	Ref<Texture> icon;
 	Ref<Resource> current_value;
 	bool updating = false;
 	InspectorBrowser* inspector_browser;
@@ -100,8 +99,8 @@ private:
 
 public:
 	void init(FMODStudioEditorModule::FMODAssetType asset_type);
-	void _input(const Ref<InputEvent>& event) override;
-	virtual void _update_property() override;
+	void _input(const Ref<InputEvent>& event);
+	virtual void update_property();
 	void on_button_pressed();
 	void on_item_selected();
 	void open_popup();

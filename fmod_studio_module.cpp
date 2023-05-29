@@ -223,7 +223,7 @@ bool FMODStudioModule::initialize_fmod()
 	const String encryption_key =
 			static_cast<String>(get_platform_project_setting(settings_path + String("encryption_key")));
 
-	if (!encryption_key.is_empty())
+	if (!encryption_key.empty())
 	{
 		FMOD_STUDIO_ADVANCEDSETTINGS fmod_studio_advanced_settings{};
 		fmod_studio_advanced_settings.cbsize = sizeof(FMOD_STUDIO_ADVANCEDSETTINGS);
@@ -344,7 +344,7 @@ bool FMODStudioModule::init()
 	result = true;
 
 	const String settings_path = get_platform_setting_path(PlatformSettingsPath::FMOD_SETTINGS_PATH);
-	TypedArray<String> banks_to_load_at_startup = get_platform_project_setting(settings_path + String("banks_to_load_at_startup"));
+	Vector<String> banks_to_load_at_startup = get_platform_project_setting(settings_path + String("banks_to_load_at_startup"));
 
 	for (int64_t i = 0; i < banks_to_load_at_startup.size(); i++)
 	{

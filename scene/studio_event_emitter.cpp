@@ -42,7 +42,7 @@ bool StudioEventEmitterImpl<T>::_set(const StringName& p_name, const Variant& p_
 					overridden_parameters.erase(default_parameter->get_guid());
 					if (node)
 					{
-						node->notify_property_list_changed();
+						node->_change_notify();
 					}
 					return true;
 				}
@@ -792,7 +792,7 @@ void StudioEventEmitter2D::set_event(const Ref<EventAsset>& event)
 			}
 
 			Ref<SceneTreeTimer> timer = get_tree()->create_timer(0.001);
-			timer->connect("timeout", this, "notify_property_list_changed");
+			timer->connect("timeout", this, "_change_notify");
 		}
 	}
 }
@@ -1051,7 +1051,7 @@ void StudioEventEmitter3D::set_event(const Ref<EventAsset>& event)
 			}
 
 			Ref<SceneTreeTimer> timer = get_tree()->create_timer(0.001);
-			timer->connect("timeout", this, "notify_property_list_changed");
+			timer->connect("timeout", this, "_change_notify");
 
 			update_gizmo();
 		}

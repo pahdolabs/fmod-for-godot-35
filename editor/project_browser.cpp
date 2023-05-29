@@ -60,9 +60,9 @@ void ProjectBrowserTree::populate_browser()
 
 	if (client.is_valid())
 	{
-		if (!client->is_connected("connection_finished", Callable(this, "on_connection_finished")))
+		if (!client->is_connected("connection_finished", this, "on_connection_finished"))
 		{
-			client->connect("connection_finished", Callable(this, "on_connection_finished"));
+			client->connect("connection_finished", this, "on_connection_finished");
 		}
 
 		if (!client->client_is_connected)
@@ -89,7 +89,7 @@ void ProjectBrowserTree::update_project_text()
 	String project_message = "studio.project.filePath.replace(/^.*[\\\\\\/]/, '')";
 	String result;
 	Error err = client->get_command(project_message, result);
-	if (err != Error::FAILED || !result.is_empty())
+	if (err != Error::FAILED || !result.empty())
 	{
 		root->set_text(0, result);
 	}
@@ -121,7 +121,7 @@ void DiscreteParameterControl::initialize(const Ref<FmodTypes::FMOD_STUDIO_PARAM
 	set_custom_minimum_size(size);
 	parameter_name = desc->get_name();
 
-	connect("value_changed", Callable(this, "on_value_changed"));
+	connect("value_changed", this, "on_value_changed");
 }
 
 void DiscreteParameterControl::on_value_changed(float value)
@@ -147,7 +147,7 @@ void LabeledParameterControl::initialize(const Ref<ParameterAsset>& parameter, S
 
 	select(static_cast<int32_t>(parameter->get_parameter_description()->get_default_value()));
 	parameter_name = parameter->get_parameter_description()->get_name();
-	connect("item_selected", Callable(this, "on_item_selected"));
+	connect("item_selected", this, "on_item_selected");
 }
 
 void LabeledParameterControl::on_item_selected(int value)
@@ -165,13 +165,13 @@ void ContinuousParameterControl::initialize(const Ref<FmodTypes::FMOD_STUDIO_PAR
 	set_min(desc->get_minimum());
 	set_max(desc->get_maximum());
 	double value = desc->get_default_value();
-	set_value(Math::snapped(value, 0.1));
+	set_value(Math::stepify(value, 0.1));
 	set_step(0.01);
 	set_h_size_flags(Control::SizeFlags::SIZE_FILL | Control::SizeFlags::SIZE_EXPAND);
 	set_v_size_flags(Control::SizeFlags::SIZE_SHRINK_CENTER);
 	set_custom_minimum_size(size);
 	parameter_name = desc->get_name();
-	connect("value_changed", Callable(this, "on_value_changed"));
+	connect("value_changed", this, "on_value_changed");
 }
 
 void ContinuousParameterControl::on_value_changed(float value)
@@ -208,11 +208,11 @@ void ProjectBrowserWindow::popup_menu(PopupType type, Vector2 pos)
 	{
 		case ProjectBrowserWindow::POPUP_EVENT:
 		{
-			event_popup->popup_on_parent(Rect2(pos, Vector2(0, 0)));
+			event_popup->popup(Rect2(pos, Vector2(0, 0)));
 			break;
 		}
 		case ProjectBrowserWindow::POPUP_BANK:
-			bank_popup->popup_on_parent(Rect2(pos, Vector2(0, 0)));
+			bank_popup->popup(Rect2(pos, Vector2(0, 0)));
 			break;
 		default:
 			break;
@@ -232,26 +232,22 @@ bool ProjectBrowserWindow::update_filter(TreeItem* p_parent, bool p_scroll_to_se
 	}
 
 	bool keep = false;
-	for (TreeItem* child = p_parent->get_first_child(); child; child = child->get_next())
+	for (TreeItem* child = p_parent->get_children(); child; child = child->get_next())
 	{
 		keep = update_filter(child, p_scroll_to_selected) || keep;
 	}
 
 	if (!keep)
 	{
-		keep = filter.is_subsequence_ofn(p_parent->get_text(0));
+		keep = filter.is_subsequence_ofi(p_parent->get_text(0));
 	}
-
-	p_parent->set_visible(keep);
 
 	p_parent->set_collapsed(!keep && filter != "");
 
 	TreeItem* root = project_tree->root;
-	TypedArray<TreeItem> children = root->get_children();
 
-	for (int i = 0; i < children.size(); i++)
+	for (TreeItem* child = root->get_children(); child; child = child->get_next())
 	{
-		TreeItem* child = Object::cast_to<TreeItem>(children[i].operator godot::Object*());
 		if (filter == "")
 		{
 			collapse_all(child);
@@ -286,7 +282,7 @@ void ProjectBrowserWindow::collapse_all(TreeItem* p_parent)
 
 	p_parent->set_collapsed(true);
 
-	for (TreeItem* child = p_parent->get_first_child(); child; child = child->get_next())
+	for (TreeItem* child = p_parent->get_children(); child; child = child->get_next())
 	{
 		child->set_collapsed(true);
 		collapse_all(child);
@@ -345,7 +341,7 @@ void ProjectBrowserWindow::on_cell_selected()
 
 	for (int i = 0; i < child_count; i++)
 	{
-		parameters_grid_container->get_child(i)->queue_free();
+		parameters_grid_container->get_child(i)->queue_delete();
 	}
 
 	selected_item = project_tree->get_selected();
@@ -360,7 +356,7 @@ void ProjectBrowserWindow::on_cell_selected()
 	}
 
 	Ref<EventAsset> current_event;
-	if (selected_item->get_meta("Type").operator godot::String() == "event")
+	if (selected_item->get_meta("Type") == "event")
 	{
 		current_event = selected_item->get_meta("Resource");
 	}
@@ -379,14 +375,14 @@ void ProjectBrowserWindow::on_cell_selected()
 	parameters_margin_container->set_visible(true);
 
 	parameters_title_margin_container = memnew(MarginContainer);
-	parameters_title_margin_container->add_theme_constant_override("margin_top", 10);
-	parameters_title_margin_container->add_theme_constant_override("margin_bottom", 20);
+	parameters_title_margin_container->add_constant_override("margin_top", 10);
+	parameters_title_margin_container->add_constant_override("margin_bottom", 20);
 	parameters_grid_container->add_child(parameters_title_margin_container);
 	parameters_title_margin_container->set_owner(parameters_grid_container);
 
 	parameters_title_label = memnew(Label);
 	parameters_title_label->set_text("Parameters Preview");
-	parameters_title_label->set_horizontal_alignment(HorizontalAlignment::HORIZONTAL_ALIGNMENT_CENTER);
+	parameters_title_label->set_align(Label::Align::ALIGN_CENTER);
 	parameters_title_margin_container->add_child(parameters_title_label);
 	parameters_title_label->set_owner(parameters_title_margin_container);
 
@@ -400,14 +396,14 @@ void ProjectBrowserWindow::on_cell_selected()
 
 		HBoxContainer* parameter_hbox_container = memnew(HBoxContainer);
 		parameter_hbox_container->set_h_size_flags(Control::SizeFlags::SIZE_EXPAND_FILL);
-		parameter_hbox_container->add_theme_constant_override("separation", 50);
+		parameter_hbox_container->add_constant_override("separation", 50);
 		parameters_grid_container->add_child(parameter_hbox_container);
 		parameter_hbox_container->set_owner(parameters_grid_container);
 
 		Label* parameter_label = memnew(Label);
 		parameter_label->set_text(name);
-		parameter_label->set_vertical_alignment(VerticalAlignment::VERTICAL_ALIGNMENT_CENTER);
-		parameter_label->set_h_size_flags(Control::SizeFlags::SIZE_SHRINK_BEGIN);
+		parameter_label->set_valign(Label::VAlign::VALIGN_CENTER);
+		parameter_label->set_h_size_flags(0);
 		parameter_label->set_v_size_flags(Control::SizeFlags::SIZE_SHRINK_CENTER);
 
 		Size2 size(get_size().x / 5, 0);
@@ -480,9 +476,8 @@ void ProjectBrowserWindow::on_generate_guids_button_pressed()
 	}
 	else
 	{
-		ResourceLoader::get_singleton()->load(guids_path, "",
-				ResourceLoader::CacheMode::CACHE_MODE_REPLACE);
-		(String("[FMOD] GUIDs generated in {0}").format(Array::make(guids_path)));
+		ResourceLoader::load(guids_path, "", true);
+		(String("[FMOD] GUIDs generated in {0}").format(guids_path));
 	}
 }
 
@@ -495,7 +490,7 @@ void ProjectBrowserWindow::on_play_button_pressed()
 
 	if (selected_item->has_meta("Type"))
 	{
-		if (selected_item->get_meta("Type").operator godot::String() == "event")
+		if (selected_item->get_meta("Type") == "event")
 		{
 			if (selected_item->has_meta("Resource"))
 			{
@@ -550,7 +545,7 @@ void ProjectBrowserWindow::on_event_popup_id_pressed(int32_t id)
 			if (selected_item->has_meta("Path"))
 			{
 				String path = selected_item->get_meta("Path");
-				DisplayServer::get_singleton()->clipboard_set(path);
+				OS::get_singleton()->set_clipboard(path);
 			}
 		}
 		break;
@@ -559,7 +554,7 @@ void ProjectBrowserWindow::on_event_popup_id_pressed(int32_t id)
 			if (selected_item->has_meta("Guid"))
 			{
 				String guid = selected_item->get_meta("Guid");
-				DisplayServer::get_singleton()->clipboard_set(guid);
+				OS::get_singleton()->set_clipboard(guid);
 			}
 		}
 		break;
@@ -599,7 +594,7 @@ void ProjectBrowserWindow::on_bank_popup_id_pressed(int32_t id)
 			if (selected_item->has_meta("Path"))
 			{
 				String path = selected_item->get_meta("Path");
-				DisplayServer::get_singleton()->clipboard_set(path);
+				OS::get_singleton()->set_clipboard(path);
 			}
 		}
 		break;
@@ -608,7 +603,7 @@ void ProjectBrowserWindow::on_bank_popup_id_pressed(int32_t id)
 			if (selected_item->has_meta("Guid"))
 			{
 				String guid = selected_item->get_meta("Guid");
-				DisplayServer::get_singleton()->clipboard_set(guid);
+				OS::get_singleton()->set_clipboard(guid);
 			}
 		}
 		break;
@@ -616,7 +611,7 @@ void ProjectBrowserWindow::on_bank_popup_id_pressed(int32_t id)
 		{
 			String name = selected_item->get_text(0);
 			String result;
-			client->get_command(String("studio.project.build({ banks: '{0}' });").format(Array::make(name)), result);
+			client->get_command(String("studio.project.build({ banks: '{0}' });").format(name), result);
 		}
 		break;
 		default:
@@ -631,7 +626,7 @@ void ProjectBrowserWindow::_input(const Ref<InputEvent>& event)
 		Ref<InputEventMouseButton> mouse_button_event = event;
 		if (mouse_button_event.is_valid())
 		{
-			if (mouse_button_event->get_button_index() == MouseButton::MOUSE_BUTTON_RIGHT && mouse_button_event->is_pressed())
+			if (mouse_button_event->get_button_index() == BUTTON_RIGHT && mouse_button_event->is_pressed())
 			{
 				if (selected_item)
 				{
@@ -666,37 +661,31 @@ void ProjectBrowserWindow::set_editor_scale(float scale)
 
 void ProjectBrowserWindow::initialize()
 {
-	set_initial_position(Window::WindowInitialPosition::WINDOW_INITIAL_POSITION_CENTER_MAIN_WINDOW_SCREEN);
 	set_visible(false);
-	set_wrap_controls(true);
 	set_title("FMOD Project Browser");
 	set_exclusive(false);
-	set_transparent_background(true);
-	connect("about_to_popup", Callable(this, "on_about_to_popup"));
-	connect("close_requested", Callable(this, "on_close_requested"));
-	connect("size_changed", Callable(this, "on_size_changed"));
-	FMODStudioEditorModule::get_singleton()->connect("banks_loaded", Callable(this, "on_banks_loaded"));
+	connect("about_to_show", this, "on_about_to_popup");
+	connect("popup_hide", this, "on_close_requested");
+	connect("size_changed", this, "on_size_changed");
+	FMODStudioEditorModule::get_singleton()->connect("banks_loaded", this, "on_banks_loaded");
 
 	Size2 window_size = BASE_WINDOW_SIZE;
-	DisplayServer* display_server = DisplayServer::get_singleton();
 
-	if (display_server)
+	int32_t dpi = OS::get_singleton()->get_screen_dpi();
+
+	if (dpi != 72)
 	{
-		int32_t dpi = display_server->screen_get_dpi();
-
-		if (dpi != 72)
-		{
-			dpi_scaling_factor = dpi / BASE_DPI;
-			window_size *= dpi_scaling_factor;
-		}
-
-		window_size *= editor_scale;
+		dpi_scaling_factor = dpi / BASE_DPI;
+		window_size *= dpi_scaling_factor;
 	}
+
+	window_size *= editor_scale;
 
 	// note(alex): The colors of the Window elements (buttons etc.) are almost identical to the background, which make them very hard to distinguish.
 	// We are adding a Panel here to darken the background of the Window a bit. Investigate what is going wrong here.
 	panel = memnew(Panel);
-	panel->set_anchors_preset(Control::LayoutPreset::PRESET_FULL_RECT);
+	panel->set_anchor(Margin::MARGIN_RIGHT, 1);
+	panel->set_anchor(Margin::MARGIN_BOTTOM, 1);
 	panel->set_self_modulate(Color(1.f, 1.f, 1.f, 0.85f));
 	add_child(panel);
 	panel->set_owner(this);
@@ -708,10 +697,10 @@ void ProjectBrowserWindow::initialize()
 	parent_vbox_container->set_owner(this);
 
 	top_margin_container = memnew(MarginContainer);
-	top_margin_container->add_theme_constant_override("margin_left", STANDARD_MARGIN);
-	top_margin_container->add_theme_constant_override("margin_right", STANDARD_MARGIN);
-	top_margin_container->add_theme_constant_override("margin_top", STANDARD_MARGIN);
-	top_margin_container->add_theme_constant_override("margin_bottom", STANDARD_MARGIN - 10);
+	top_margin_container->add_constant_override("margin_left", STANDARD_MARGIN);
+	top_margin_container->add_constant_override("margin_right", STANDARD_MARGIN);
+	top_margin_container->add_constant_override("margin_top", STANDARD_MARGIN);
+	top_margin_container->add_constant_override("margin_bottom", STANDARD_MARGIN - 10);
 	parent_vbox_container->add_child(top_margin_container);
 	top_margin_container->set_owner(parent_vbox_container);
 
@@ -730,10 +719,10 @@ void ProjectBrowserWindow::initialize()
 
 	refresh_button = memnew(Button);
 	refresh_button->set_text("Refresh Project");
-	refresh_button->connect("pressed", Callable(this, "on_refresh_button_pressed"));
+	refresh_button->connect("pressed", this, "on_refresh_button_pressed");
 	generate_guids_button = memnew(Button);
 	generate_guids_button->set_text("Generate GUIDs");
-	generate_guids_button->connect("pressed", Callable(this, "on_generate_guids_button_pressed"));
+	generate_guids_button->connect("pressed", this, "on_generate_guids_button_pressed");
 
 	button_container->add_child(refresh_button);
 	button_container->add_child(generate_guids_button);
@@ -741,26 +730,26 @@ void ProjectBrowserWindow::initialize()
 	generate_guids_button->set_owner(button_container);
 
 	links_margin_container = memnew(MarginContainer);
-	links_margin_container->add_theme_constant_override("margin_right", 10);
+	links_margin_container->add_constant_override("margin_right", 10);
 	top_hbox_container->add_child(links_margin_container);
 	links_margin_container->set_owner(top_hbox_container);
 
 	links_hbox_container = memnew(HBoxContainer);
 	links_hbox_container->set_h_size_flags(Control::SIZE_FILL);
 	links_hbox_container->set_v_size_flags(Control::SIZE_SHRINK_CENTER);
-	links_hbox_container->set_alignment(BoxContainer::AlignmentMode::ALIGNMENT_END);
+	links_hbox_container->set_alignment(BoxContainer::AlignMode::ALIGN_END);
 	links_margin_container->add_child(links_hbox_container);
 	links_hbox_container->set_owner(links_margin_container);
 
 	link_github = memnew(LinkButton);
 	link_github->set_text("GitHub");
-	link_github->connect("pressed", Callable(this, "on_github_link_pressed"));
+	link_github->connect("pressed", this, "on_github_link_pressed");
 	link_tutorials = memnew(LinkButton);
 	link_tutorials->set_text("Tutorials");
-	link_tutorials->connect("pressed", Callable(this, "on_tutorials_link_pressed"));
+	link_tutorials->connect("pressed", this, "on_tutorials_link_pressed");
 	link_contact = memnew(LinkButton);
 	link_contact->set_text("Contact");
-	link_contact->connect("pressed", Callable(this, "on_contact_link_pressed"));
+	link_contact->connect("pressed", this, "on_contact_link_pressed");
 
 	VSeparator* separator[2] = { memnew(VSeparator), memnew(VSeparator) };
 	links_hbox_container->add_child(link_github);
@@ -776,17 +765,17 @@ void ProjectBrowserWindow::initialize()
 
 	search_text = memnew(LineEdit);
 	search_text->set_placeholder("Search FMOD Project...");
-	search_text->set_caret_blink_enabled(true);
-	search_text->set_caret_blink_interval(0.5);
-	search_text->connect("text_changed", Callable(this, "on_search_text_changed"));
+	search_text->cursor_set_blink_enabled(true);
+	search_text->cursor_set_blink_speed(0.5);
+	search_text->connect("text_changed", this, "on_search_text_changed");
 	top_vbox_container->add_child(search_text);
 	search_text->set_owner(top_vbox_container);
 
 	tree_margin_container = memnew(MarginContainer);
 	tree_margin_container->set_h_size_flags(Control::SizeFlags::SIZE_FILL);
 	tree_margin_container->set_v_size_flags(Control::SizeFlags::SIZE_EXPAND_FILL);
-	tree_margin_container->add_theme_constant_override("margin_left", STANDARD_MARGIN);
-	tree_margin_container->add_theme_constant_override("margin_right", STANDARD_MARGIN);
+	tree_margin_container->add_constant_override("margin_left", STANDARD_MARGIN);
+	tree_margin_container->add_constant_override("margin_right", STANDARD_MARGIN);
 	parent_vbox_container->add_child(tree_margin_container);
 	tree_margin_container->set_owner(parent_vbox_container);
 
@@ -798,7 +787,7 @@ void ProjectBrowserWindow::initialize()
 	project_tree = memnew(ProjectBrowserTree);
 	project_tree->client = FMODStudioEditorModule::get_singleton()->client;
 	project_tree->initialize();
-	project_tree->connect("cell_selected", Callable(this, "on_cell_selected"));
+	project_tree->connect("cell_selected", this, "on_cell_selected");
 	tree_hbox_container->add_child(project_tree);
 	project_tree->set_owner(tree_hbox_container);
 
@@ -806,7 +795,7 @@ void ProjectBrowserWindow::initialize()
 	event_popup->add_item("Copy Path", EventPopupItems::EVENT_POPUP_COPY_PATH);
 	event_popup->add_item("Copy GUID", EventPopupItems::EVENT_POPUP_COPY_GUID);
 	event_popup->add_item("Open in Studio", EventPopupItems::EVENT_POPUP_OPEN_IN_STUDIO);
-	event_popup->connect("id_pressed", Callable(this, "on_event_popup_id_pressed"));
+	event_popup->connect("id_pressed", this, "on_event_popup_id_pressed");
 	project_tree->add_child(event_popup);
 	event_popup->set_owner(project_tree);
 
@@ -814,23 +803,23 @@ void ProjectBrowserWindow::initialize()
 	bank_popup->add_item("Copy Path", BankPopupItems::BANK_POPUP_COPY_PATH);
 	bank_popup->add_item("Copy GUID", BankPopupItems::BANK_POPUP_COPY_GUID);
 	bank_popup->add_item("Build Bank", BankPopupItems::BANK_POPUP_BUILD);
-	bank_popup->connect("id_pressed", Callable(this, "on_bank_popup_id_pressed"));
+	bank_popup->connect("id_pressed", this, "on_bank_popup_id_pressed");
 	project_tree->add_child(bank_popup);
 	bank_popup->set_owner(project_tree);
 
 	parameters_margin_container = memnew(MarginContainer);
-	parameters_margin_container->add_theme_constant_override("margin_left", STANDARD_MARGIN);
-	parameters_margin_container->add_theme_constant_override("margin_top", STANDARD_MARGIN);
-	parameters_margin_container->add_theme_constant_override("margin_bottom", STANDARD_MARGIN);
+	parameters_margin_container->add_constant_override("margin_left", STANDARD_MARGIN);
+	parameters_margin_container->add_constant_override("margin_top", STANDARD_MARGIN);
+	parameters_margin_container->add_constant_override("margin_bottom", STANDARD_MARGIN);
 	parameters_margin_container->set_visible(false);
 
 	tree_hbox_container->add_child(parameters_margin_container);
 	parameters_margin_container->set_owner(tree_hbox_container);
 
 	parameters_grid_container = memnew(VBoxContainer);
-	parameters_grid_container->set_h_size_flags(Control::SizeFlags::SIZE_SHRINK_BEGIN);
-	parameters_grid_container->add_theme_constant_override("h_separation", 20);
-	parameters_grid_container->add_theme_constant_override("v_separation", 10);
+	parameters_grid_container->set_h_size_flags(0);
+	parameters_grid_container->add_constant_override("h_separation", 20);
+	parameters_grid_container->add_constant_override("v_separation", 10);
 	parameters_margin_container->add_child(parameters_grid_container);
 	parameters_grid_container->set_owner(parameters_margin_container);
 
@@ -846,41 +835,41 @@ void ProjectBrowserWindow::initialize()
 
 	bottom_margin_container = memnew(MarginContainer);
 	bottom_margin_container->set_h_size_flags(Control::SizeFlags::SIZE_EXPAND_FILL);
-	bottom_margin_container->add_theme_constant_override("margin_left", 15);
-	bottom_margin_container->add_theme_constant_override("margin_right", 15);
-	bottom_margin_container->add_theme_constant_override("margin_top", 15);
-	bottom_margin_container->add_theme_constant_override("margin_bottom", 15);
+	bottom_margin_container->add_constant_override("margin_left", 15);
+	bottom_margin_container->add_constant_override("margin_right", 15);
+	bottom_margin_container->add_constant_override("margin_top", 15);
+	bottom_margin_container->add_constant_override("margin_bottom", 15);
 	bottom_hbox_container->add_child(bottom_margin_container);
 	bottom_margin_container->set_owner(bottom_hbox_container);
 
 	buttons_parameters_vbox = memnew(VBoxContainer);
-	buttons_parameters_vbox->add_theme_constant_override("separation", 20);
+	buttons_parameters_vbox->add_constant_override("separation", 20);
 	bottom_margin_container->add_child(buttons_parameters_vbox);
 	buttons_parameters_vbox->set_owner(bottom_margin_container);
 
 	buttons_hbox = memnew(HBoxContainer);
-	buttons_hbox->add_theme_constant_override("separation", 10);
+	buttons_hbox->add_constant_override("separation", 10);
 	buttons_parameters_vbox->add_child(buttons_hbox);
 	buttons_hbox->set_owner(buttons_parameters_vbox);
 
 	play_button = memnew(Button);
 	play_button->set_text("Play Event");
-	play_button->connect("pressed", Callable(this, "on_play_button_pressed"));
+	play_button->connect("pressed", this, "on_play_button_pressed");
 	buttons_hbox->add_child(play_button);
 	play_button->set_owner(buttons_hbox);
 
 	stop_button = memnew(Button);
 	stop_button->set_text("Stop");
-	stop_button->connect("pressed", Callable(this, "on_stop_button_pressed"));
+	stop_button->connect("pressed", this, "on_stop_button_pressed");
 	buttons_hbox->add_child(stop_button);
 	stop_button->set_owner(buttons_hbox);
 
 	allow_fadeout_checkbox = memnew(CheckBox);
 	allow_fadeout_checkbox->set_text("Allow Fadeout");
-	allow_fadeout_checkbox->connect("toggled", Callable(this, "on_checkbox_toggled"));
+	allow_fadeout_checkbox->connect("toggled", this, "on_checkbox_toggled");
 	buttons_hbox->add_child(allow_fadeout_checkbox);
 	allow_fadeout_checkbox->set_owner(buttons_hbox);
 
-	set_min_size(parent_vbox_container->get_custom_minimum_size());
-	child_controls_changed();
+	set_custom_minimum_size(parent_vbox_container->get_custom_minimum_size());
+	minimum_size_changed();
 }

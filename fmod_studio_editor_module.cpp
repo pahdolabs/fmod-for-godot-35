@@ -1,4 +1,5 @@
 #include "fmod_studio_editor_module.h"
+#include "core/error_macros.h"
 
 using namespace godot;
 
@@ -17,8 +18,8 @@ FMODSettings::FMODSettings()
 		Error error = ProjectSettings::get_singleton()->save();
 		if (error)
 		{
-			UtilityFunctions::push_error(
-					String("Encountered error {0} when saving FMOD Project Settings").format(Array::make(error)));
+			_err_print_error(__FUNCTION__, __FILE__, __LINE__,
+					String("Encountered error {0} when saving FMOD Project Settings").format(error));
 		}
 		else
 		{
@@ -39,8 +40,7 @@ void FMODSettings::add_fmod_settings()
 			"Error,Warning,Log");
 	add_setting(settings_path + String("fmod_debug_mode"), 1, Variant::Type::INT, PROPERTY_HINT_ENUM,
 			"TTY,File,Godot Output");
-	add_setting(settings_path + String("banks_to_load_at_startup"), TypedArray<String>(), Variant::Type::ARRAY, PROPERTY_HINT_ARRAY_TYPE,
-			String("{0}/{1}:").format(Array::make(Variant::Type::STRING, PROPERTY_HINT_FILE)));
+	add_setting(settings_path + String("banks_to_load_at_startup"), Array(), Variant::Type::ARRAY);
 	add_setting(settings_path + String("banks_preload_samples"), false, Variant::Type::BOOL);
 	add_setting(settings_path + String("banks_flags"), 0, Variant::Type::INT, PROPERTY_HINT_FLAGS,
 			"Non Blocking,Decompress Samples,Unencrypted");
@@ -55,34 +55,33 @@ void FMODSettings::add_fmod_settings()
 	add_setting(settings_path + String("live_update_port"), 9264, Variant::Type::INT);
 	add_setting(settings_path + String("enable_memory_tracking"), false, Variant::Type::BOOL);
 	add_setting(settings_path + String("encryption_key"), "", Variant::Type::STRING);
-	add_setting(settings_path + String("distance_scale_2d"), 1.0f, Variant::Type::FLOAT);
+	add_setting(settings_path + String("distance_scale_2d"), 1.0f, Variant::Type::REAL);
 	add_setting(settings_path + String("init_with_3d_righthanded"), true, Variant::Type::BOOL);
 }
 
 void FMODSettings::add_setting(const String& name, const Variant& default_value, Variant::Type type, PropertyHint hint,
 		const String& hint_string, int usage)
 {
-	Dictionary setting;
-	setting["name"] = name;
-	setting["type"] = type;
-	setting["hint"] = hint;
-	setting["hint_string"] = hint_string;
-	setting["usage"] = usage;
+	PropertyInfo setting;
+	setting.name = name;
+	setting.type = type;
+	setting.hint = hint;
+	setting.hint_string = hint_string;
+	setting.usage = usage;
 
 	if (ProjectSettings::get_singleton()->has_setting(name))
 	{
-		ProjectSettings::get_singleton()->add_property_info(setting);
+		ProjectSettings::get_singleton()->set_custom_property_info(name, setting);
 		return;
 	}
 
 	ProjectSettings::get_singleton()->set_setting(name, default_value);
-	ProjectSettings::get_singleton()->add_property_info(setting);
+	ProjectSettings::get_singleton()->set_custom_property_info(name, setting);
 }
 
 void FMODStudioEditorModule::_bind_methods()
 {
-	ClassDB::bind_static_method("FMODStudioEditorModule", D_METHOD("get_singleton"),
-			&FMODStudioEditorModule::get_singleton);
+	ClassDB::bind_method(D_METHOD("get_singleton"), &FMODStudioEditorModule::get_singleton);
 	ClassDB::bind_method(D_METHOD("init"), &FMODStudioEditorModule::init);
 	ClassDB::bind_method(D_METHOD("shutdown"), &FMODStudioEditorModule::shutdown);
 
@@ -201,7 +200,7 @@ bool FMODStudioEditorModule::initialize_fmod()
 	const String encryption_key =
 			static_cast<String>(get_platform_project_setting(settings_path + String("encryption_key")));
 
-	if (!encryption_key.is_empty())
+	if (!encryption_key.empty())
 	{
 		FMOD_STUDIO_ADVANCEDSETTINGS fmod_studio_advanced_settings{};
 		fmod_studio_advanced_settings.cbsize = sizeof(FMOD_STUDIO_ADVANCEDSETTINGS);
@@ -366,9 +365,10 @@ Array FMODStudioEditorModule::get_bank_file_infos(const String& bank_path) const
 {
 	Array files;
 
-	Ref<DirAccess> dir = DirAccess::open(bank_path);
+	Error err;
+	Ref<DirAccess> dir = DirAccess::open(bank_path, &err);
 
-	if (DirAccess::get_open_error() == godot::Error::OK)
+	if (err == Error::OK)
 	{
 		dir->list_dir_begin();
 		String file_name = dir->get_next();
@@ -471,7 +471,7 @@ void FMODStudioEditorModule::load_all_banks()
 		Dictionary bank_file_info = bank_files_infos[i];
 		String filePath = bank_file_info["file_path"];
 
-		if (filePath.contains(".strings"))
+		if (filePath.find(".strings") > -1)
 		{
 			index = i;
 			break;
@@ -498,7 +498,7 @@ void FMODStudioEditorModule::load_all_banks()
 		String file_path = bank_file_info["file_path"];
 
 		// Note(alex): We already loaded the .strings bank, so skip it now
-		if (file_path.contains(".strings"))
+		if (file_path.find(".strings") > -1)
 		{
 			Ref<BankAsset> strings_bank_asset = get_bank_reference(bank_files_infos[i]);
 			bank_loading_check.emplace(strings_bank, strings_bank_asset);
@@ -524,7 +524,7 @@ void FMODStudioEditorModule::unload_all_banks()
 
 void FMODStudioEditorModule::create_icon(const String& icon_path, FMODIconType icon_type)
 {
-	Ref<Texture2D> texture = ResourceLoader::get_singleton()->load(icon_path);
+	Ref<Texture> texture = ResourceLoader::load(icon_path);
 
 	if (texture.is_valid())
 	{
@@ -532,17 +532,17 @@ void FMODStudioEditorModule::create_icon(const String& icon_path, FMODIconType i
 	}
 }
 
-Ref<Texture2D> FMODStudioEditorModule::get_icon(FMODIconType icon_type)
+Ref<Texture> FMODStudioEditorModule::get_icon(FMODIconType icon_type)
 {
 	if (icons.count(icon_type) > 0)
 	{
-		Ref<Texture2D> texture = icons[icon_type];
+		Ref<Texture> texture = icons[icon_type];
 		return texture;
 	}
 
 	WARN_PRINT(String("[FMOD] Failed to get icon: ") + itos(icon_type));
 
-	return Ref<Texture2D>();
+	return Ref<Texture>();
 }
 
 Ref<ProjectCache> FMODStudioEditorModule::generate_cache(const Dictionary& project_info)
@@ -556,13 +556,13 @@ Ref<ProjectCache> FMODStudioEditorModule::generate_cache(const Dictionary& proje
 void FMODStudioEditorModule::reload_cache_file()
 {
 	project_cache =
-			ResourceLoader::get_singleton()->load("res://addons/FMOD/editor/cache/fmod_project_cache.tres", "ProjectCache",
-					ResourceLoader::CacheMode::CACHE_MODE_REPLACE);
+			ResourceLoader::load("res://addons/FMOD/editor/cache/fmod_project_cache.tres", "ProjectCache",
+					true);
 }
 
 Ref<ProjectCache> FMODStudioEditorModule::get_project_cache()
 {
-	if (!FileAccess::file_exists("res://addons/FMOD/editor/cache/fmod_project_cache.tres"))
+	if (!FileAccess::exists("res://addons/FMOD/editor/cache/fmod_project_cache.tres"))
 	{
 		Dictionary project_info = get_project_info_from_banks();
 		project_cache = generate_cache(project_info);
@@ -588,10 +588,10 @@ Dictionary FMODStudioEditorModule::get_project_info_from_banks()
 	resource_dirs["banks"] = "res://addons/FMOD/editor/resources/banks/";
 	resource_dirs["parameters"] = "res://addons/FMOD/editor/resources/parameters/";
 
-	Ref<DirAccess> dir = DirAccess::open(resources_path);
-	if (dir.is_null())
+	DirAccess *dir = DirAccess::open(resources_path);
+	if (dir == nullptr)
 	{
-		DirAccess::make_dir_absolute(resources_path);
+		DirAccess::create_for_path(resources_path);
 		dir = DirAccess::open(resources_path);
 	}
 
@@ -615,18 +615,18 @@ Dictionary FMODStudioEditorModule::get_project_info_from_banks()
 		FMOD_Studio_ParseID(guid.utf8().get_data(), &fmod_guid);
 		studio_system->getBankByID(&fmod_guid, &bank);
 
-		if (!FileAccess::file_exists(resource_dirs["banks"].operator godot::String() + guid + ".tres"))
+		if (!FileAccess::exists(resource_dirs["banks"] + guid + ".tres"))
 		{
-			ResourceSaver::get_singleton()->save(bank_asset, resource_dirs["banks"].operator godot::String() + guid + ".tres");
+			ResourceSaver::save(resource_dirs["banks"] + guid + ".tres", bank_asset);
 			banks[guid] = bank_asset;
 		}
 		else
 		{
-			Ref<BankAsset> asset = ResourceLoader::get_singleton()->load(resource_dirs["banks"].operator godot::String() + guid + ".tres", "BankAsset");
+			Ref<BankAsset> asset = ResourceLoader::load(resource_dirs["banks"] + guid + ".tres", "BankAsset");
 			asset->set_name(bank_asset->get_name());
 			asset->set_path(bank_asset->get_path());
 			asset->set_modified_time(bank_asset->get_modified_time());
-			ResourceSaver::get_singleton()->save(asset, resource_dirs["banks"].operator godot::String() + guid + ".tres");
+			ResourceSaver::save(resource_dirs["banks"] + guid + ".tres", asset);
 			banks[guid] = asset;
 		}
 
@@ -644,14 +644,14 @@ Dictionary FMODStudioEditorModule::get_project_info_from_banks()
 				Ref<EventAsset> event = events_array[i];
 				String guid = event->get_guid();
 
-				if (!FileAccess::file_exists(resource_dirs["events"].operator godot::String() + guid + ".tres"))
+				if (!FileAccess::exists(resource_dirs["events"] + guid + ".tres"))
 				{
-					ResourceSaver::get_singleton()->save(event, resource_dirs["events"].operator godot::String() + guid + ".tres");
+					ResourceSaver::save(resource_dirs["events"] + guid + ".tres", event);
 					events[guid] = event;
 				}
 				else
 				{
-					Ref<EventAsset> asset = ResourceLoader::get_singleton()->load(resource_dirs["events"].operator godot::String() + guid + ".tres", "EventAsset");
+					Ref<EventAsset> asset = ResourceLoader::load(resource_dirs["events"] + guid + ".tres", "EventAsset");
 
 					if (has_event_changed(asset, event))
 					{
@@ -663,7 +663,7 @@ Dictionary FMODStudioEditorModule::get_project_info_from_banks()
 						asset->set_min_distance(event->get_min_distance());
 						asset->set_max_distance(event->get_max_distance());
 						asset->set_parameters(event->get_parameters());
-						ResourceSaver::get_singleton()->save(asset, resource_dirs["events"].operator godot::String() + guid + ".tres");
+						ResourceSaver::save(resource_dirs["events"] + guid + ".tres", asset);
 					}
 					events[guid] = asset;
 				}
@@ -674,14 +674,14 @@ Dictionary FMODStudioEditorModule::get_project_info_from_banks()
 				Ref<EventAsset> snapshot = snapshots_array[i];
 				String guid = snapshot->get_guid();
 
-				if (!FileAccess::file_exists(resource_dirs["snapshots"].operator godot::String() + guid + ".tres"))
+				if (!FileAccess::exists(resource_dirs["snapshots"] + guid + ".tres"))
 				{
-					ResourceSaver::get_singleton()->save(snapshot, resource_dirs["snapshots"].operator godot::String() + guid + ".tres");
-					snapshots[guid] = ResourceSaver::get_singleton()->save(snapshot, resource_dirs["snapshots"].operator godot::String() + guid + ".tres");
+					ResourceSaver::save(resource_dirs["snapshots"] + guid + ".tres", snapshot);
+					snapshots[guid] = ResourceSaver::save(resource_dirs["snapshots"] + guid + ".tres", snapshot);
 				}
 				else
 				{
-					Ref<EventAsset> asset = ResourceLoader::get_singleton()->load(resource_dirs["snapshots"].operator godot::String() + guid + ".tres", "EventAsset");
+					Ref<EventAsset> asset = ResourceLoader::load(resource_dirs["snapshots"] + guid + ".tres", "EventAsset");
 					if (has_event_changed(asset, snapshot))
 					{
 						asset->set_name(snapshot->get_name());
@@ -692,7 +692,7 @@ Dictionary FMODStudioEditorModule::get_project_info_from_banks()
 						asset->set_min_distance(snapshot->get_min_distance());
 						asset->set_max_distance(snapshot->get_max_distance());
 						asset->set_parameters(snapshot->get_parameters());
-						ResourceSaver::get_singleton()->save(asset, resource_dirs["snapshots"].operator godot::String() + guid + ".tres");
+						ResourceSaver::save(resource_dirs["snapshots"] + guid + ".tres", asset);
 					}
 					snapshots[guid] = asset;
 				}
@@ -711,17 +711,17 @@ Dictionary FMODStudioEditorModule::get_project_info_from_banks()
 				Ref<BusAsset> bus = bus_infos[i];
 				String guid = bus->get_guid();
 
-				if (!FileAccess::file_exists(resource_dirs["busses"].operator godot::String() + guid + ".tres"))
+				if (!FileAccess::exists(resource_dirs["busses"] + guid + ".tres"))
 				{
-					ResourceSaver::get_singleton()->save(bus, resource_dirs["busses"].operator godot::String() + guid + ".tres");
+					ResourceSaver::save(resource_dirs["busses"] + guid + ".tres", bus);
 					busses[guid] = bus;
 				}
 				else
 				{
-					Ref<BusAsset> asset = ResourceLoader::get_singleton()->load(resource_dirs["busses"].operator godot::String() + guid + ".tres", "BusAsset");
+					Ref<BusAsset> asset = ResourceLoader::load(resource_dirs["busses"] + guid + ".tres", "BusAsset");
 					asset->set_name(bus->get_name());
 					asset->set_path(bus->get_path());
-					ResourceSaver::get_singleton()->save(asset, resource_dirs["busses"].operator godot::String() + guid + ".tres");
+					ResourceSaver::save(resource_dirs["busses"] + guid + ".tres", asset);
 					busses[guid] = asset;
 				}
 			}
@@ -738,17 +738,17 @@ Dictionary FMODStudioEditorModule::get_project_info_from_banks()
 				Ref<VCAAsset> vca = vca_infos[i];
 				String guid = vca->get_guid();
 
-				if (!FileAccess::file_exists(resource_dirs["vcas"].operator godot::String() + guid + ".tres"))
+				if (!FileAccess::exists(resource_dirs["vcas"] + guid + ".tres"))
 				{
-					ResourceSaver::get_singleton()->save(vca, resource_dirs["vcas"].operator godot::String() + guid + ".tres");
+					ResourceSaver::save(resource_dirs["vcas"] + guid + ".tres", vca);
 					vcas[guid] = vca;
 				}
 				else
 				{
-					Ref<VCAAsset> asset = ResourceLoader::get_singleton()->load(resource_dirs["vcas"].operator godot::String() + guid + ".tres", "VCAAsset");
+					Ref<VCAAsset> asset = ResourceLoader::load(resource_dirs["vcas"] + guid + ".tres", "VCAAsset");
 					asset->set_name(vca->get_name());
 					asset->set_path(vca->get_path());
-					ResourceSaver::get_singleton()->save(asset, resource_dirs["vcas"].operator godot::String() + guid + ".tres");
+					ResourceSaver::save(resource_dirs["vcas"] + guid + ".tres", asset);
 					vcas[guid] = asset;
 				}
 			}
@@ -766,21 +766,21 @@ Dictionary FMODStudioEditorModule::get_project_info_from_banks()
 			Ref<ParameterAsset> parameter = parameter_infos[i];
 			String guid = parameter->get_guid();
 
-			if (!FileAccess::file_exists(resource_dirs["parameters"].operator godot::String() + guid + ".tres"))
+			if (!FileAccess::exists(resource_dirs["parameters"] + guid + ".tres"))
 			{
-				ResourceSaver::get_singleton()->save(parameter, resource_dirs["parameters"].operator godot::String() + guid + ".tres");
+				ResourceSaver::save(resource_dirs["parameters"] + guid + ".tres", parameter);
 				parameters[guid] = parameter;
 			}
 			else
 			{
-				Ref<ParameterAsset> asset = ResourceLoader::get_singleton()->load(resource_dirs["parameters"].operator godot::String() + guid + ".tres", "ParameterAsset");
+				Ref<ParameterAsset> asset = ResourceLoader::load(resource_dirs["parameters"] + guid + ".tres", "ParameterAsset");
 				asset->set_name(parameter->get_name());
 				asset->set_path(parameter->get_path());
 				asset->set_parameter_description(parameter->get_parameter_description());
 				FMOD_STUDIO_PARAMETER_DESCRIPTION desc;
 				parameter->get_parameter_description()->get_parameter_description(desc);
 				asset->set_parameter_ref(desc);
-				ResourceSaver::get_singleton()->save(asset, resource_dirs["parameters"].operator godot::String() + guid + ".tres");
+				ResourceSaver::save(resource_dirs["parameters"] + guid + ".tres", asset);
 				parameters[guid] = asset;
 			}
 		}
@@ -807,14 +807,14 @@ Array FMODStudioEditorModule::create_tree(const Dictionary& list, const FMODAsse
 	tree["children"] = Array();
 
 	Array assets = list.values();
-	assets.sort_custom(Callable(FMODStudioEditorModule::get_singleton(), "sort_items_by_path"));
+	assets.sort_custom(FMODStudioEditorModule::get_singleton(), "sort_items_by_path");
 
 	for (int64_t i = 0; i < assets.size(); i++)
 	{
 		Variant asset = assets[i];
 		String path = asset.get("path");
 
-		PackedStringArray path_array = path.split("/", false);
+		Vector<String> path_array = path.split("/", false);
 
 		Dictionary current_node = tree;
 
@@ -841,7 +841,7 @@ Array FMODStudioEditorModule::create_tree(const Dictionary& list, const FMODAsse
 					child = children[c];
 				}
 			}
-			if (!child.is_empty())
+			if (!child.empty())
 			{
 				current_node = child;
 			}
@@ -865,7 +865,7 @@ Array FMODStudioEditorModule::create_tree(const Dictionary& list, const FMODAsse
 					if (item_type == FMODAssetType::FMOD_ASSETTYPE_BUS)
 					{
 						Ref<Resource> resource;
-						PackedStringArray sliced_bus = path_array.slice(0, j + 1);
+						Vector<String> sliced_bus = path_array.slice(0, j + 1);
 						String finalpath = "bus:";
 						for (int l = 0; l < sliced_bus.size(); l++)
 						{
@@ -929,17 +929,17 @@ void FMODStudioEditorModule::create_tree_items(Object* root, const Array& items,
 
 			TreeItem* new_item = tree->create_item(Object::cast_to<TreeItem>(parent));
 			new_item->set_text(0, node_name);
-			new_item->set_tooltip_text(0, " ");
+			new_item->set_tooltip(0, " ");
 
 			if (item_type == FMODAssetType::FMOD_ASSETTYPE_FOLDER)
 			{
-				Ref<Texture2D> const icon = get_icon(FMODStudioEditorModule::FMODIconType::FMOD_ICONTYPE_FOLDER_CLOSED);
+				Ref<Texture> const icon = get_icon(FMODStudioEditorModule::FMODIconType::FMOD_ICONTYPE_FOLDER_CLOSED);
 				new_item->set_icon(0, icon);
 				new_item->set_meta("Type", "folder");
 			}
 			else if (item_type == FMODAssetType::FMOD_ASSETTYPE_BUS)
 			{
-				Ref<Texture2D> const icon = get_icon(FMODStudioEditorModule::FMODIconType::FMOD_ICONTYPE_BUS);
+				Ref<Texture> const icon = get_icon(FMODStudioEditorModule::FMODIconType::FMOD_ICONTYPE_BUS);
 				new_item->set_icon(0, icon);
 				new_item->set_meta("Type", "bus");
 				new_item->set_meta("Path", item["path"]);
@@ -965,7 +965,7 @@ void FMODStudioEditorModule::create_tree_items(Object* root, const Array& items,
 
 			TreeItem* new_asset_item = tree->create_item(Object::cast_to<TreeItem>(parent));
 
-			Ref<Texture2D> icon;
+			Ref<Texture> icon;
 			String meta_type;
 
 			switch (item_type)
@@ -1014,7 +1014,7 @@ void FMODStudioEditorModule::create_tree_items(Object* root, const Array& items,
 				new_asset_item->set_meta("Guid", meta_guid);
 			}
 
-			new_asset_item->set_tooltip_text(0, " ");
+			new_asset_item->set_tooltip(0, " ");
 			new_asset_item->set_text(0, node_name);
 			new_asset_item->set_meta("Type", meta_type);
 			new_asset_item->set_meta("Path", item["path"]);
@@ -1185,7 +1185,7 @@ void FMODStudioEditorModule::poll_banks_loading_state(Timer* timer)
 			if (timer)
 			{
 				timer->stop();
-				timer->queue_free();
+				timer->queue_delete();
 			}
 
 			emit_signal("banks_loaded");
@@ -1197,7 +1197,7 @@ void FMODStudioEditorModule::poll_banks_loading_state(Timer* timer)
 			if (timer)
 			{
 				timer->stop();
-				timer->queue_free();
+				timer->queue_delete();
 				retries = 0;
 
 				WARN_PRINT("[FMOD] Failed to load editor banks. Please verify that the banks path location in the Project Settings is correct. Refresh the project afterwards.");
@@ -1284,18 +1284,18 @@ void ProjectCache::initialize_cache(const Dictionary& project_info)
 	set_parameter_tree(FMODStudioEditorModule::get_singleton()->create_tree(parameters, FMODStudioEditorModule::FMODAssetType::FMOD_ASSETTYPE_GLOBAL_PARAMETER));
 
 	const String cache_dir = "res://addons/FMOD/editor/cache";
-	Ref<DirAccess> dir = DirAccess::open(cache_dir);
-	if (dir.is_null())
+	DirAccess *dir = DirAccess::open(cache_dir);
+	if (dir == nullptr)
 	{
-		DirAccess::make_dir_absolute(cache_dir);
+		DirAccess::create_for_path(cache_dir);
 		dir = DirAccess::open(cache_dir);
 	}
 
 	const String cache_path = "res://addons/FMOD/editor/cache/fmod_project_cache.tres";
-	take_over_path(cache_path);
-	ResourceSaver::get_singleton()->save(this, cache_path);
+	_take_over_path(cache_path);
+	ResourceSaver::save(cache_path, this);
 	String message = "[FMOD] Cache created in {0}";
-	(message.format(Array::make(cache_path)));
+	(message.format(cache_path));
 	emit_changed();
 }
 

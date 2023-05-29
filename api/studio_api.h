@@ -1,8 +1,8 @@
 #ifndef STUDIO_API
 #define STUDIO_API
 
-#include "fmod_types.h"
 #include "core/vector.h"
+#include "fmod_types.h"
 #include <memory>
 
 namespace StudioApi
@@ -14,6 +14,13 @@ class Bus;
 class VCA;
 class Bank;
 class CommandReplay;
+
+struct CallbackData
+{
+	int object_id;
+	StringName function_name;
+	Array binds;
+};
 
 class StudioSystem : public Reference
 {
@@ -80,15 +87,15 @@ public:
 	bool reset_buffer_usage() const;
 
 	int get_bank_count() const;
-	Vector<Bank> get_bank_list(int capacity) const;
+	Vector<Ref<Bank>> get_bank_list(int capacity) const;
 	int get_parameter_description_count() const;
-	Vector<FmodTypes::FMOD_STUDIO_PARAMETER_DESCRIPTION> get_parameter_description_list(int capacity) const;
+	Vector<Ref<FmodTypes::FMOD_STUDIO_PARAMETER_DESCRIPTION>> get_parameter_description_list(int capacity) const;
 
 	bool start_command_capture(const String& file_name, const FMOD_STUDIO_COMMANDCAPTURE_FLAGS flags) const;
 	bool stop_command_capture() const;
 	Ref<CommandReplay> load_command_replay(const String& file_name, FMOD_STUDIO_COMMANDREPLAY_FLAGS flags) const;
 
-	bool set_callback(Variant callable, FMOD_STUDIO_SYSTEM_CALLBACK_TYPE callback_mask) const;
+	bool set_callback(Object* target, StringName function_name, Array binds, FMOD_STUDIO_SYSTEM_CALLBACK_TYPE callback_mask) const;
 
 	void get_cpu_usage(Ref<FmodTypes::FMOD_STUDIO_CPU_USAGE> studio, Ref<FmodTypes::FMOD_CPU_USAGE> core) const;
 	void get_memory_usage(
@@ -138,7 +145,7 @@ public:
 
 	Ref<EventInstance> create_instance();
 	int get_instance_count() const;
-	Vector<EventInstance> get_instance_list(int capacity);
+	Vector<Ref<EventInstance>> get_instance_list(int capacity);
 
 	bool load_sample_data() const;
 	bool unload_sample_data() const;
@@ -146,7 +153,7 @@ public:
 
 	bool release_all_instances() const;
 
-	bool set_callback(Variant callable, FMOD_STUDIO_EVENT_CALLBACK_TYPE callback_mask) const;
+	bool set_callback(Object* target, StringName function_name, Array binds, FMOD_STUDIO_EVENT_CALLBACK_TYPE callback_mask) const;
 };
 
 class EventInstance : public Reference
@@ -218,7 +225,7 @@ public:
 	void get_cpu_usage(Dictionary cpu_usage);
 	void get_memory_usage(Ref<FmodTypes::FMOD_STUDIO_MEMORY_USAGE> memory_usage_ref);
 
-	bool set_callback(Variant callable, FMOD_STUDIO_EVENT_CALLBACK_TYPE callback_mask) const;
+	bool set_callback(Object* target, StringName function_name, Array binds, FMOD_STUDIO_EVENT_CALLBACK_TYPE callback_mask) const;
 };
 
 class Bus : public Reference
@@ -307,11 +314,11 @@ public:
 	FMOD_STUDIO_LOADING_STATE get_sample_loading_state() const;
 
 	int get_event_count() const;
-	Vector<EventDescription> get_event_list(int capacity);
+	Vector<Ref<EventDescription>> get_event_list(int capacity);
 	int get_bus_count() const;
-	Vector<Bus> get_bus_list(int capacity);
+	Vector<Ref<Bus>> get_bus_list(int capacity);
 	int get_vca_count() const;
-	Vector<VCA> get_vca_list(int capacity);
+	Vector<Ref<VCA>> get_vca_list(int capacity);
 };
 
 class CommandReplay : public Reference

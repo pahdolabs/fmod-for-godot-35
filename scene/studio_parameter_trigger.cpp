@@ -484,7 +484,7 @@ void StudioParameterTrigger::set_studio_event_emitter(const Variant& path)
 			}
 
 			Ref<SceneTreeTimer> timer = get_tree()->create_timer(0.001);
-			timer->connect("timeout", this, "notify_property_list_changed");
+			timer->connect("timeout", this, "_change_notify");
 		}
 
 		return;
@@ -535,7 +535,7 @@ void StudioParameterTrigger::on_event_changed(Object* value)
 		}
 
 		Ref<SceneTreeTimer> timer = get_tree()->create_timer(0.001);
-		timer->connect("timeout", this, "notify_property_list_changed");
+		timer->connect("timeout", this, "_change_notify");
 	}
 
 	if (!path.is_empty())

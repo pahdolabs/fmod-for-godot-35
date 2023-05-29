@@ -1,4 +1,5 @@
 #include "fmod_assets.h"
+#include "core/error_macros.h"
 #include "fmod_studio_editor_module.h"
 
 using namespace godot;
@@ -79,7 +80,7 @@ void BankAsset::set_bank_ref(const FMOD::Studio::Bank* bank)
 	fmod_obj_to_path(bank, path);
 	set_path(path);
 
-	PackedStringArray arr = path.rsplit("/", true, 1);
+	Vector<String> arr = path.rsplit("/", true, 1);
 	String name{};
 
 	if (arr.size() > 0)
@@ -145,13 +146,12 @@ void EventAsset::_bind_methods()
 			PropertyInfo(Variant::BOOL, "is_snapshot", PropertyHint::PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT),
 			"set_is_snapshot", "get_is_snapshot");
 	ADD_PROPERTY(
-			PropertyInfo(Variant::FLOAT, "min_distance", PropertyHint::PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT),
+			PropertyInfo(Variant::REAL, "min_distance", PropertyHint::PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT),
 			"set_min_distance", "get_min_distance");
 	ADD_PROPERTY(
-			PropertyInfo(Variant::FLOAT, "max_distance", PropertyHint::PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT),
+			PropertyInfo(Variant::REAL, "max_distance", PropertyHint::PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT),
 			"set_max_distance", "get_max_distance");
-	ADD_PROPERTY(PropertyInfo(Variant::DICTIONARY, "parameters", PropertyHint::PROPERTY_HINT_ARRAY_TYPE,
-						 "24/17:ParameterAsset", PROPERTY_USAGE_DEFAULT),
+	ADD_PROPERTY(PropertyInfo(Variant::DICTIONARY, "parameters"),
 			"set_parameters", "get_parameters");
 }
 
@@ -178,7 +178,7 @@ void EventAsset::set_event_ref(FMOD::Studio::EventDescription* event_description
 	fmod_obj_to_path(event_description, path);
 	set_path(path);
 
-	PackedStringArray arr = path.rsplit("/", true, 1);
+	Vector<String> arr = path.rsplit("/", true, 1);
 	String name;
 	if (arr.size() > 0)
 	{
@@ -237,8 +237,8 @@ void EventAsset::set_event_ref(FMOD::Studio::EventDescription* event_description
 
 						if (result == FMOD_ERR_EVENT_NOTFOUND || result == FMOD_ERR_INVALID_PARAM)
 						{
-							err("[FMOD] Failed to get Parameter Label", __FUNCTION__, __FILE__,
-									__LINE__);
+							_err_print_error(__FUNCTION__, __FILE__, __LINE__,
+									"[FMOD] Failed to get Parameter Label");
 							break;
 						}
 					} while (result == FMOD_ERR_TRUNCATED);
@@ -283,7 +283,7 @@ void EventAsset::set_event_ref_from_description_ref(const Ref<StudioApi::EventDe
 	String path = event_description->get_path();
 	set_path(path);
 
-	PackedStringArray arr = path.rsplit("/", true, 1);
+	Vector<String> arr = path.rsplit("/", true, 1);
 	String name = "";
 
 	if (arr.size() > 0)
@@ -329,7 +329,7 @@ void EventAsset::set_event_ref_from_description_ref(const Ref<StudioApi::EventDe
 			{
 				const String label = event_description->get_parameter_label_by_id(parameter_description->get_id(), i);
 
-				if (!label.is_empty())
+				if (!label.empty())
 				{
 					param->get_labels().push_back(label);
 				}
@@ -415,7 +415,7 @@ void BusAsset::set_bus_ref(const FMOD::Studio::Bus* bus)
 	fmod_obj_to_path(bus, path);
 	set_path(path);
 
-	PackedStringArray arr = path.rsplit("/", true, 1);
+	Vector<String> arr = path.rsplit("/", true, 1);
 	String name;
 
 	if (arr.size() > 0)
@@ -450,7 +450,7 @@ void VCAAsset::set_vca_ref(const FMOD::Studio::VCA* vca)
 	fmod_obj_to_path(vca, path);
 	set_path(path);
 
-	PackedStringArray arr = path.rsplit("/", true, 1);
+	Vector<String> arr = path.rsplit("/", true, 1);
 
 	String name{};
 	if (arr.size() > 0)
@@ -505,7 +505,7 @@ void ParameterAsset::set_parameter_ref(const FMOD_STUDIO_PARAMETER_DESCRIPTION& 
 
 		if (result == FMOD_ERR_EVENT_NOTFOUND)
 		{
-			err("Failed to get Path", __FUNCTION__, __FILE__, __LINE__);
+			_err_print_error(__FUNCTION__, __FILE__, __LINE__, "Failed to get Path");
 			break;
 		}
 	} while (result == FMOD_ERR_TRUNCATED);
@@ -548,8 +548,8 @@ void ParameterAsset::set_parameter_ref(const FMOD_STUDIO_PARAMETER_DESCRIPTION& 
 
 				if (result == FMOD_ERR_EVENT_NOTFOUND || result == FMOD_ERR_INVALID_PARAM)
 				{
-					err("[FMOD] Failed to get Parameter Label", __FUNCTION__, __FILE__,
-							__LINE__);
+					_err_print_error(__FUNCTION__, __FILE__, __LINE__,
+							"[FMOD] Failed to get Parameter Label");
 					break;
 				}
 			} while (result == FMOD_ERR_TRUNCATED);

@@ -12,7 +12,7 @@ void register_fmod_types()
 		ClassDB::register_class<FmodTCPClient>();
 		ClassDB::register_class<FMODStudioEditorModule>();
 		fmod_editor_module = memnew(FMODStudioEditorModule);
-		Engine::get_singleton()->register_singleton("FMODStudioEditorModule", FMODStudioEditorModule::get_singleton());
+		Engine::get_singleton()->add_singleton(Engine::Singleton("FMODStudioEditorModule", FMODStudioEditorModule::get_singleton()));
 
 		// Gizmo Plugins
 		ClassDB::register_class<StudioEventEmitter3DGizmoPlugin>();
@@ -37,7 +37,7 @@ void register_fmod_types()
 		// FMOD modules
 		ClassDB::register_class<FMODStudioModule>();
 		fmod_module = memnew(FMODStudioModule);
-		Engine::get_singleton()->register_singleton("FMODStudioModule", FMODStudioModule::get_singleton());
+		Engine::get_singleton()->add_singleton(Engine::Singleton("FMODStudioModule", FMODStudioModule::get_singleton()));
 
 		ClassDB::register_class<FMODSettings>();
 		fmod_settings = memnew(FMODSettings);
@@ -89,10 +89,9 @@ void register_fmod_types()
 void unregister_fmod_types()
 {
 #ifdef TOOLS_ENABLED
-		Engine::get_singleton()->unregister_singleton("FMODStudioEditorModule");
 		memdelete(fmod_editor_module);
 #endif //TOOLS_ENABLED
 
-		Engine::get_singleton()->unregister_singleton("FMODStudioModule");
 		memdelete(fmod_module);
+		memdelete(fmod_settings);
 }

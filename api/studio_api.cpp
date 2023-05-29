@@ -1,5 +1,6 @@
 #include "studio_api.h"
 #include "../fmod_studio_module.h"
+#include "core/error_macros.h"
 
 using namespace StudioApi;
 
@@ -541,9 +542,9 @@ int StudioSystem::get_bank_count() const
 	return bank_count;
 }
 
-Vector<Bank> StudioSystem::get_bank_list(int capacity) const
+Vector<Ref<Bank>> StudioSystem::get_bank_list(int capacity) const
 {
-	Vector<Bank> bank_list;
+	Vector<Ref<Bank>> bank_list;
 	std::unique_ptr<FMOD::Studio::Bank*[]> banks = std::make_unique<FMOD::Studio::Bank*[]>(capacity);
 
 	int bank_count{};
@@ -553,7 +554,7 @@ Vector<Bank> StudioSystem::get_bank_list(int capacity) const
 	{
 		Ref<Bank> ref = create_ref<Bank>();
 		ref->set_instance(banks[i]);
-		bank_list.append(ref);
+		bank_list.push_back(ref);
 	}
 
 	bank_list.resize(bank_count);
@@ -572,9 +573,9 @@ int StudioSystem::get_parameter_description_count() const
 	return parameter_description_count;
 }
 
-Vector<FmodTypes::FMOD_STUDIO_PARAMETER_DESCRIPTION> StudioSystem::get_parameter_description_list(int capacity) const
+Vector<Ref<FmodTypes::FMOD_STUDIO_PARAMETER_DESCRIPTION>> StudioSystem::get_parameter_description_list(int capacity) const
 {
-	Vector<FmodTypes::FMOD_STUDIO_PARAMETER_DESCRIPTION> parameter_description_list;
+	Vector<Ref<FmodTypes::FMOD_STUDIO_PARAMETER_DESCRIPTION>> parameter_description_list;
 
 	std::unique_ptr<FMOD_STUDIO_PARAMETER_DESCRIPTION[]> parameter_descriptions =
 			std::make_unique<FMOD_STUDIO_PARAMETER_DESCRIPTION[]>(capacity);
@@ -588,7 +589,7 @@ Vector<FmodTypes::FMOD_STUDIO_PARAMETER_DESCRIPTION> StudioSystem::get_parameter
 		Ref<FmodTypes::FMOD_STUDIO_PARAMETER_DESCRIPTION> ref =
 				create_ref<FmodTypes::FMOD_STUDIO_PARAMETER_DESCRIPTION>();
 		ref->set_parameter_description(parameter_descriptions[i]);
-		parameter_description_list.append(ref);
+		parameter_description_list.push_back(ref);
 	}
 
 	parameter_description_list.resize(parameter_description_count);
@@ -620,44 +621,49 @@ Ref<CommandReplay> StudioSystem::load_command_replay(const String& file_name,
 	return ref;
 }
 
-bool StudioSystem::set_callback(Variant callable, FMOD_STUDIO_SYSTEM_CALLBACK_TYPE callback_mask) const
+bool StudioSystem::set_callback(Object* target, StringName function_name, Array binds, FMOD_STUDIO_SYSTEM_CALLBACK_TYPE callback_mask) const
 {
-	Callable* callable_ptr = nullptr;
-
 	void* user_data;
 	studio_system->getUserData(&user_data);
-	callable_ptr = static_cast<Callable*>(user_data);
 
-	if (callable.get_type() == Variant::Type::CALLABLE)
+	CallbackData* callable_data = static_cast<CallbackData*>(user_data);
+
+	if (target != nullptr)
 	{
-		if (callable_ptr == nullptr)
+		if (callable_data != nullptr)
 		{
-			callable_ptr = new Callable(callable);
-			void* data = static_cast<void*>(callable_ptr);
-			studio_system->setUserData(data);
-
-			return ERROR_CHECK(studio_system->setCallback(
-					[](FMOD_STUDIO_SYSTEM* system, FMOD_STUDIO_SYSTEM_CALLBACK_TYPE type, void* commanddata,
-							void* userdata) -> FMOD_RESULT
-					{
-						Callable* callable = static_cast<Callable*>(userdata);
-						Dictionary callback_info;
-						callback_info["type"] = type;
-						Array args = Array();
-						args.append(callback_info);
-						callable->callv(args);
-						return FMOD_OK;
-					},
-					callback_mask));
+			memfree(callable_data);
 		}
+		callable_data = memnew(CallbackData);
+		callable_data->object_id = target->get_instance_id();
+		callable_data->function_name = function_name;
+		callable_data->binds = binds;
+		void* data = static_cast<void*>(callable_data);
+		studio_system->setUserData(data);
+
+		return ERROR_CHECK(studio_system->setCallback(
+				[](FMOD_STUDIO_SYSTEM* system, FMOD_STUDIO_SYSTEM_CALLBACK_TYPE type, void* commanddata,
+						void* userdata) -> FMOD_RESULT
+				{
+					CallbackData* callable = static_cast<CallbackData*>(userdata);
+					Dictionary callback_info;
+					callback_info["type"] = type;
+					Array args = Array();
+					args.append(callback_info);
+					args.append_array(callable->binds);
+					Object* target = ObjectDB::get_instance(callable->object_id);
+					target->callv(callable->function_name, args);
+					return FMOD_OK;
+				},
+				callback_mask));
 	}
-	else if (callable.get_type() == Variant::Type::NIL)
+	else if (target == nullptr)
 	{
-		if (callable_ptr)
+		if (callable_data)
 		{
 			FMOD_RESULT result = studio_system->setCallback(nullptr, FMOD_STUDIO_SYSTEM_CALLBACK_ALL);
 			studio_system->setUserData(nullptr);
-			delete callable_ptr;
+			memfree(callable_data);
 			return result;
 		}
 	}
@@ -869,7 +875,7 @@ String EventDescription::get_parameter_label_by_name(const String& name, int lab
 
 		if (result == FMOD_ERR_INVALID_PARAM || result == FMOD_ERR_EVENT_NOTFOUND)
 		{
-			err("Failed to get Parameter Label By Name", __FUNCTION__, __FILE__, __LINE__);
+			_err_print_error(__FUNCTION__, __FILE__, __LINE__, "Failed to get Parameter Label By Name");
 			break;
 		}
 	} while (result == FMOD_ERR_TRUNCATED);
@@ -900,7 +906,7 @@ String EventDescription::get_parameter_label_by_id(const Ref<FmodTypes::FMOD_STU
 
 		if (result == FMOD_ERR_INVALID_PARAM || result == FMOD_ERR_EVENT_NOTFOUND)
 		{
-			err("Failed to get Parameter Label By ID", __FUNCTION__, __FILE__, __LINE__);
+			_err_print_error(__FUNCTION__, __FILE__, __LINE__, "Failed to get Parameter Label By ID");
 			break;
 		}
 	} while (result == FMOD_ERR_TRUNCATED);
@@ -1088,9 +1094,9 @@ int EventDescription::get_instance_count() const
 	return count;
 }
 
-Vector<EventInstance> EventDescription::get_instance_list(int capacity)
+Vector<Ref<EventInstance>> EventDescription::get_instance_list(int capacity)
 {
-	Vector<EventInstance> instance_list;
+	Vector<Ref<EventInstance>> instance_list;
 
 	std::unique_ptr<FMOD::Studio::EventInstance*[]> instances =
 			std::make_unique<FMOD::Studio::EventInstance*[]>(capacity);
@@ -1102,7 +1108,7 @@ Vector<EventInstance> EventDescription::get_instance_list(int capacity)
 		{
 			Ref<EventInstance> ref = create_ref<EventInstance>();
 			ref->set_instance(instances[i]);
-			instance_list.append(ref);
+			instance_list.push_back(ref);
 		}
 		return instance_list;
 	}
@@ -1154,78 +1160,84 @@ bool EventDescription::release_all_instances() const
 	return false;
 }
 
-bool EventDescription::set_callback(Variant callable, FMOD_STUDIO_EVENT_CALLBACK_TYPE callback_mask) const
+bool EventDescription::set_callback(Object* target, StringName function_name, Array binds, FMOD_STUDIO_EVENT_CALLBACK_TYPE callback_mask) const
 {
-	Callable* callable_ptr = nullptr;
-
 	void* user_data;
 	event_description->getUserData(&user_data);
-	callable_ptr = static_cast<Callable*>(user_data);
+	CallbackData* callable_data = static_cast<CallbackData*>(user_data);
 
-	if (callable.get_type() == Variant::Type::CALLABLE)
+	if (target != nullptr)
 	{
-		if (callable_ptr == nullptr)
+		if (callable_data != nullptr)
 		{
-			callable_ptr = new Callable(callable);
-			void* data = static_cast<void*>(callable_ptr);
-			event_description->setUserData(data);
-
-			return ERROR_CHECK(event_description->setCallback(
-					[](FMOD_STUDIO_EVENT_CALLBACK_TYPE type, FMOD_STUDIO_EVENTINSTANCE* event, void* parameters) -> FMOD_RESULT
-					{
-						FMOD::Studio::EventInstance* event_instance = reinterpret_cast<FMOD::Studio::EventInstance*>(event);
-						void* data;
-						event_instance->getUserData(&data);
-						Callable* callable = static_cast<Callable*>(data);
-
-						Dictionary callback_info;
-						callback_info["type"] = type;
-						Dictionary props;
-
-						switch (type)
-						{
-							case FMOD_STUDIO_EVENT_CALLBACK_TIMELINE_MARKER:
-							{
-								FMOD_STUDIO_TIMELINE_MARKER_PROPERTIES* properties =
-										static_cast<FMOD_STUDIO_TIMELINE_MARKER_PROPERTIES*>(parameters);
-
-								props["name"] = properties->name;
-								props["position"] = properties->position;
-								break;
-							}
-							case FMOD_STUDIO_EVENT_CALLBACK_TIMELINE_BEAT:
-							{
-								FMOD_STUDIO_TIMELINE_BEAT_PROPERTIES* properties =
-										static_cast<FMOD_STUDIO_TIMELINE_BEAT_PROPERTIES*>(parameters);
-
-								props["bar"] = properties->bar;
-								props["beat"] = properties->beat;
-								props["position"] = properties->position;
-								props["tempo"] = properties->tempo;
-								props["timesignatureupper"] = properties->timesignatureupper;
-								props["timesignaturelower"] = properties->timesignaturelower;
-								break;
-							}
-							default:
-								break;
-						}
-
-						callback_info["properties"] = props;
-						Array args = Array();
-						args.append(callback_info);
-						callable->callv(args);
-						return FMOD_OK;
-					},
-					callback_mask));
+			memfree(callable_data);
 		}
+		callable_data = memnew(CallbackData);
+		callable_data->object_id = target->get_instance_id();
+		callable_data->function_name = function_name;
+		callable_data->binds = binds;
+		void* data = static_cast<void*>(callable_data);
+		event_description->setUserData(data);
+
+		return ERROR_CHECK(event_description->setCallback(
+				[](FMOD_STUDIO_EVENT_CALLBACK_TYPE type, FMOD_STUDIO_EVENTINSTANCE* event, void* parameters) -> FMOD_RESULT
+				{
+					FMOD::Studio::EventInstance* event_instance = reinterpret_cast<FMOD::Studio::EventInstance*>(event);
+					void* data;
+					event_instance->getUserData(&data);
+					CallbackData* callable = static_cast<CallbackData*>(data);
+
+					Dictionary callback_info;
+					callback_info["type"] = type;
+					Dictionary props;
+
+					switch (type)
+					{
+						case FMOD_STUDIO_EVENT_CALLBACK_TIMELINE_MARKER:
+						{
+							FMOD_STUDIO_TIMELINE_MARKER_PROPERTIES* properties =
+									static_cast<FMOD_STUDIO_TIMELINE_MARKER_PROPERTIES*>(parameters);
+
+							props["name"] = properties->name;
+							props["position"] = properties->position;
+							break;
+						}
+						case FMOD_STUDIO_EVENT_CALLBACK_TIMELINE_BEAT:
+						{
+							FMOD_STUDIO_TIMELINE_BEAT_PROPERTIES* properties =
+									static_cast<FMOD_STUDIO_TIMELINE_BEAT_PROPERTIES*>(parameters);
+
+							props["bar"] = properties->bar;
+							props["beat"] = properties->beat;
+							props["position"] = properties->position;
+							props["tempo"] = properties->tempo;
+							props["timesignatureupper"] = properties->timesignatureupper;
+							props["timesignaturelower"] = properties->timesignaturelower;
+							break;
+						}
+						default:
+							break;
+					}
+
+					callback_info["properties"] = props;
+					Array args = Array();
+					args.append(callback_info);
+					args.append_array(callable->binds);
+
+					Object* target = ObjectDB::get_instance(callable->object_id);
+
+					target->callv(callable->function_name, args);
+					return FMOD_OK;
+				},
+				callback_mask));
 	}
-	else if (callable.get_type() == Variant::Type::NIL)
+	else if (target == nullptr)
 	{
-		if (callable_ptr)
+		if (callable_data)
 		{
 			FMOD_RESULT result = event_description->setCallback(nullptr, FMOD_STUDIO_EVENT_CALLBACK_ALL);
 			event_description->setUserData(nullptr);
-			delete callable_ptr;
+			memfree(callable_data);
 			return result;
 		}
 	}
@@ -1631,78 +1643,84 @@ void EventInstance::get_memory_usage(Ref<FmodTypes::FMOD_STUDIO_MEMORY_USAGE> me
 	}
 }
 
-bool EventInstance::set_callback(Variant callable, FMOD_STUDIO_EVENT_CALLBACK_TYPE callback_mask) const
+bool EventInstance::set_callback(Object* target, StringName function_name, Array binds, FMOD_STUDIO_EVENT_CALLBACK_TYPE callback_mask) const
 {
-	Callable* callable_ptr = nullptr;
-
 	void* user_data;
 	event_instance->getUserData(&user_data);
-	callable_ptr = static_cast<Callable*>(user_data);
+	CallbackData* callable_data = static_cast<CallbackData*>(user_data);
 
-	if (callable.get_type() == Variant::Type::CALLABLE)
+	if (target != nullptr)
 	{
-		if (callable_ptr == nullptr)
+		if (callable_data != nullptr)
 		{
-			callable_ptr = new Callable(callable);
-			void* data = static_cast<void*>(callable_ptr);
-			event_instance->setUserData(data);
-
-			return ERROR_CHECK(event_instance->setCallback(
-					[](FMOD_STUDIO_EVENT_CALLBACK_TYPE type, FMOD_STUDIO_EVENTINSTANCE* event, void* parameters) -> FMOD_RESULT
-					{
-						FMOD::Studio::EventInstance* event_instance = reinterpret_cast<FMOD::Studio::EventInstance*>(event);
-						void* data;
-						event_instance->getUserData(&data);
-						Callable* callable = static_cast<Callable*>(data);
-
-						Dictionary callback_info;
-						callback_info["type"] = type;
-						Dictionary props;
-
-						switch (type)
-						{
-							case FMOD_STUDIO_EVENT_CALLBACK_TIMELINE_MARKER:
-							{
-								FMOD_STUDIO_TIMELINE_MARKER_PROPERTIES* properties =
-										static_cast<FMOD_STUDIO_TIMELINE_MARKER_PROPERTIES*>(parameters);
-
-								props["name"] = properties->name;
-								props["position"] = properties->position;
-								break;
-							}
-							case FMOD_STUDIO_EVENT_CALLBACK_TIMELINE_BEAT:
-							{
-								FMOD_STUDIO_TIMELINE_BEAT_PROPERTIES* properties =
-										static_cast<FMOD_STUDIO_TIMELINE_BEAT_PROPERTIES*>(parameters);
-
-								props["bar"] = properties->bar;
-								props["beat"] = properties->beat;
-								props["position"] = properties->position;
-								props["tempo"] = properties->tempo;
-								props["timesignatureupper"] = properties->timesignatureupper;
-								props["timesignaturelower"] = properties->timesignaturelower;
-								break;
-							}
-							default:
-								break;
-						}
-
-						callback_info["properties"] = props;
-						Array args = Array();
-						args.append(callback_info);
-						callable->callv(args);
-						return FMOD_OK;
-					},
-					callback_mask));
+			memfree(callable_data);
 		}
+		callable_data = memnew(CallbackData);
+		callable_data->object_id = target->get_instance_id();
+		callable_data->function_name = function_name;
+		callable_data->binds = binds;
+		void* data = static_cast<void*>(callable_data);
+		event_instance->setUserData(data);
+
+		return ERROR_CHECK(event_instance->setCallback(
+				[](FMOD_STUDIO_EVENT_CALLBACK_TYPE type, FMOD_STUDIO_EVENTINSTANCE* event, void* parameters) -> FMOD_RESULT
+				{
+					FMOD::Studio::EventInstance* event_instance = reinterpret_cast<FMOD::Studio::EventInstance*>(event);
+					void* data;
+					event_instance->getUserData(&data);
+					CallbackData* callable = static_cast<CallbackData*>(data);
+
+					Dictionary callback_info;
+					callback_info["type"] = type;
+					Dictionary props;
+
+					switch (type)
+					{
+						case FMOD_STUDIO_EVENT_CALLBACK_TIMELINE_MARKER:
+						{
+							FMOD_STUDIO_TIMELINE_MARKER_PROPERTIES* properties =
+									static_cast<FMOD_STUDIO_TIMELINE_MARKER_PROPERTIES*>(parameters);
+
+							props["name"] = properties->name;
+							props["position"] = properties->position;
+							break;
+						}
+						case FMOD_STUDIO_EVENT_CALLBACK_TIMELINE_BEAT:
+						{
+							FMOD_STUDIO_TIMELINE_BEAT_PROPERTIES* properties =
+									static_cast<FMOD_STUDIO_TIMELINE_BEAT_PROPERTIES*>(parameters);
+
+							props["bar"] = properties->bar;
+							props["beat"] = properties->beat;
+							props["position"] = properties->position;
+							props["tempo"] = properties->tempo;
+							props["timesignatureupper"] = properties->timesignatureupper;
+							props["timesignaturelower"] = properties->timesignaturelower;
+							break;
+						}
+						default:
+							break;
+					}
+
+					callback_info["properties"] = props;
+					Array args = Array();
+					args.append(callback_info);
+					args.append_array(callable->binds);
+
+					Object* target = ObjectDB::get_instance(callable->object_id);
+
+					target->callv(callable->function_name, args);
+					return FMOD_OK;
+				},
+				callback_mask));
 	}
-	else if (callable.get_type() == Variant::Type::NIL)
+	else if (target == nullptr)
 	{
-		if (callable_ptr)
+		if (callable_data)
 		{
 			FMOD_RESULT result = event_instance->setCallback(nullptr, FMOD_STUDIO_EVENT_CALLBACK_ALL);
 			event_instance->setUserData(nullptr);
-			delete callable_ptr;
+			memfree(callable_data);
 			return result;
 		}
 	}
@@ -2027,9 +2045,9 @@ int Bank::get_event_count() const
 	return count;
 }
 
-Vector<EventDescription> Bank::get_event_list(int capacity)
+Vector<Ref<EventDescription>> Bank::get_event_list(int capacity)
 {
-	Vector<EventDescription> event_list;
+	Vector<Ref<EventDescription>> event_list;
 	std::unique_ptr<FMOD::Studio::EventDescription*[]> descriptions =
 			std::make_unique<FMOD::Studio::EventDescription*[]>(capacity);
 
@@ -2063,9 +2081,9 @@ int Bank::get_bus_count() const
 	return count;
 }
 
-Vector<Bus> Bank::get_bus_list(int capacity)
+Vector<Ref<Bus>> Bank::get_bus_list(int capacity)
 {
-	Vector<Bus> bus_list;
+	Vector<Ref<Bus>> bus_list;
 	std::unique_ptr<FMOD::Studio::Bus*[]> busses = std::make_unique<FMOD::Studio::Bus*[]>(capacity);
 
 	int count{};
@@ -2098,9 +2116,9 @@ int Bank::get_vca_count() const
 	return count;
 }
 
-Vector<VCA> Bank::get_vca_list(int capacity)
+Vector<Ref<VCA>> Bank::get_vca_list(int capacity)
 {
-	Vector<VCA> vca_list;
+	Vector<Ref<VCA>> vca_list;
 	std::unique_ptr<FMOD::Studio::VCA*[]> vcas = std::make_unique<FMOD::Studio::VCA*[]>(capacity);
 
 	int count{};

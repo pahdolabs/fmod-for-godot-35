@@ -26,7 +26,7 @@
 
 #include "scene/gui/box_container.h"
 #include "scene/gui/separator.h"
-#include "scene/main/viewport.h"
+#include "scene/gui/dialogs.h"
 
 using namespace godot;
 
@@ -41,7 +41,7 @@ public:
 	ProjectBrowserPreviewButton()
 	{
 		set_text("FMOD");
-		set_button_icon(FMODStudioEditorModule::get_singleton()->get_icon(FMODStudioEditorModule::FMODIconType::FMOD_ICONTYPE_PROJECT));
+		set_icon(FMODStudioEditorModule::get_singleton()->get_icon(FMODStudioEditorModule::FMODIconType::FMOD_ICONTYPE_PROJECT));
 	}
 
 	~ProjectBrowserPreviewButton() = default;
@@ -49,13 +49,13 @@ public:
 
 class ProjectBrowserTree : public Tree
 {
-	GDCLASS(ProjectBrowserTree, Tree);
 
 protected:
 	static void _bind_methods();
 
 private:
 public:
+
 	TreeItem* root = nullptr;
 	TreeItem* events_root = nullptr;
 	TreeItem* banks_root = nullptr;
@@ -110,9 +110,9 @@ public:
 	void on_value_changed(float value);
 };
 
-class ProjectBrowserWindow : public Window
+class ProjectBrowserWindow : public WindowDialog
 {
-	GDCLASS(ProjectBrowserWindow, Window);
+	GDCLASS(ProjectBrowserWindow, WindowDialog);
 
 	enum PopupType
 	{
@@ -199,7 +199,7 @@ private:
 	void on_bank_popup_id_pressed(int32_t id);
 
 public:
-	void _input(const Ref<InputEvent>& event) override;
+	void _input(const Ref<InputEvent>& event);
 	void set_editor_scale(float scale);
 	void initialize();
 };

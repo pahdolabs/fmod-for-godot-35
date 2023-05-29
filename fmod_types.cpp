@@ -69,9 +69,9 @@ void FMOD_STUDIO_PARAMETER_DESCRIPTION::_bind_methods()
 	ADD_PROPERTY(PropertyInfo(Variant::STRING, "name"), "set_name", "get_name");
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "id", PROPERTY_HINT_RESOURCE_TYPE, "FMOD_STUDIO_PARAMETER_ID"), "set_id",
 			"get_id");
-	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "minimum"), "set_minimum", "get_minimum");
-	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "maximum"), "set_maximum", "get_maximum");
-	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "default_value"), "set_default_value", "get_default_value");
+	ADD_PROPERTY(PropertyInfo(Variant::REAL, "minimum"), "set_minimum", "get_minimum");
+	ADD_PROPERTY(PropertyInfo(Variant::REAL, "maximum"), "set_maximum", "get_maximum");
+	ADD_PROPERTY(PropertyInfo(Variant::REAL, "default_value"), "set_default_value", "get_default_value");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "type", PROPERTY_HINT_ENUM,
 						 "GAME_CONTROLLED,DISTANCE,EVENT_CONE_ANGLE,EVENT_ORIENTATION,DIRECTION,ELEVATION,"
 						 "LISTENER_ORIENTATION,SPEED,SPEED_ABSOLUTE,DISTANCE_NORMALIZED,MAX"),
@@ -210,7 +210,7 @@ void FMOD_STUDIO_USER_PROPERTY::_bind_methods()
 			"set_type", "get_type");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "intvalue"), "set_intvalue", "get_intvalue");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "boolvalue"), "set_boolvalue", "get_boolvalue");
-	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "floatvalue"), "set_floatvalue", "get_floatvalue");
+	ADD_PROPERTY(PropertyInfo(Variant::REAL, "floatvalue"), "set_floatvalue", "get_floatvalue");
 	ADD_PROPERTY(PropertyInfo(Variant::STRING, "stringvalue"), "set_stringvalue", "get_stringvalue");
 }
 
@@ -387,7 +387,7 @@ void FMOD_STUDIO_BUFFER_INFO::_bind_methods()
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "peakusage"), "set_peakusage", "get_peakusage");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "capacity"), "set_capacity", "get_capacity");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "stallcount"), "set_stallcount", "get_stallcount");
-	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "stalltime"), "set_stalltime", "get_stalltime");
+	ADD_PROPERTY(PropertyInfo(Variant::REAL, "stalltime"), "set_stalltime", "get_stalltime");
 }
 
 void FMOD_STUDIO_BUFFER_INFO::set_currentusage(int currentusage)
@@ -493,9 +493,9 @@ Ref<FMOD_STUDIO_BUFFER_INFO> FMOD_STUDIO_BUFFER_USAGE::get_studio_handle() const
 
 void FMOD_STUDIO_BUFFER_USAGE::set_buffer_usage(const ::FMOD_STUDIO_BUFFER_USAGE& buffer_usage)
 {
-	studiocommandqueue.instantiate();
+	studiocommandqueue.instance();
 	studiocommandqueue->set_buffer_info(buffer_usage.studiocommandqueue);
-	studiohandle.instantiate();
+	studiohandle.instance();
 	studiohandle->set_buffer_info(buffer_usage.studiohandle);
 }
 
@@ -510,7 +510,7 @@ void FMOD_STUDIO_CPU_USAGE::_bind_methods()
 	ClassDB::bind_method(D_METHOD("set_update", "update"), &FMOD_STUDIO_CPU_USAGE::set_update);
 	ClassDB::bind_method(D_METHOD("get_update"), &FMOD_STUDIO_CPU_USAGE::get_update);
 
-	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "update"), "set_update", "get_update");
+	ADD_PROPERTY(PropertyInfo(Variant::REAL, "update"), "set_update", "get_update");
 }
 
 void FMOD_STUDIO_CPU_USAGE::set_update(float update)
@@ -546,11 +546,11 @@ void FMOD_CPU_USAGE::_bind_methods()
 	ClassDB::bind_method(D_METHOD("set_convolution_2", "convolution_2"), &FMOD_CPU_USAGE::set_convolution_2);
 	ClassDB::bind_method(D_METHOD("get_convolution_2"), &FMOD_CPU_USAGE::get_convolution_2);
 
-	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "dsp"), "set_dsp", "get_dsp");
-	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "geometry"), "set_geometry", "get_geometry");
-	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "update"), "set_update", "get_update");
-	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "convolution_1"), "set_convolution_1", "get_convolution_1");
-	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "convolution_2"), "set_convolution_2", "get_convolution_2");
+	ADD_PROPERTY(PropertyInfo(Variant::REAL, "dsp"), "set_dsp", "get_dsp");
+	ADD_PROPERTY(PropertyInfo(Variant::REAL, "geometry"), "set_geometry", "get_geometry");
+	ADD_PROPERTY(PropertyInfo(Variant::REAL, "update"), "set_update", "get_update");
+	ADD_PROPERTY(PropertyInfo(Variant::REAL, "convolution_1"), "set_convolution_1", "get_convolution_1");
+	ADD_PROPERTY(PropertyInfo(Variant::REAL, "convolution_2"), "set_convolution_2", "get_convolution_2");
 }
 
 void FMOD_CPU_USAGE::set_dsp(float dsp)

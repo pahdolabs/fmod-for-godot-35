@@ -45,7 +45,7 @@ void RuntimeUtils::to_3d_attributes_transform_physicsbody(Ref<FmodTypes::FMOD_3D
 	{
 		const Transform transform3d = transform;
 
-		transform3d_to_3dattributes(transform3d, fmod_attributes, physicsbody);
+		transform_to_3dattributes(transform3d, fmod_attributes, physicsbody);
 		attributes->set_3d_attributes(fmod_attributes);
 	}
 	else if (transform_type == Variant::TRANSFORM2D)
@@ -69,10 +69,10 @@ void RuntimeUtils::to_3d_attributes(Ref<FmodTypes::FMOD_3D_ATTRIBUTES> attribute
 
 	switch (position.get_type())
 	{
-		case Variant::TRANSFORM3D:
+		case Variant::TRANSFORM:
 		{
 			Transform transform3d = position;
-			transform3d_to_3dattributes(transform3d, fmod_attributes);
+			transform_to_3dattributes(transform3d, fmod_attributes);
 			attributes->set_3d_attributes(fmod_attributes);
 			break;
 		}

@@ -44,7 +44,7 @@ bool StudioBankLoader::_set(const StringName& p_name, const Variant& p_value)
 			int64_t bank_index = name.get_slice("_", 1).to_int();
 
 			set_bank_ref(bank_index, Variant());
-			notify_property_list_changed();
+			_change_notify();
 			return true;
 		}
 		else
@@ -125,19 +125,20 @@ void StudioBankLoader::set_bank_ref(int index, const Variant& value)
 	}
 }
 
-void StudioBankLoader::_enter_tree()
+void StudioBankLoader::_notification(int p_what)
 {
-	handle_game_event(RuntimeUtils::GameEvent::GAMEEVENT_ENTER_TREE);
-}
-
-void StudioBankLoader::_ready()
-{
-	handle_game_event(RuntimeUtils::GameEvent::GAMEEVENT_READY);
-}
-
-void StudioBankLoader::_exit_tree()
-{
-	handle_game_event(RuntimeUtils::GameEvent::GAMEEVENT_EXIT_TREE);
+	if (p_what == NOTIFICATION_ENTER_TREE)
+	{
+		handle_game_event(RuntimeUtils::GameEvent::GAMEEVENT_ENTER_TREE);
+	}
+	if (p_what == NOTIFICATION_READY)
+	{
+		handle_game_event(RuntimeUtils::GameEvent::GAMEEVENT_READY);
+	}
+	if (p_what == NOTIFICATION_EXIT_TREE)
+	{
+		handle_game_event(RuntimeUtils::GameEvent::GAMEEVENT_EXIT_TREE);
+	}
 }
 
 void StudioBankLoader::handle_game_event(RuntimeUtils::GameEvent game_event)
@@ -229,7 +230,7 @@ void StudioBankLoader::set_num_banks(int num_banks)
 	if (is_inside_tree())
 	{
 		Ref<SceneTreeTimer> timer = get_tree()->create_timer(0.001);
-		timer->connect("timeout", Callable(this, "notify_property_list_changed"));
+		timer->connect("timeout", this, "change_notify");
 	}
 }
 
