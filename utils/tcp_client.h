@@ -90,19 +90,25 @@ public:
 
 	Error get_command(const String& command, String& result)
 	{
-		if (put_data(command.to_utf8_buffer()) != Error::OK)
+		CharString charstr = command.utf8();
+		Vector<uint8_t> command_val;
+		size_t len = charstr.length();
+		command_val.resize(len);
+		memcpy(command_val.ptrw(), charstr.ptr(), len);
+		
+		if (put_data(command_val.ptrw(), len) != Error::OK)
 		{
 			return Error::FAILED;
 		}
 
 		int32_t bytes = get_available_bytes();
 
-		Array bytes_array;
+		PoolByteArray bytes_array;
 		if (bytes >= 0)
 		{
-			Array result_array = get_data(get_available_bytes());
-			bytes_array = result_array;
-			if (bytes_array.size() == 0)
+			bytes_array.resize(bytes);
+			
+			if (get_data(bytes_array.write().ptr(), bytes) != Error::OK)
 			{
 				return Error::FAILED;
 			}
@@ -117,21 +123,25 @@ public:
 			return Error::FAILED;
 		}
 
-		PackedByteArray data_array = bytes_array[1];
+		PoolByteArray data_array = bytes_array;
 
-		if (data_array.is_empty())
+		if (data_array.empty())
 		{
-			while (data_array.is_empty())
+			while (data_array.empty())
 			{
-				bytes_array = get_data(get_available_bytes());
-				data_array = bytes_array[1];
+				int bytes = get_available_bytes();
+				bytes_array.resize(bytes);
+				get_data(bytes_array.write().ptr(), bytes);
+				data_array = bytes_array;
 			}
 		}
 
 		while (data_array[data_array.size() - 1] != 0)
 		{
-			bytes_array = get_data(get_available_bytes());
-			data_array = bytes_array[1];
+			int bytes = get_available_bytes();
+			bytes_array.resize(bytes);
+			get_data(bytes_array.write().ptr(), bytes);
+			data_array = bytes_array;
 		}
 
 		if (data_array.size() == 0)
@@ -141,7 +151,11 @@ public:
 
 		if (data_array[data_array.size() - 1] == 0)
 		{
-			String message = data_array.get_string_from_utf8().strip_escapes();
+			CharString message_char;
+			message_char.resize(data_array.size());
+			memcpy(message_char.ptrw(), data_array.read().ptr(), data_array.size());
+			
+			String message = String(message_char);
 			message = message.replace("out(): ", "");
 			result = message;
 			return Error::OK;

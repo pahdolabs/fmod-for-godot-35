@@ -27,9 +27,7 @@ private:
 	float parameter_value = 0.0f;
 
 public:
-	virtual void _enter_tree() override;
-	virtual void _ready() override;
-	virtual void _exit_tree() override;
+	void _notification(int p_what);
 
 	void handle_game_event(RuntimeUtils::GameEvent game_event);
 	void trigger();

@@ -3,7 +3,7 @@
 
 #include "fmod_studio_module.h"
 #include "main/performance.h"
-#include "scene/main/time.h"
+#include "core/os/time.h"
 
 class FMODDebugMonitor : public Node
 {
@@ -24,9 +24,7 @@ private:
 	FMOD::System* core_system = nullptr;
 
 public:
-	virtual void _enter_tree() override;
-	virtual void _exit_tree() override;
-	virtual void _process(double delta) override;
+	void _notification(int p_what);
 
 	void process_debug_info();
 	float get_cpu_dsp_usage();

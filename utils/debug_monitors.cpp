@@ -12,88 +12,89 @@ void FMODDebugMonitor::_bind_methods()
 	ClassDB::bind_method(D_METHOD("get_real_channels"), &FMODDebugMonitor::get_real_channels);
 }
 
-void FMODDebugMonitor::_enter_tree()
+void FMODDebugMonitor::_notification(int p_what)
 {
-	if (Engine::get_singleton()->is_editor_hint())
+	if (p_what == NOTIFICATION_ENTER_TREE)
 	{
-		return;
-	}
+		if (Engine::get_singleton()->is_editor_hint())
+		{
+			return;
+		}
 
-	Performance* performance = Performance::get_singleton();
+		Performance* performance = Performance::get_singleton();
 
-	if (performance == nullptr)
-	{
-		return;
-	}
+		if (performance == nullptr)
+		{
+			return;
+		}
 
-	studio_system = FMODStudioModule::get_singleton()->get_studio_system();
+		studio_system = FMODStudioModule::get_singleton()->get_studio_system();
 
-	if (studio_system == nullptr)
-	{
-		return;
-	}
+		if (studio_system == nullptr)
+		{
+			return;
+		}
 
-	core_system = FMODStudioModule::get_singleton()->get_core_system();
+		core_system = FMODStudioModule::get_singleton()->get_core_system();
 
-	if (core_system == nullptr)
-	{
-		return;
-	}
+		if (core_system == nullptr)
+		{
+			return;
+		}
 
-	if (!performance->has_custom_monitor("FMOD/DSP CPU Usage (%)"))
-	{
-		performance->add_custom_monitor("FMOD/DSP CPU Usage (%)", Callable(this, "get_cpu_dsp_usage"));
+		// if (!performance->has_custom_monitor("FMOD/DSP CPU Usage (%)"))
+		// {
+		// 	performance->add_custom_monitor("FMOD/DSP CPU Usage (%)", Callable(this, "get_cpu_dsp_usage"));
+		// }
+		// if (!performance->has_custom_monitor("FMOD/Studio CPU Update (%)"))
+		// {
+		// 	performance->add_custom_monitor("FMOD/Studio CPU Update (%)",
+		// 			Callable(this, "get_cpu_studio_update"));
+		// }
+		// if (!performance->has_custom_monitor("FMOD/Memory Allocation (MB)"))
+		// {
+		// 	performance->add_custom_monitor("FMOD/Memory Allocation (MB)",
+		// 			Callable(this, "get_current_memory_alloc"));
+		// }
+		// if (!performance->has_custom_monitor("FMOD/Max Memory Allocation (MB)"))
+		// {
+		// 	performance->add_custom_monitor("FMOD/Max Memory Allocation (MB)",
+		// 			Callable(this, "get_max_memory_alloc"));
+		// }
+		// if (!performance->has_custom_monitor("FMOD/Channels"))
+		// {
+		// 	performance->add_custom_monitor("FMOD/Channels", Callable(this, "get_channels"));
+		// }
+		// if (!performance->has_custom_monitor("FMOD/Real Channels"))
+		// {
+		// 	performance->add_custom_monitor("FMOD/Real Channels", Callable(this, "get_real_channels"));
+		// }
 	}
-	if (!performance->has_custom_monitor("FMOD/Studio CPU Update (%)"))
+	if (p_what == NOTIFICATION_EXIT_TREE)
 	{
-		performance->add_custom_monitor("FMOD/Studio CPU Update (%)",
-				Callable(this, "get_cpu_studio_update"));
-	}
-	if (!performance->has_custom_monitor("FMOD/Memory Allocation (MB)"))
-	{
-		performance->add_custom_monitor("FMOD/Memory Allocation (MB)",
-				Callable(this, "get_current_memory_alloc"));
-	}
-	if (!performance->has_custom_monitor("FMOD/Max Memory Allocation (MB)"))
-	{
-		performance->add_custom_monitor("FMOD/Max Memory Allocation (MB)",
-				Callable(this, "get_max_memory_alloc"));
-	}
-	if (!performance->has_custom_monitor("FMOD/Channels"))
-	{
-		performance->add_custom_monitor("FMOD/Channels", Callable(this, "get_channels"));
-	}
-	if (!performance->has_custom_monitor("FMOD/Real Channels"))
-	{
-		performance->add_custom_monitor("FMOD/Real Channels", Callable(this, "get_real_channels"));
-	}
-}
+		if (Engine::get_singleton()->is_editor_hint())
+		{
+			return;
+		}
 
-void FMODDebugMonitor::_exit_tree()
-{
-	if (Engine::get_singleton()->is_editor_hint())
-	{
-		return;
+		if (!core_system)
+		{
+			return;
+		}
 	}
-
-	if (!core_system)
+	if (p_what == NOTIFICATION_PROCESS)
 	{
-		return;
-	}
-}
+		if (Engine::get_singleton()->is_editor_hint())
+		{
+			return;
+		}
 
-void FMODDebugMonitor::_process(double delta)
-{
-	if (Engine::get_singleton()->is_editor_hint())
-	{
-		return;
-	}
+		if (last_debug_update + 250 < Time::get_singleton()->get_ticks_msec())
+		{
+			process_debug_info();
 
-	if (last_debug_update + 250 < Time::get_singleton()->get_ticks_msec())
-	{
-		process_debug_info();
-
-		last_debug_update = Time::get_singleton()->get_ticks_msec();
+			last_debug_update = Time::get_singleton()->get_ticks_msec();
+		}
 	}
 }
 

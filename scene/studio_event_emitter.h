@@ -22,6 +22,7 @@ struct StudioEventEmitterImpl
 	bool allow_fadeout = true;
 	bool trigger_once{};
 	Object* rigidbody = nullptr;
+	NodePath rigidbody_path = NodePath();
 	Dictionary overridden_parameters;
 	Ref<StudioApi::EventInstance> event_instance;
 
@@ -63,14 +64,12 @@ protected:
 	void _get_property_list(List<PropertyInfo>* p_list) const;
 	bool _property_can_revert(const StringName& p_name) const;
 	bool _property_get_revert(const StringName& p_name, Variant& r_property) const;
+	void set_rigidbody(Object* rigidbody);
 
 public:
 	StudioEventEmitterImpl<StudioEventEmitter2D> implementation;
 
-	virtual void _enter_tree() override;
-	virtual void _ready() override;
-	virtual void _exit_tree() override;
-	virtual void _process(double p_delta) override;
+	void _notification(int p_what);
 
 	void handle_game_event(RuntimeUtils::GameEvent game_event);
 
@@ -97,16 +96,17 @@ public:
 	void set_trigger_once(bool trigger_once);
 	bool get_trigger_once() const;
 
-	void set_rigidbody(Object* rigidbody);
+	void set_rigidbody_path(NodePath path);
 	Object* get_rigidbody() const;
+	NodePath get_rigidbody_path() const;
 
 	void set_overridden_parameters(const Dictionary& overridden_parameters);
 	Dictionary get_overridden_parameters() const;
 };
 
-class StudioEventEmitter3D : public Node3D
+class StudioEventEmitter3D : public Spatial
 {
-	GDCLASS(StudioEventEmitter3D, Node3D);
+	GDCLASS(StudioEventEmitter3D, Spatial);
 
 protected:
 	static void _bind_methods();
@@ -115,16 +115,14 @@ protected:
 	void _get_property_list(List<PropertyInfo>* p_list) const;
 	bool _property_can_revert(const StringName& p_name) const;
 	bool _property_get_revert(const StringName& p_name, Variant& r_property) const;
+	void set_rigidbody(Object* rigidbody);
 
 public:
 	StudioEventEmitterImpl<StudioEventEmitter3D> implementation;
 
 	static void update_active_emitters();
 
-	virtual void _enter_tree() override;
-	virtual void _ready() override;
-	virtual void _exit_tree() override;
-	virtual void _process(double p_delta) override;
+	void _notification(int p_what);
 
 	void handle_game_event(RuntimeUtils::GameEvent game_event);
 
@@ -151,8 +149,9 @@ public:
 	void set_trigger_once(bool trigger_once);
 	bool get_trigger_once() const;
 
-	void set_rigidbody(Object* rigidbody);
+	void set_rigidbody_path(NodePath path);
 	Object* get_rigidbody() const;
+	NodePath get_rigidbody_path() const;
 
 	void set_overridden_parameters(const Dictionary& overridden_parameters);
 	Dictionary get_overridden_parameters() const;

@@ -11,10 +11,12 @@
 struct ListenerImpl
 {
 	Node2D* node_2d = nullptr;
-	Node3D* node_3d = nullptr;
+	Spatial* node_3d = nullptr;
 	Ref<FmodTypes::FMOD_3D_ATTRIBUTES> attributes = create_ref<FmodTypes::FMOD_3D_ATTRIBUTES>();
 	Object* attenuation_object = nullptr;
+	NodePath attenuation_object_path = NodePath();
 	Object* rigidbody = nullptr;
+	NodePath rigidbody_path = NodePath();
 
 	int get_num_listener();
 
@@ -39,47 +41,51 @@ protected:
 
 private:
 	ListenerImpl implementation;
+	void set_attenuation_object(Object* object);
+	void set_rigidbody(Object* object);
 
 public:
 	static float distance_to_nearest_listener(const Vector2& position);
 
-	virtual void _enter_tree() override;
-	virtual void _exit_tree() override;
-	virtual void _process(double p_delta) override;
+	void _notification(int p_what);
 
-	void set_attenuation_object(Object* object);
+	NodePath get_attenuation_object_path() const;
 	Object* get_attenuation_object() const;
 
-	void set_rigidbody(Object* object);
+	void set_attenuation_object_path(NodePath p_path);
+	void set_rigidbody_path(NodePath p_path);
 	Object* get_rigidbody() const;
+	NodePath get_rigidbody_path() const;
 
 	void set_num_listener(int num);
 	int get_num_listener();
 };
 
-class StudioListener3D : public Node3D
+class StudioListener3D : public Spatial
 {
-	GDCLASS(StudioListener3D, Node3D);
+	GDCLASS(StudioListener3D, Spatial);
 
 protected:
 	static void _bind_methods();
 
 private:
 	ListenerImpl implementation;
+	void set_attenuation_object(Object* object);
+	void set_rigidbody(Object* object);
 
 public:
 	static float distance_to_nearest_listener(const Vector3& position);
 	static int get_listener_count();
 
-	virtual void _enter_tree() override;
-	virtual void _exit_tree() override;
-	virtual void _process(double p_delta) override;
+	void _notification(int p_what);
 
-	void set_attenuation_object(Object* object);
+	void set_attenuation_object_path(NodePath p_path);
 	Object* get_attenuation_object() const;
+	NodePath get_attenuation_object_path() const;
 
-	void set_rigidbody(Object* object);
+	void set_rigidbody_path(NodePath p_path);
 	Object* get_rigidbody() const;
+	NodePath get_rigidbody_path() const;
 
 	void set_num_listener(int num);
 	int get_num_listener();

@@ -5,7 +5,7 @@
 #include "fmod_types.h"
 #include "scene/2d/physics_body_2d.h"
 #include "scene/3d/physics_body.h"
-#include "scene/3d/physics_body_2d.h"
+#include "scene/2d/physics_body_2d.h"
 #include "scene/3d/physics_body.h"
 
 #include "core/class_db.h"

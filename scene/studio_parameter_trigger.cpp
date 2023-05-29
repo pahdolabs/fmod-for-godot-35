@@ -56,7 +56,7 @@ bool StudioParameterTrigger::_set(const StringName& p_name, const Variant& p_val
 					{
 						String guid = parameter->get_guid();
 						overridden_parameters.erase(guid);
-						notify_property_list_changed();
+						_change_notify();
 					}
 					return true;
 				}
@@ -135,7 +135,7 @@ void StudioParameterTrigger::_get_property_list(List<PropertyInfo>* p_list) cons
 
 	Dictionary parameters = event->get_parameters();
 
-	if (parameters.is_empty())
+	if (parameters.empty())
 	{
 		return;
 	}
@@ -148,7 +148,7 @@ void StudioParameterTrigger::_get_property_list(List<PropertyInfo>* p_list) cons
 		Array values = parameters.values();
 		if (Engine::get_singleton()->is_editor_hint())
 		{
-			values.sort_custom(Callable(FMODStudioEditorModule::get_singleton(), "sort_parameters_by_name"));
+			values.sort_custom(FMODStudioEditorModule::get_singleton(), "sort_parameters_by_name");
 		}
 
 		for (int64_t i = 0; i < values.size(); i++)
@@ -168,7 +168,7 @@ void StudioParameterTrigger::_get_property_list(List<PropertyInfo>* p_list) cons
 			if ((parameter_description->get_flags() & FMOD_STUDIO_PARAMETER_DISCRETE) &&
 					!(parameter_description->get_flags() & FMOD_STUDIO_PARAMETER_LABELED))
 			{
-				flags = Variant::FLOAT;
+				flags = Variant::REAL;
 				step = 1.0f;
 			}
 			else if (parameter_description->get_flags() & FMOD_STUDIO_PARAMETER_LABELED)
@@ -177,7 +177,7 @@ void StudioParameterTrigger::_get_property_list(List<PropertyInfo>* p_list) cons
 			}
 			else
 			{
-				flags = Variant::FLOAT;
+				flags = Variant::REAL;
 				step = 0.01f;
 			}
 
@@ -282,61 +282,62 @@ void StudioParameterTrigger::reset()
 	event = Ref<EventAsset>();
 }
 
-void StudioParameterTrigger::_enter_tree()
+void StudioParameterTrigger::_notification(int p_what)
 {
-	handle_game_event(RuntimeUtils::GameEvent::GAMEEVENT_ENTER_TREE);
-}
-
-void StudioParameterTrigger::_ready()
-{
-	if (Engine::get_singleton()->is_editor_hint())
+	if (p_what == NOTIFICATION_ENTER_TREE)
 	{
-		if (is_inside_tree())
+		handle_game_event(RuntimeUtils::GameEvent::GAMEEVENT_ENTER_TREE);
+	}
+	if (p_what == NOTIFICATION_READY)
+	{
+		if (Engine::get_singleton()->is_editor_hint())
 		{
-			Node* node = get_node_or_null(studio_event_emitter);
-
-			if (!node)
+			if (is_inside_tree())
 			{
-				return;
-			}
+				Node* node = get_node_or_null(studio_event_emitter);
 
-			if (node->has_signal("event_changed"))
-			{
-				if (!node->is_connected("event_changed", Callable(this, "on_event_changed")))
+				if (!node)
 				{
-					node->connect("event_changed", Callable(this, "on_event_changed"));
+					return;
+				}
+
+				if (node->has_signal("event_changed"))
+				{
+					if (!node->is_connected("event_changed", this, "on_event_changed"))
+					{
+						node->connect("event_changed", this, "on_event_changed");
+					}
 				}
 			}
 		}
+
+		handle_game_event(RuntimeUtils::GameEvent::GAMEEVENT_READY);
 	}
-
-	handle_game_event(RuntimeUtils::GameEvent::GAMEEVENT_READY);
-}
-
-void StudioParameterTrigger::_exit_tree()
-{
-	if (Engine::get_singleton()->is_editor_hint())
+	if (p_what == NOTIFICATION_EXIT_TREE)
 	{
-		if (is_inside_tree())
+		if (Engine::get_singleton()->is_editor_hint())
 		{
-			Node* node = get_node_or_null(studio_event_emitter);
-
-			if (!node)
+			if (is_inside_tree())
 			{
-				return;
-			}
+				Node* node = get_node_or_null(studio_event_emitter);
 
-			if (node->has_signal("event_changed"))
-			{
-				if (node->is_connected("event_changed", Callable(this, "on_event_changed")))
+				if (!node)
 				{
-					node->disconnect("event_changed", Callable(this, "on_event_changed"));
+					return;
+				}
+
+				if (node->has_signal("event_changed"))
+				{
+					if (node->is_connected("event_changed", this, "on_event_changed"))
+					{
+						node->disconnect("event_changed", this, "on_event_changed");
+					}
 				}
 			}
 		}
-	}
 
-	handle_game_event(RuntimeUtils::GameEvent::GAMEEVENT_EXIT_TREE);
+		handle_game_event(RuntimeUtils::GameEvent::GAMEEVENT_EXIT_TREE);
+	}
 }
 
 void StudioParameterTrigger::handle_game_event(RuntimeUtils::GameEvent game_event)
@@ -457,7 +458,7 @@ void StudioParameterTrigger::set_studio_event_emitter(const Variant& path)
 
 	if (Engine::get_singleton()->is_editor_hint())
 	{
-		if (_owner == nullptr)
+		if (get_owner() == nullptr)
 		{
 			return;
 		}
@@ -483,7 +484,7 @@ void StudioParameterTrigger::set_studio_event_emitter(const Variant& path)
 			}
 
 			Ref<SceneTreeTimer> timer = get_tree()->create_timer(0.001);
-			timer->connect("timeout", Callable(this, "notify_property_list_changed"));
+			timer->connect("timeout", this, "notify_property_list_changed");
 		}
 
 		return;
@@ -528,13 +529,13 @@ void StudioParameterTrigger::on_event_changed(Object* value)
 
 	if (Engine::get_singleton()->is_editor_hint())
 	{
-		if (_owner == nullptr)
+		if (get_owner() == nullptr)
 		{
 			return;
 		}
 
 		Ref<SceneTreeTimer> timer = get_tree()->create_timer(0.001);
-		timer->connect("timeout", Callable(this, "notify_property_list_changed"));
+		timer->connect("timeout", this, "notify_property_list_changed");
 	}
 
 	if (!path.is_empty())

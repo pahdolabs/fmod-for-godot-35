@@ -29,7 +29,7 @@ bool StudioGlobalParameterTrigger::_set(const StringName& p_name, const Variant&
 			if (name == "value")
 			{
 				overridden_parameter.erase("value");
-				notify_property_list_changed();
+				_change_notify();
 				return true;
 			}
 		}
@@ -90,7 +90,7 @@ void StudioGlobalParameterTrigger::_get_property_list(List<PropertyInfo>* p_list
 		if ((parameter_description->get_flags() & FMOD_STUDIO_PARAMETER_DISCRETE) &&
 				!(parameter_description->get_flags() & FMOD_STUDIO_PARAMETER_LABELED))
 		{
-			flags = Variant::FLOAT;
+			flags = Variant::REAL;
 			step = 1.0f;
 		}
 		else if (parameter_description->get_flags() & FMOD_STUDIO_PARAMETER_LABELED)
@@ -99,7 +99,7 @@ void StudioGlobalParameterTrigger::_get_property_list(List<PropertyInfo>* p_list
 		}
 		else
 		{
-			flags = Variant::FLOAT;
+			flags = Variant::REAL;
 			step = 0.01f;
 		}
 
@@ -193,19 +193,20 @@ void StudioGlobalParameterTrigger::trigger()
 	}
 }
 
-void StudioGlobalParameterTrigger::_enter_tree()
+void StudioGlobalParameterTrigger::_notification(int p_what)
 {
-	handle_game_event(RuntimeUtils::GameEvent::GAMEEVENT_ENTER_TREE);
-}
-
-void StudioGlobalParameterTrigger::_ready()
-{
-	handle_game_event(RuntimeUtils::GameEvent::GAMEEVENT_READY);
-}
-
-void StudioGlobalParameterTrigger::_exit_tree()
-{
-	handle_game_event(RuntimeUtils::GameEvent::GAMEEVENT_EXIT_TREE);
+	if (p_what == NOTIFICATION_ENTER_TREE)
+	{
+		handle_game_event(RuntimeUtils::GameEvent::GAMEEVENT_ENTER_TREE);
+	}
+	if (p_what == NOTIFICATION_READY)
+	{
+		handle_game_event(RuntimeUtils::GameEvent::GAMEEVENT_READY);
+	}
+	if (p_what == NOTIFICATION_EXIT_TREE)
+	{
+		handle_game_event(RuntimeUtils::GameEvent::GAMEEVENT_EXIT_TREE);
+	}
 }
 
 void StudioGlobalParameterTrigger::handle_game_event(RuntimeUtils::GameEvent game_event)
@@ -237,7 +238,7 @@ void StudioGlobalParameterTrigger::set_parameter(const Ref<ParameterAsset>& para
 
 	if (Engine::get_singleton()->is_editor_hint())
 	{
-		if (_owner == nullptr)
+		if (get_owner() == nullptr)
 		{
 			return;
 		}
@@ -261,7 +262,7 @@ void StudioGlobalParameterTrigger::set_parameter(const Ref<ParameterAsset>& para
 			}
 
 			Ref<SceneTreeTimer> timer = get_tree()->create_timer(0.001);
-			timer->connect("timeout", Callable(this, "notify_property_list_changed"));
+			timer->connect("timeout", this, "notify_property_list_changed");
 		}
 	}
 }

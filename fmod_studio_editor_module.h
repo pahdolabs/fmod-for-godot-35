@@ -49,6 +49,7 @@ class FMODStudioEditorModule : public Object
 {
 	GDCLASS(FMODStudioEditorModule, Object);
 
+public:
 	enum FMODIconType
 	{
 		FMOD_ICONTYPE_PROJECT,
@@ -82,7 +83,7 @@ private:
 	FMOD::Studio::System* studio_system;
 	FMOD::System* core_system;
 	Ref<ProjectCache> project_cache;
-	std::unordered_map<FMODIconType, Ref<Texture2D>> icons;
+	std::unordered_map<FMODIconType, Ref<Texture>> icons;
 	Array bank_refs;
 	std::map<FMOD::Studio::Bank*, Ref<BankAsset>> bank_loading_check;
 	std::vector<FMOD::Studio::EventInstance*> preview_events;
@@ -113,7 +114,7 @@ public:
 	void load_all_banks();
 	void unload_all_banks();
 	void create_icon(const String& icon_path, FMODIconType icon_type);
-	Ref<Texture2D> get_icon(FMODIconType icon_type);
+	Ref<Texture> get_icon(FMODIconType icon_type);
 
 	Ref<ProjectCache> generate_cache(const Dictionary& project_info);
 	void reload_cache_file();

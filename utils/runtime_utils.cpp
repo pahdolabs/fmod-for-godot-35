@@ -4,11 +4,11 @@ using namespace godot;
 
 void RuntimeUtils::_bind_methods()
 {
-	ClassDB::bind_static_method("RuntimeUtils", D_METHOD("to_3d_attributes_node", "attributes", "node", "physicsbody"), &RuntimeUtils::to_3d_attributes_node);
+	ClassDB::bind_method(D_METHOD("to_3d_attributes_node", "attributes", "node", "physicsbody"), &RuntimeUtils::to_3d_attributes_node);
 
-	ClassDB::bind_static_method("RuntimeUtils", D_METHOD("to_3d_attributes_transform_physicsbody", "attributes", "transform", "physicsbody"),
+	ClassDB::bind_method( D_METHOD("to_3d_attributes_transform_physicsbody", "attributes", "transform", "physicsbody"),
 			&RuntimeUtils::to_3d_attributes_transform_physicsbody);
-	ClassDB::bind_static_method("RuntimeUtils", D_METHOD("to_3d_attributes", "attributes", "position"), &RuntimeUtils::to_3d_attributes);
+	ClassDB::bind_method(D_METHOD("to_3d_attributes", "attributes", "position"), &RuntimeUtils::to_3d_attributes);
 
 	BIND_ENUM_CONSTANT(GAMEEVENT_NONE);
 	BIND_ENUM_CONSTANT(GAMEEVENT_ENTER_TREE);
@@ -19,7 +19,7 @@ void RuntimeUtils::_bind_methods()
 void RuntimeUtils::to_3d_attributes_node(Ref<FmodTypes::FMOD_3D_ATTRIBUTES> attributes, Object* node,
 		Object* physicsbody)
 {
-	const Node3D* node3d = Object::cast_to<Node3D>(node);
+	const Spatial* node3d = Object::cast_to<Spatial>(node);
 	if (node3d)
 	{
 		to_3d_attributes_transform_physicsbody(attributes, node3d->get_global_transform(), physicsbody);
@@ -41,9 +41,9 @@ void RuntimeUtils::to_3d_attributes_transform_physicsbody(Ref<FmodTypes::FMOD_3D
 	float distance_scale_2d = FMODStudioModule::get_singleton()->distance_scale_2d;
 
 	const Variant::Type transform_type = transform.get_type();
-	if (transform_type == Variant::TRANSFORM3D)
+	if (transform_type == Variant::TRANSFORM)
 	{
-		const Transform3D transform3d = transform;
+		const Transform transform3d = transform;
 
 		transform3d_to_3dattributes(transform3d, fmod_attributes, physicsbody);
 		attributes->set_3d_attributes(fmod_attributes);
@@ -71,7 +71,7 @@ void RuntimeUtils::to_3d_attributes(Ref<FmodTypes::FMOD_3D_ATTRIBUTES> attribute
 	{
 		case Variant::TRANSFORM3D:
 		{
-			Transform3D transform3d = position;
+			Transform transform3d = position;
 			transform3d_to_3dattributes(transform3d, fmod_attributes);
 			attributes->set_3d_attributes(fmod_attributes);
 			break;

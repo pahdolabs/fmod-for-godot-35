@@ -458,7 +458,7 @@ void StudioEventEmitterImpl<StudioEventEmitter3D>::update_playing_status(bool fo
 	float max_distance = get_max_distance();
 	bool should_play_instance{};
 
-	const Transform3D transform = node->get_global_transform();
+	const Transform transform = node->get_global_transform();
 	should_play_instance = ListenerImpl::distance_to_nearest_listener(transform.get_origin()) <= max_distance * max_distance;
 
 	if (force || should_play_instance != is_playing())
@@ -651,8 +651,9 @@ void StudioEventEmitter2D::_bind_methods()
 	ClassDB::bind_method(D_METHOD("get_allow_fadeout"), &StudioEventEmitter2D::get_allow_fadeout);
 	ClassDB::bind_method(D_METHOD("set_trigger_once", "trigger_once"), &StudioEventEmitter2D::set_trigger_once);
 	ClassDB::bind_method(D_METHOD("get_trigger_once"), &StudioEventEmitter2D::get_trigger_once);
-	ClassDB::bind_method(D_METHOD("set_rigidbody", "rigidbody"), &StudioEventEmitter2D::set_rigidbody);
+	ClassDB::bind_method(D_METHOD("set_rigidbody", "path"), &StudioEventEmitter2D::set_rigidbody_path);
 	ClassDB::bind_method(D_METHOD("get_rigidbody"), &StudioEventEmitter2D::get_rigidbody);
+	ClassDB::bind_method(D_METHOD("get_rigidbody_path"), &StudioEventEmitter2D::get_rigidbody_path);
 	ClassDB::bind_method(D_METHOD("set_overridden_parameters", "overridden_parameters"),
 			&StudioEventEmitter2D::set_overridden_parameters);
 	ClassDB::bind_method(D_METHOD("get_overridden_parameters"), &StudioEventEmitter2D::get_overridden_parameters);
@@ -666,8 +667,8 @@ void StudioEventEmitter2D::_bind_methods()
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "preload_samples"), "set_preload_samples", "get_preload_samples");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "allow_fadeout"), "set_allow_fadeout", "get_allow_fadeout");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "trigger_once"), "set_trigger_once", "get_trigger_once");
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "rigidbody", PROPERTY_HINT_NODE_TYPE, "PhysicsBody2D"), "set_rigidbody",
-			"get_rigidbody");
+	ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "rigidbody_path"), "set_rigidbody_path",
+			"get_rigidbody_path");
 	ADD_SIGNAL(MethodInfo("event_changed", PropertyInfo(Variant::STRING, "value")));
 }
 
@@ -696,25 +697,26 @@ bool StudioEventEmitter2D::_property_get_revert(const StringName& p_name, Varian
 	return implementation._property_get_revert(p_name, r_property);
 }
 
-void StudioEventEmitter2D::_enter_tree()
+void StudioEventEmitter2D::_notification(int p_what)
 {
-	implementation.node = this;
-	implementation._enter_tree();
-}
+	if (p_what == NOTIFICATION_ENTER_TREE)
+	{
+		implementation.node = this;
+		implementation._enter_tree();
+	}
+	if (p_what == NOTIFICATION_READY)
+	{
+		implementation._ready();
+	}
+	if (p_what == NOTIFICATION_EXIT_TREE)
+	{
+		implementation._exit_tree();
+	}
+	if (p_what == NOTIFICATION_PROCESS)
 
-void StudioEventEmitter2D::_ready()
-{
-	implementation._ready();
-}
-
-void StudioEventEmitter2D::_exit_tree()
-{
-	implementation._exit_tree();
-}
-
-void StudioEventEmitter2D::_process(double p_delta)
-{
-	implementation._process(p_delta);
+	{
+		implementation._process(get_process_delta_time());
+	}
 }
 
 void StudioEventEmitter2D::handle_game_event(RuntimeUtils::GameEvent game_event)
@@ -779,7 +781,7 @@ void StudioEventEmitter2D::set_event(const Ref<EventAsset>& event)
 
 		if (Engine::get_singleton()->is_editor_hint())
 		{
-			if (_owner == nullptr)
+			if (get_owner() == nullptr)
 			{
 				return;
 			}
@@ -790,7 +792,7 @@ void StudioEventEmitter2D::set_event(const Ref<EventAsset>& event)
 			}
 
 			Ref<SceneTreeTimer> timer = get_tree()->create_timer(0.001);
-			timer->connect("timeout", Callable(this, "notify_property_list_changed"));
+			timer->connect("timeout", this, "notify_property_list_changed");
 		}
 	}
 }
@@ -836,9 +838,19 @@ void StudioEventEmitter2D::set_rigidbody(Object* rigidbody)
 	implementation.rigidbody = Object::cast_to<PhysicsBody2D>(rigidbody);
 }
 
+void StudioEventEmitter2D::set_rigidbody_path(NodePath path)
+{
+	set_rigidbody(get_node(path));
+}
+
 Object* StudioEventEmitter2D::get_rigidbody() const
 {
 	return implementation.rigidbody;
+}
+
+NodePath StudioEventEmitter2D::get_rigidbody_path() const
+{
+	return implementation.rigidbody_path;
 }
 
 void StudioEventEmitter2D::set_overridden_parameters(const Dictionary& overridden_parameters)
@@ -853,8 +865,7 @@ Dictionary StudioEventEmitter2D::get_overridden_parameters() const
 
 void StudioEventEmitter3D::_bind_methods()
 {
-	ClassDB::bind_static_method("StudioEventEmitter3D", D_METHOD("update_active_emitters"),
-			&StudioEventEmitter3D::update_active_emitters);
+	ClassDB::bind_method(D_METHOD("update_active_emitters"), &StudioEventEmitter3D::update_active_emitters);
 	ClassDB::bind_method(D_METHOD("handle_game_event", "game_event"), &StudioEventEmitter3D::handle_game_event);
 	ClassDB::bind_method(D_METHOD("play"), &StudioEventEmitter3D::play);
 	ClassDB::bind_method(D_METHOD("stop"), &StudioEventEmitter3D::stop);
@@ -872,8 +883,9 @@ void StudioEventEmitter3D::_bind_methods()
 	ClassDB::bind_method(D_METHOD("get_allow_fadeout"), &StudioEventEmitter3D::get_allow_fadeout);
 	ClassDB::bind_method(D_METHOD("set_trigger_once", "trigger_once"), &StudioEventEmitter3D::set_trigger_once);
 	ClassDB::bind_method(D_METHOD("get_trigger_once"), &StudioEventEmitter3D::get_trigger_once);
-	ClassDB::bind_method(D_METHOD("set_rigidbody", "rigidbody"), &StudioEventEmitter3D::set_rigidbody);
+	ClassDB::bind_method(D_METHOD("set_rigidbody_path", "path"), &StudioEventEmitter3D::set_rigidbody_path);
 	ClassDB::bind_method(D_METHOD("get_rigidbody"), &StudioEventEmitter3D::get_rigidbody);
+	ClassDB::bind_method(D_METHOD("get_rigidbody_path"), &StudioEventEmitter3D::get_rigidbody_path);
 	ClassDB::bind_method(D_METHOD("set_overridden_parameters", "overridden_parameters"),
 			&StudioEventEmitter3D::set_overridden_parameters);
 	ClassDB::bind_method(D_METHOD("get_overridden_parameters"), &StudioEventEmitter3D::get_overridden_parameters);
@@ -887,8 +899,8 @@ void StudioEventEmitter3D::_bind_methods()
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "preload_samples"), "set_preload_samples", "get_preload_samples");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "allow_fadeout"), "set_allow_fadeout", "get_allow_fadeout");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "trigger_once"), "set_trigger_once", "get_trigger_once");
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "rigidbody", PROPERTY_HINT_NODE_TYPE, "PhysicsBody3D"), "set_rigidbody",
-			"get_rigidbody");
+	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "rigidbody_path"), "set_rigidbody_path",
+			"get_rigidbody_path");
 	ADD_SIGNAL(MethodInfo("event_changed", PropertyInfo(Variant::STRING, "value")));
 }
 
@@ -940,30 +952,30 @@ void StudioEventEmitter3D::update_active_emitters()
 	}
 }
 
-void StudioEventEmitter3D::_enter_tree()
+void StudioEventEmitter3D::_notification(int p_what)
 {
-	implementation.node = this;
-	implementation._enter_tree();
-
-	if (Engine::get_singleton()->is_editor_hint())
+	if (p_what == NOTIFICATION_ENTER_TREE)
 	{
-		update_gizmos();
+		implementation.node = this;
+		implementation._enter_tree();
+
+		if (Engine::get_singleton()->is_editor_hint())
+		{
+			update_gizmo();
+		}
 	}
-}
-
-void StudioEventEmitter3D::_ready()
-{
-	implementation._ready();
-}
-
-void StudioEventEmitter3D::_exit_tree()
-{
-	implementation._exit_tree();
-}
-
-void StudioEventEmitter3D::_process(double p_delta)
-{
-	implementation._process(p_delta);
+	if (p_what == NOTIFICATION_READY)
+	{
+		implementation._ready();
+	}
+	if (p_what == NOTIFICATION_EXIT_TREE)
+	{
+		implementation._exit_tree();
+	}
+	if (p_what == NOTIFICATION_PROCESS)
+	{
+		implementation._process(get_process_delta_time());
+	}
 }
 
 void StudioEventEmitter3D::handle_game_event(RuntimeUtils::GameEvent game_event)
@@ -1028,7 +1040,7 @@ void StudioEventEmitter3D::set_event(const Ref<EventAsset>& event)
 
 		if (Engine::get_singleton()->is_editor_hint())
 		{
-			if (_owner == nullptr)
+			if (get_owner() == nullptr)
 			{
 				return;
 			}
@@ -1039,9 +1051,9 @@ void StudioEventEmitter3D::set_event(const Ref<EventAsset>& event)
 			}
 
 			Ref<SceneTreeTimer> timer = get_tree()->create_timer(0.001);
-			timer->connect("timeout", Callable(this, "notify_property_list_changed"));
+			timer->connect("timeout", this, "notify_property_list_changed");
 
-			update_gizmos();
+			update_gizmo();
 		}
 	}
 }
@@ -1084,12 +1096,22 @@ bool StudioEventEmitter3D::get_trigger_once() const
 void StudioEventEmitter3D::set_rigidbody(Object* rigidbody)
 {
 	// todo(alex): check if this actually works
-	implementation.rigidbody = Object::cast_to<PhysicsBody3D>(rigidbody);
+	implementation.rigidbody = Object::cast_to<PhysicsBody>(rigidbody);
+}
+
+void StudioEventEmitter3D::set_rigidbody_path(NodePath path)
+{
+	set_rigidbody(get_node(path));
 }
 
 Object* StudioEventEmitter3D::get_rigidbody() const
 {
 	return implementation.rigidbody;
+}
+
+NodePath StudioEventEmitter3D::get_rigidbody_path() const
+{
+	return implementation.rigidbody_path;
 }
 
 void StudioEventEmitter3D::set_overridden_parameters(const Dictionary& overridden_parameters)
