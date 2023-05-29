@@ -235,9 +235,15 @@ env_modules.Prepend(CPPPATH=[fmod_api_core_headers_path, fmod_api_studio_headers
 env.Prepend(LIBPATH=[fmod_api_studio_libs_path, fmod_api_core_libs_path])
 
 if env["target"] == "debug" or env["platform"] == "android":
-    env.Append(LIBS=[fmodL_library, fmodstudioL_library])
+    if env.msvc:
+        env.Append(LIBS=[File(fmod_api_core_libs_path + fmodL_library + ".lib"), File(fmod_api_studio_libs_path + fmodstudioL_library + ".lib")])
+    else:
+        env.Append(LIBS=[fmodL_library, fmodstudioL_library])
 else:
-    env.Append(LIBS=[fmod_library, fmodstudio_library])
+    if env.msvc:
+        env.Append(LIBS=[File(fmod_api_core_libs_path + fmod_library + ".lib"), File(fmod_api_studio_libs_path + fmodstudio_library + ".lib")])
+    else:
+        env.Append(LIBS=[fmod_library, fmodstudio_library])
 
 sources = []
 sources.append(Glob("*.cpp"))
