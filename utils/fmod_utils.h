@@ -1,15 +1,13 @@
 #ifndef FMOD_UTILS
 #define FMOD_UTILS
 
+#include "core/object.h"
+#include "core/project_settings.h"
+#include "core/vector.h"
 #include "fmod_errors.h"
 #include "fmod_studio_common.h"
 #include "scene/2d/physics_body_2d.h"
 #include "scene/3d/physics_body.h"
-#include "core/project_settings.h"
-#include "scene/2d/physics_body_2d.h"
-#include "scene/3d/physics_body.h"
-#include "core/object.h"
-#include "core/vector.h"
 
 enum class PlatformSettingsPath
 {
@@ -259,7 +257,7 @@ template <class T>
 static inline Ref<T> create_ref()
 {
 	Ref<T> ref;
-	ref.instantiate();
+	ref.instance();
 	return ref;
 }
 
@@ -276,8 +274,7 @@ static inline void fmod_obj_to_path(const T& obj, String& out_path)
 
 		if (result == FMOD_ERR_EVENT_NOTFOUND)
 		{
-			UtilityFunctions::printerr("[FMOD] Failed to get the Path of an FMOD Object", __FUNCTION__, __FILE__,
-					__LINE__);
+			_err_print_error(__FUNCTION__, __FILE__, __LINE__, "[FMOD] Failed to get the Path of an FMOD Object");
 			break;
 		}
 	} while (result == FMOD_ERR_TRUNCATED);

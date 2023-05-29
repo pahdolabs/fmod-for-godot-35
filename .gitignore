@@ -21,3 +21,8 @@ addons/FMOD/native/src/**/*.o
 addons/FMOD/tests/fmod_test_project/.user
 addons/FMOD/tests/fmod_test_project/.unsaved
 addons/FMOD/editor/cache/fmod_project_cache.tres
+
+*.obj
+*.pyc
+.vscode
+__pycache__

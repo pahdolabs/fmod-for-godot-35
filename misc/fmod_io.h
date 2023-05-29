@@ -10,7 +10,7 @@ class FMODGodotBlockingIO
 {
 	struct FileHandle
 	{
-		Ref<FileAccess> file;
+		FileAccess *file;
 	};
 
 public:

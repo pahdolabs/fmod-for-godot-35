@@ -81,7 +81,6 @@ void FMODSettings::add_setting(const String& name, const Variant& default_value,
 
 void FMODStudioEditorModule::_bind_methods()
 {
-	ClassDB::bind_method(D_METHOD("get_singleton"), &FMODStudioEditorModule::get_singleton);
 	ClassDB::bind_method(D_METHOD("init"), &FMODStudioEditorModule::init);
 	ClassDB::bind_method(D_METHOD("shutdown"), &FMODStudioEditorModule::shutdown);
 
@@ -366,7 +365,7 @@ Array FMODStudioEditorModule::get_bank_file_infos(const String& bank_path) const
 	Array files;
 
 	Error err;
-	Ref<DirAccess> dir = DirAccess::open(bank_path, &err);
+	DirAccess *dir = DirAccess::open(bank_path, &err);
 
 	if (err == Error::OK)
 	{
@@ -381,7 +380,7 @@ Array FMODStudioEditorModule::get_bank_file_infos(const String& bank_path) const
 
 				bank_info["file_path"] = bank_path + String("/") + file_name;
 
-				Ref<FileAccess> file =
+				FileAccess *file =
 						FileAccess::open(bank_path + String("/") + file_name, FileAccess::ModeFlags::READ);
 
 				bank_info["md5"] = file->get_md5(bank_path + String("/") + file_name);
@@ -1153,8 +1152,10 @@ bool FMODStudioEditorModule::get_is_initialized() const
 	return is_initialized;
 }
 
-void FMODStudioEditorModule::poll_banks_loading_state(Timer* timer)
+void FMODStudioEditorModule::poll_banks_loading_state(Object* timer_object)
 {
+	Timer *timer = cast_to<Timer>(timer_object);
+	
 	static int retries = 0;
 	const int max_retries = 10;
 
