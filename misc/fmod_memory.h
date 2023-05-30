@@ -4,8 +4,6 @@
 #include "fmod_common.h"
 #include "core/os/memory.h"
 
-namespace godot
-{
 class FMODGodotMemory
 {
 public:
@@ -24,5 +22,5 @@ public:
 		return Memory::free_static(ptr);
 	}
 };
-} // namespace godot
+
 #endif // FMOD_MEMORY_H

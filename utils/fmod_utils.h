@@ -274,7 +274,7 @@ static inline void fmod_obj_to_path(const T& obj, String& out_path)
 
 		if (result == FMOD_ERR_EVENT_NOTFOUND)
 		{
-			_err_print_error(__FUNCTION__, __FILE__, __LINE__, "[FMOD] Failed to get the Path of an FMOD Object");
+			ERR_PRINT("[FMOD] Failed to get the Path of an FMOD Object");
 			break;
 		}
 	} while (result == FMOD_ERR_TRUNCATED);

@@ -1,7 +1,5 @@
 #include "studio_event_emitter.h"
 
-using namespace godot;
-
 template <typename T>
 static inline std::vector<T*>& get_active_emitters()
 {
@@ -143,7 +141,7 @@ void StudioEventEmitterImpl<T>::_get_property_list(List<PropertyInfo>* p_list) c
 
 	Dictionary parameters = event->get_parameters();
 
-	if (parameters.is_empty())
+	if (parameters.empty())
 	{
 		return;
 	}
@@ -156,7 +154,7 @@ void StudioEventEmitterImpl<T>::_get_property_list(List<PropertyInfo>* p_list) c
 		Array values = parameters.values();
 		if (Engine::get_singleton()->is_editor_hint())
 		{
-			values.sort_custom(Callable(FMODStudioEditorModule::get_singleton(), "sort_parameters_by_name"));
+			values.sort_custom(FMODStudioEditorModule::get_singleton(), "sort_parameters_by_name");
 		}
 
 		for (int i = 0; i < values.size(); i++)
@@ -168,7 +166,7 @@ void StudioEventEmitterImpl<T>::_get_property_list(List<PropertyInfo>* p_list) c
 			if ((parameter->get_parameter_description()->get_flags() & FMOD_STUDIO_PARAMETER_DISCRETE) &&
 					!(parameter->get_parameter_description()->get_flags() & FMOD_STUDIO_PARAMETER_LABELED))
 			{
-				flags = Variant::FLOAT;
+				flags = Variant::REAL;
 				step = 1.0f;
 			}
 			else if (parameter->get_parameter_description()->get_flags() & FMOD_STUDIO_PARAMETER_LABELED)
@@ -177,7 +175,7 @@ void StudioEventEmitterImpl<T>::_get_property_list(List<PropertyInfo>* p_list) c
 			}
 			else
 			{
-				flags = Variant::FLOAT;
+				flags = Variant::REAL;
 				step = 0.01;
 			}
 
@@ -315,7 +313,7 @@ void StudioEventEmitterImpl<T>::play_instance()
 			}
 			else
 			{
-				RuntimeUtils::to_3d_attributes_transform_physicsbody(attributes, Transform3D(), rigidbody);
+				RuntimeUtils::to_3d_attributes_transform_physicsbody(attributes, Transform(), rigidbody);
 			}
 
 			event_instance->set_3d_attributes(attributes);
@@ -533,7 +531,7 @@ void StudioEventEmitterImpl<T>::_process(double p_delta)
 		}
 		else
 		{
-			RuntimeUtils::to_3d_attributes_transform_physicsbody(attributes, Transform3D(), rigidbody);
+			RuntimeUtils::to_3d_attributes_transform_physicsbody(attributes, Transform(), rigidbody);
 		}
 
 		if (event_instance.is_valid())
@@ -865,7 +863,7 @@ Dictionary StudioEventEmitter2D::get_overridden_parameters() const
 
 void StudioEventEmitter3D::_bind_methods()
 {
-	ClassDB::bind_method(D_METHOD("update_active_emitters"), &StudioEventEmitter3D::update_active_emitters);
+	ClassDB::bind_method(D_METHOD("update_active_emitters"), &StudioEventEmitter3D::local_update_active_emitters);
 	ClassDB::bind_method(D_METHOD("handle_game_event", "game_event"), &StudioEventEmitter3D::handle_game_event);
 	ClassDB::bind_method(D_METHOD("play"), &StudioEventEmitter3D::play);
 	ClassDB::bind_method(D_METHOD("stop"), &StudioEventEmitter3D::stop);
@@ -927,6 +925,10 @@ bool StudioEventEmitter3D::_property_can_revert(const StringName& p_name) const
 bool StudioEventEmitter3D::_property_get_revert(const StringName& p_name, Variant& r_property) const
 {
 	return implementation._property_get_revert(p_name, r_property);
+}
+
+void StudioEventEmitter3D::local_update_active_emitters() {
+	update_active_emitters();
 }
 
 void StudioEventEmitter3D::update_active_emitters()

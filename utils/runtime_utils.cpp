@@ -1,19 +1,23 @@
 #include "runtime_utils.h"
 
-using namespace godot;
-
 void RuntimeUtils::_bind_methods()
 {
-	ClassDB::bind_method(D_METHOD("to_3d_attributes_node", "attributes", "node", "physicsbody"), &RuntimeUtils::to_3d_attributes_node);
+	ClassDB::bind_method(D_METHOD("to_3d_attributes_node", "attributes", "node", "physicsbody"), &RuntimeUtils::local_to_3d_attributes_node);
 
-	ClassDB::bind_method( D_METHOD("to_3d_attributes_transform_physicsbody", "attributes", "transform", "physicsbody"),
-			&RuntimeUtils::to_3d_attributes_transform_physicsbody);
-	ClassDB::bind_method(D_METHOD("to_3d_attributes", "attributes", "position"), &RuntimeUtils::to_3d_attributes);
+	ClassDB::bind_method(D_METHOD("to_3d_attributes_transform_physicsbody", "attributes", "transform", "physicsbody"),
+			&RuntimeUtils::local_to_3d_attributes_transform_physicsbody);
+	ClassDB::bind_method(D_METHOD("to_3d_attributes", "attributes", "position"), &RuntimeUtils::local_to_3d_attributes);
 
 	BIND_ENUM_CONSTANT(GAMEEVENT_NONE);
 	BIND_ENUM_CONSTANT(GAMEEVENT_ENTER_TREE);
 	BIND_ENUM_CONSTANT(GAMEEVENT_READY);
 	BIND_ENUM_CONSTANT(GAMEEVENT_EXIT_TREE);
+}
+
+void RuntimeUtils::local_to_3d_attributes_node(Ref<FmodTypes::FMOD_3D_ATTRIBUTES> attributes, Object* node,
+		Object* physicsbody)
+{
+	return to_3d_attributes_node(attributes, node, physicsbody);
 }
 
 void RuntimeUtils::to_3d_attributes_node(Ref<FmodTypes::FMOD_3D_ATTRIBUTES> attributes, Object* node,
@@ -32,6 +36,12 @@ void RuntimeUtils::to_3d_attributes_node(Ref<FmodTypes::FMOD_3D_ATTRIBUTES> attr
 			to_3d_attributes_transform_physicsbody(attributes, node2d->get_global_transform(), physicsbody);
 		}
 	}
+}
+
+void RuntimeUtils::local_to_3d_attributes_transform_physicsbody(Ref<FmodTypes::FMOD_3D_ATTRIBUTES> attributes,
+		const Variant& transform, Object* physicsbody)
+{
+	return to_3d_attributes_transform_physicsbody(attributes, transform, physicsbody);
 }
 
 void RuntimeUtils::to_3d_attributes_transform_physicsbody(Ref<FmodTypes::FMOD_3D_ATTRIBUTES> attributes,
@@ -56,10 +66,13 @@ void RuntimeUtils::to_3d_attributes_transform_physicsbody(Ref<FmodTypes::FMOD_3D
 	}
 	else
 	{
-		WARN_PRINT(
-				"[FMOD] Converting to 3D Attributes is only available for Transform3D and Transfom2D. ", __FUNCTION__,
-				__FILE__, __LINE__);
+		WARN_PRINT("[FMOD] Converting to 3D Attributes is only available for Transform3D and Transfom2D. ");
 	}
+}
+
+void RuntimeUtils::local_to_3d_attributes(Ref<FmodTypes::FMOD_3D_ATTRIBUTES> attributes, const Variant& position)
+{
+	return to_3d_attributes(attributes, position);
 }
 
 void RuntimeUtils::to_3d_attributes(Ref<FmodTypes::FMOD_3D_ATTRIBUTES> attributes, const Variant& position)
@@ -103,9 +116,7 @@ void RuntimeUtils::to_3d_attributes(Ref<FmodTypes::FMOD_3D_ATTRIBUTES> attribute
 		}
 		default:
 		{
-			WARN_PRINT(
-					"[FMOD] Converting to 3D Attributes is only available for Transform3D, Transform2D, Vector3 and Vector2.",
-					__FUNCTION__, __FILE__, __LINE__);
+			WARN_PRINT("[FMOD] Converting to 3D Attributes is only available for Transform3D, Transform2D, Vector3 and Vector2.");
 			break;
 		}
 	}

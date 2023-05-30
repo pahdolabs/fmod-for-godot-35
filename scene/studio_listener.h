@@ -76,6 +76,7 @@ private:
 public:
 	static float distance_to_nearest_listener(const Vector3& position);
 	static int get_listener_count();
+	int local_get_listener_count();
 
 	void _notification(int p_what);
 

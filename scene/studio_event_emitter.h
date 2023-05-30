@@ -120,6 +120,7 @@ protected:
 public:
 	StudioEventEmitterImpl<StudioEventEmitter3D> implementation;
 
+	void local_update_active_emitters();
 	static void update_active_emitters();
 
 	void _notification(int p_what);

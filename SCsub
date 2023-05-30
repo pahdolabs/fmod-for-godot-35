@@ -100,6 +100,7 @@ env["target_path"] = env["fmod_api"] + "/api/core/lib"
 
 if env["target"] == "debug":
     env.Append(CPPDEFINES=["FMOD_DEBUG"])
+    env_modules.Append(CPPDEFINES=["FMOD_DEBUG"])
 
 if env["platform"] == "windows":
     env["target_path"] += "/win64/"
@@ -112,6 +113,7 @@ if env["platform"] == "windows":
     env.Append(LINKFLAGS=["/WX"])
 
     env_modules.Append(CPPDEFINES=["FMOD_WIN"])
+    env.Append(CPPDEFINES=["FMOD_WIN"])
 
 elif env["platform"] == "macos":
     env["target_path"] += "/macos/"
@@ -135,6 +137,7 @@ elif env["platform"] == "macos":
     )
 
     env.Append(CPPDEFINES=["FMOD_OSX"])
+    env_modules.Append(CPPDEFINES=["FMOD_OSX"])
 
 elif env["platform"] == "linux":
     env["target_path"] += "/linux/"
@@ -149,6 +152,7 @@ elif env["platform"] == "linux":
         env["target_path"] += "release/"
 
     env.Append(CPPDEFINES=["FMOD_LINUX"])
+    env_modules.Append(CPPDEFINES=["FMOD_LINUX"])
 
 elif env["platform"] == "android":
     env["target_path"] += "/android/" + env["android_arch"] + "/"
@@ -159,6 +163,7 @@ elif env["platform"] == "android":
         env["target_path"] += "release/"
 
     env.Append(CPPDEFINES=["FMOD_ANDROID"])
+    env_modules.Append(CPPDEFINES=["FMOD_ANDROID"])
 
 elif env["platform"] == "ios":
     env["target_path"] += "/ios/"
@@ -230,35 +235,23 @@ elif env["platform"] == "ios":
     )
 
     env.Append(CPPDEFINES=["FMOD_IOS"])
+    env_modules.Append(CPPDEFINES=["FMOD_IOS"])
 
-env_modules.Prepend(CPPPATH=[fmod_api_core_headers_path, fmod_api_studio_headers_path])
+env_modules.Prepend(CPPPATH=[fmod_api_core_headers_path, fmod_api_studio_headers_path, os.getcwd()])
 env.Prepend(LIBPATH=[fmod_api_studio_libs_path, fmod_api_core_libs_path])
 
 if env["target"] == "debug" or env["platform"] == "android":
     if env.msvc:
-        env.Append(LIBS=[File(fmod_api_core_libs_path + fmodL_library + ".lib"), File(fmod_api_studio_libs_path + fmodstudioL_library + ".lib")])
+        env.Prepend(LIBS=[File(os.path.join(fmod_api_core_libs_path, fmodL_library + ".lib")), File(os.path.join(fmod_api_studio_libs_path, fmodstudioL_library + ".lib"))])
     else:
-        env.Append(LIBS=[fmodL_library, fmodstudioL_library])
+        env.Prepend(LIBS=[fmodL_library, fmodstudioL_library])
 else:
     if env.msvc:
-        env.Append(LIBS=[File(fmod_api_core_libs_path + fmod_library + ".lib"), File(fmod_api_studio_libs_path + fmodstudio_library + ".lib")])
+        env.Prepend(LIBS=[File(os.path.join(fmod_api_core_libs_path, fmod_library + ".lib")), File(os.path.join(fmod_api_studio_libs_path, fmodstudio_library + ".lib"))])
     else:
-        env.Append(LIBS=[fmod_library, fmodstudio_library])
-
-sources = []
-sources.append(Glob("*.cpp"))
-sources.append(Glob("api/*.cpp"))
-sources.append(Glob("misc/*.cpp"))
-sources.append(Glob("utils/*.cpp"))
-sources.append(Glob("scene/*.cpp"))
-sources.append(Glob("editor/*.cpp"))
+        env.Prepend(LIBS=[fmod_library, fmodstudio_library])
 
 if env["platform"] == "windows":
-    #library = env.SharedLibrary(
-    #    target=env["target_path"]
-    #    + "libfmod.{}.{}{}64.dll".format(env["platform"], "opt." if ("release" in env["target"]) else "", "" if not env["tools"] else "tools."),
-    #    source=sources,
-    #)
 
     def copy_libs(self, arg, env, executor=None):
         if env["target"] == "debug":
@@ -292,14 +285,6 @@ if env["platform"] == "windows":
     #AddPostAction(library, copy_libs_action)
 
 if env["platform"] == "macos":
-    #library = env.SharedLibrary(
-    #    target=env["target_path"]
-    #    + "libfmod.{}.{}.framework/libfmod.{}.{}".format(
-    #        env["platform"], env["target"], env["platform"], env["target"]
-    #    ),
-    #    source=sources,
-    #)
-
     def copy_libs(self, arg, env, executor=None):
         if env["target"] == "debug":
             Execute(
@@ -346,12 +331,6 @@ if env["platform"] == "macos":
 if env["platform"] == "linux":
     import shutil
 
-    #library = env.SharedLibrary(
-    #    target=env["target_path"]
-    #    + "libfmod.{}.{}.so".format(env["platform"], env["target"]),
-    #    source=sources,
-    #)
-
     def copy_libs(self, arg, env, executor=None):
         print("copy libs")
         dst_dir = env["target_path"]
@@ -387,11 +366,6 @@ if env["platform"] == "ios":
     ios_lib_path = env["target_path"] + "libfmod.{}.{}.framework/libfmod.{}.{}".format(
         env["platform"], env["target"], env["platform"], env["target"]
     )
-    
-    #library = env.SharedLibrary(
-    #    target=ios_lib_path,
-    #    source=sources,
-    #)
 
     output_file = "Info.plist"
     output_dir = env["target_path"] + "libfmod.{}.{}.framework".format(
@@ -445,14 +419,6 @@ if env["platform"] == "ios":
     #AddPostAction(library, create_output_file)
 
 if env["platform"] == "android":
-    #library = env.SharedLibrary(
-    #    target=env["target_path"]
-    #    + "libfmod.{}.{}.{}.so".format(
-    #        env["platform"], env["target"], env["android_arch"]
-    #    ),
-    #    source=sources,
-    #)
-
     def copy_libs(self, arg, env, executor=None):
         if env["target"] == "debug":
             Execute(
@@ -485,3 +451,4 @@ if env["platform"] == "android":
     #AddPostAction(library, copy_libs_action)
 
 env_modules.add_source_files(env.modules_sources, "*.cpp")
+env_modules.add_source_files(env.modules_sources, "**/*.cpp")

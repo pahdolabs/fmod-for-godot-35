@@ -28,8 +28,6 @@
 #include "scene/gui/separator.h"
 #include "scene/gui/dialogs.h"
 
-using namespace godot;
-
 class ProjectBrowserPreviewButton : public Button
 {
 	GDCLASS(ProjectBrowserPreviewButton, Button);

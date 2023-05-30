@@ -1,7 +1,5 @@
 #include "inspector_browser.h"
 
-using namespace godot;
-
 void InspectorBrowserTree::_bind_methods()
 {
 	ClassDB::bind_method(D_METHOD("on_size_changed"), &InspectorBrowserTree::on_size_changed);

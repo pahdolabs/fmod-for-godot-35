@@ -1,7 +1,5 @@
 #include "studio_event_emitter_3d_gizmo_plugin.h"
 
-using namespace godot;
-
 void StudioEventEmitter3DGizmoPlugin::_bind_methods()
 {
 }

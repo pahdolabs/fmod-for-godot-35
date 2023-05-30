@@ -4,8 +4,6 @@
 #include "fmod_common.h"
 #include "core/os/file_access.h"
 
-namespace godot
-{
 class FMODGodotBlockingIO
 {
 	struct FileHandle
@@ -88,6 +86,5 @@ public:
 		return FMOD_OK;
 	}
 };
-} // namespace godot
 
 #endif // FMOD_IO_H

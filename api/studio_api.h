@@ -87,9 +87,9 @@ public:
 	bool reset_buffer_usage() const;
 
 	int get_bank_count() const;
-	Vector<Ref<Bank>> get_bank_list(int capacity) const;
+	Array get_bank_list(int capacity) const;
 	int get_parameter_description_count() const;
-	Vector<Ref<FmodTypes::FMOD_STUDIO_PARAMETER_DESCRIPTION>> get_parameter_description_list(int capacity) const;
+	Array get_parameter_description_list(int capacity) const;
 
 	bool start_command_capture(const String& file_name, const FMOD_STUDIO_COMMANDCAPTURE_FLAGS flags) const;
 	bool stop_command_capture() const;
@@ -145,7 +145,7 @@ public:
 
 	Ref<EventInstance> create_instance();
 	int get_instance_count() const;
-	Vector<Ref<EventInstance>> get_instance_list(int capacity);
+	Array get_instance_list(int capacity);
 
 	bool load_sample_data() const;
 	bool unload_sample_data() const;
@@ -314,11 +314,11 @@ public:
 	FMOD_STUDIO_LOADING_STATE get_sample_loading_state() const;
 
 	int get_event_count() const;
-	Vector<Ref<EventDescription>> get_event_list(int capacity);
+	Array get_event_list(int capacity);
 	int get_bus_count() const;
-	Vector<Ref<Bus>> get_bus_list(int capacity);
+	Array get_bus_list(int capacity);
 	int get_vca_count() const;
-	Vector<Ref<VCA>> get_vca_list(int capacity);
+	Array get_vca_list(int capacity);
 };
 
 class CommandReplay : public Reference

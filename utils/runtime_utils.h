@@ -28,9 +28,13 @@ public:
 	};
 
 	static void to_3d_attributes_node(Ref<FmodTypes::FMOD_3D_ATTRIBUTES> attributes, Object* node, Object* physicsbody);
+	void local_to_3d_attributes_node(Ref<FmodTypes::FMOD_3D_ATTRIBUTES> attributes, Object* node, Object* physicsbody);
 	static void to_3d_attributes_transform_physicsbody(Ref<FmodTypes::FMOD_3D_ATTRIBUTES> attributes,
 			const Variant& transform, Object* physicsbody);
+	void local_to_3d_attributes_transform_physicsbody(Ref<FmodTypes::FMOD_3D_ATTRIBUTES> attributes,
+			const Variant& transform, Object* physicsbody);
 	static void to_3d_attributes(Ref<FmodTypes::FMOD_3D_ATTRIBUTES> attributes, const Variant& position);
+	void local_to_3d_attributes(Ref<FmodTypes::FMOD_3D_ATTRIBUTES> attributes, const Variant& position);
 };
 
 VARIANT_ENUM_CAST(RuntimeUtils::GameEvent);

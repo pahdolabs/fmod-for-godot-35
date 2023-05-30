@@ -1,8 +1,6 @@
 #include "fmod_studio_editor_module.h"
 #include "core/error_macros.h"
 
-using namespace godot;
-
 FMODStudioEditorModule* FMODStudioEditorModule::singleton = nullptr;
 
 void FMODSettings::_bind_methods()
@@ -18,8 +16,7 @@ FMODSettings::FMODSettings()
 		Error error = ProjectSettings::get_singleton()->save();
 		if (error)
 		{
-			_err_print_error(__FUNCTION__, __FILE__, __LINE__,
-					String("Encountered error {0} when saving FMOD Project Settings").format(error));
+			ERR_PRINT(String("Encountered error {0} when saving FMOD Project Settings").format(error));
 		}
 		else
 		{

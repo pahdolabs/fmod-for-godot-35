@@ -1,7 +1,5 @@
 #include "register_types.h"
 
-using namespace godot;
-
 static FMODStudioModule* fmod_module;
 static FMODStudioEditorModule* fmod_editor_module;
 static FMODSettings* fmod_settings;

@@ -2,8 +2,6 @@
 #include "core/error_macros.h"
 #include "fmod_studio_editor_module.h"
 
-using namespace godot;
-
 void FMODAsset::_bind_methods()
 {
 	ClassDB::bind_method(D_METHOD("set_path", "path"), &FMODAsset::set_path);
@@ -237,8 +235,7 @@ void EventAsset::set_event_ref(FMOD::Studio::EventDescription* event_description
 
 						if (result == FMOD_ERR_EVENT_NOTFOUND || result == FMOD_ERR_INVALID_PARAM)
 						{
-							_err_print_error(__FUNCTION__, __FILE__, __LINE__,
-									"[FMOD] Failed to get Parameter Label");
+							ERR_PRINT("[FMOD] Failed to get Parameter Label");
 							break;
 						}
 					} while (result == FMOD_ERR_TRUNCATED);
@@ -505,7 +502,7 @@ void ParameterAsset::set_parameter_ref(const FMOD_STUDIO_PARAMETER_DESCRIPTION& 
 
 		if (result == FMOD_ERR_EVENT_NOTFOUND)
 		{
-			_err_print_error(__FUNCTION__, __FILE__, __LINE__, "Failed to get Path");
+			ERR_PRINT("Failed to get Path");
 			break;
 		}
 	} while (result == FMOD_ERR_TRUNCATED);
@@ -548,8 +545,7 @@ void ParameterAsset::set_parameter_ref(const FMOD_STUDIO_PARAMETER_DESCRIPTION& 
 
 				if (result == FMOD_ERR_EVENT_NOTFOUND || result == FMOD_ERR_INVALID_PARAM)
 				{
-					_err_print_error(__FUNCTION__, __FILE__, __LINE__,
-							"[FMOD] Failed to get Parameter Label");
+					ERR_PRINT("[FMOD] Failed to get Parameter Label");
 					break;
 				}
 			} while (result == FMOD_ERR_TRUNCATED);

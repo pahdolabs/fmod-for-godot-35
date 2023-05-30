@@ -1,7 +1,5 @@
 #include "studio_parameter_trigger.h"
 
-using namespace godot;
-
 void StudioParameterTrigger::_bind_methods()
 {
 	ClassDB::bind_method(D_METHOD("handle_game_event", "game_event"), &StudioParameterTrigger::handle_game_event);

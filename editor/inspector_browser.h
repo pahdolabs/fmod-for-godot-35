@@ -16,12 +16,11 @@
 #include "scene/gui/box_container.h"
 #include "scene/gui/dialogs.h"
 
-using namespace godot;
-
 class InspectorBrowser;
 
 class InspectorBrowserTree : public Tree
 {
+	GDCLASS(InspectorBrowserTree, Tree);
 
 protected:
 	static void _bind_methods();
@@ -43,6 +42,7 @@ private:
 	String filter = "";
 
 public:
+	void _notification(int p_what) {}
 	void initialize(FMODStudioEditorModule::FMODAssetType item_type);
 	void populate_browser();
 	void on_text_changed(const String& text_filter);
@@ -100,7 +100,7 @@ private:
 public:
 	void init(FMODStudioEditorModule::FMODAssetType asset_type);
 	void _input(const Ref<InputEvent>& event);
-	virtual void update_property();
+	virtual void update_property() override;
 	void on_button_pressed();
 	void on_item_selected();
 	void open_popup();

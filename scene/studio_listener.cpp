@@ -1,7 +1,5 @@
 #include "studio_listener.h"
 
-using namespace godot;
-
 static Vector<ListenerImpl*> listeners;
 static const int MAX_LISTENERS = 8;
 
@@ -239,7 +237,7 @@ void StudioListener2D::set_rigidbody(Object* object)
 void StudioListener2D::set_rigidbody_path(NodePath path)
 {
 	implementation.rigidbody_path = path;
-	implementation.rigidbody = get_node(path);
+	set_rigidbody(get_node(path));
 }
 
 Object* StudioListener2D::get_rigidbody() const
@@ -264,7 +262,7 @@ int StudioListener2D::get_num_listener()
 
 void StudioListener3D::_bind_methods()
 {
-	ClassDB::bind_method(D_METHOD("get_listener_count"), &StudioListener3D::get_listener_count);
+	ClassDB::bind_method(D_METHOD("get_listener_count"), &StudioListener3D::local_get_listener_count);
 	ClassDB::bind_method(D_METHOD("set_attenuation_object_path", "path"), &StudioListener3D::set_attenuation_object_path);
 	ClassDB::bind_method(D_METHOD("get_attenuation_object_path"), &StudioListener3D::get_attenuation_object_path);
 	ClassDB::bind_method(D_METHOD("set_rigidbody_path", "path"), &StudioListener3D::set_rigidbody_path);
@@ -319,6 +317,10 @@ float StudioListener3D::distance_to_nearest_listener(const Vector3& position)
 	return ListenerImpl::distance_to_nearest_listener(position);
 }
 
+int StudioListener3D::local_get_listener_count() {
+	return get_listener_count();
+}
+
 int StudioListener3D::get_listener_count()
 {
 	return ListenerImpl::get_listener_count();
@@ -345,6 +347,11 @@ Object* StudioListener3D::get_attenuation_object() const
 	return implementation.attenuation_object;
 }
 
+void StudioListener3D::set_rigidbody_path(NodePath p_path) {
+	implementation.rigidbody_path = p_path;
+	set_rigidbody(get_node(p_path));
+}
+
 void StudioListener3D::set_rigidbody(Object* object)
 {
 	implementation.rigidbody = object;
@@ -353,6 +360,11 @@ void StudioListener3D::set_rigidbody(Object* object)
 Object* StudioListener3D::get_rigidbody() const
 {
 	return implementation.rigidbody;
+}
+
+NodePath StudioListener3D::get_rigidbody_path() const
+{
+	return implementation.rigidbody_path;
 }
 
 void StudioListener3D::set_num_listener(int num)

@@ -1,7 +1,5 @@
 #include "fmod_studio_module.h"
 
-using namespace godot;
-
 FMODStudioModule* FMODStudioModule::singleton = nullptr;
 
 void FMODStudioModule::_bind_methods()

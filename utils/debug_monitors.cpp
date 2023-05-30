@@ -1,7 +1,5 @@
 #include "debug_monitors.h"
 
-using namespace godot;
-
 void FMODDebugMonitor::_bind_methods()
 {
 	ClassDB::bind_method(D_METHOD("get_cpu_dsp_usage"), &FMODDebugMonitor::get_cpu_dsp_usage);
