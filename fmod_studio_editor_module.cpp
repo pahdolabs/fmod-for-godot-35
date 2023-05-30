@@ -10,19 +10,6 @@ void FMODSettings::_bind_methods()
 FMODSettings::FMODSettings()
 {
 	add_fmod_settings();
-
-	if (Engine::get_singleton()->is_editor_hint())
-	{
-		Error error = ProjectSettings::get_singleton()->save();
-		if (error)
-		{
-			ERR_PRINT(String("Encountered error {0} when saving FMOD Project Settings").format(error));
-		}
-		else
-		{
-			("[FMOD] Saved Project Settings");
-		}
-	}
 }
 
 void FMODSettings::add_fmod_settings()
