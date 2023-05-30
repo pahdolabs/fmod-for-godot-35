@@ -3,10 +3,10 @@
 // the minimum distance of an FMOD Event.
 // License: godotengine.org/license
 
-#include "scene/studio_event_emitter.h"
+#include "core/vector.h"
 #include "editor/plugins/spatial_editor_plugin.h"
 #include "scene/resources/material.h"
-#include "core/vector.h"
+#include "scene/studio_event_emitter.h"
 
 class StudioEventEmitter3DGizmoPlugin : public EditorSpatialGizmoPlugin
 {
@@ -21,13 +21,16 @@ private:
 public:
 	StudioEventEmitter3DGizmoPlugin()
 	{
-		Ref<Texture> icon = ResourceLoader::load(emitter_icon_path);
-		create_icon_material("studio_event_emitter_3d_icon", icon);
-		create_material("studio_event_emitter_3d_material_billboard", Color(0.4, 0.8, 1), true, false, true);
+		if (ResourceLoader::exists(emitter_icon_path))
+		{
+			Ref<Texture> icon = ResourceLoader::load(emitter_icon_path);
+			create_icon_material("studio_event_emitter_3d_icon", icon);
+			create_material("studio_event_emitter_3d_material_billboard", Color(0.4, 0.8, 1), true, false, true);
+		}
 	}
 
-	bool has_gizmo(Spatial *for_node_3d) const;
+	bool has_gizmo(Spatial* for_node_3d) const;
 	virtual String get_name() const;
 	int get_priority() const;
-	void redraw(EditorSpatialGizmo *p_gizmo);
+	void redraw(EditorSpatialGizmo* p_gizmo);
 };

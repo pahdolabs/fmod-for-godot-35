@@ -4,30 +4,12 @@
 
 void FMODAsset::_bind_methods()
 {
-	ClassDB::bind_method(D_METHOD("set_path", "path"), &FMODAsset::set_path);
-	ClassDB::bind_method(D_METHOD("get_path"), &FMODAsset::get_path);
 	ClassDB::bind_method(D_METHOD("set_guid", "guid"), &FMODAsset::set_guid);
 	ClassDB::bind_method(D_METHOD("get_guid"), &FMODAsset::get_guid);
-	ClassDB::bind_method(D_METHOD("set_name", "name"), &FMODAsset::set_name);
-	ClassDB::bind_method(D_METHOD("get_name"), &FMODAsset::get_name);
 
-	ADD_PROPERTY(PropertyInfo(Variant::STRING, "path", PropertyHint::PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT),
-			"set_path", "get_path");
 	ADD_PROPERTY(PropertyInfo(Variant::STRING, "guid", PropertyHint::PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT),
 
 			"set_guid", "get_guid");
-	ADD_PROPERTY(PropertyInfo(Variant::STRING, "name", PropertyHint::PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT),
-			"set_name", "get_name");
-}
-
-void FMODAsset::set_path(const String& path)
-{
-	this->path = path;
-}
-
-String FMODAsset::get_path() const
-{
-	return path;
 }
 
 void FMODAsset::set_guid(const String& guid)
@@ -38,16 +20,6 @@ void FMODAsset::set_guid(const String& guid)
 String FMODAsset::get_guid() const
 {
 	return guid;
-}
-
-void FMODAsset::set_name(const String& name)
-{
-	this->name = name;
-}
-
-String FMODAsset::get_name() const
-{
-	return name;
 }
 
 void BankAsset::_bind_methods()

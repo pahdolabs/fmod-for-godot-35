@@ -26,17 +26,11 @@ protected:
 	static void _bind_methods();
 
 public:
-	void set_path(const String& path);
-	String get_path() const;
 	void set_guid(const String& guid);
 	String get_guid() const;
-	void set_name(const String& name);
-	String get_name() const;
 
 private:
-	String path{};
 	String guid{};
-	String name{};
 };
 
 class BankAsset : public FMODAsset

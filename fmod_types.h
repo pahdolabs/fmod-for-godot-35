@@ -38,7 +38,6 @@ protected:
 	static void _bind_methods();
 
 private:
-	String name{};
 	Ref<FMOD_STUDIO_PARAMETER_ID> id;
 	float minimum{};
 	float maximum{};
@@ -48,8 +47,6 @@ private:
 	String guid{};
 
 public:
-	void set_name(const String& name);
-	String get_name() const;
 	void set_id(const Ref<FMOD_STUDIO_PARAMETER_ID>& id);
 	Ref<FMOD_STUDIO_PARAMETER_ID> get_id() const;
 	void set_minimum(float minimum);

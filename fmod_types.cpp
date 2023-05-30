@@ -48,8 +48,6 @@ void FMOD_STUDIO_PARAMETER_ID::get_parameter_id(::FMOD_STUDIO_PARAMETER_ID& out_
 
 void FMOD_STUDIO_PARAMETER_DESCRIPTION::_bind_methods()
 {
-	ClassDB::bind_method(D_METHOD("set_name", "name"), &FMOD_STUDIO_PARAMETER_DESCRIPTION::set_name);
-	ClassDB::bind_method(D_METHOD("get_name"), &FMOD_STUDIO_PARAMETER_DESCRIPTION::get_name);
 	ClassDB::bind_method(D_METHOD("set_id", "id"), &FMOD_STUDIO_PARAMETER_DESCRIPTION::set_id);
 	ClassDB::bind_method(D_METHOD("get_id"), &FMOD_STUDIO_PARAMETER_DESCRIPTION::get_id);
 	ClassDB::bind_method(D_METHOD("set_minimum", "minimum"), &FMOD_STUDIO_PARAMETER_DESCRIPTION::set_minimum);
@@ -66,7 +64,6 @@ void FMOD_STUDIO_PARAMETER_DESCRIPTION::_bind_methods()
 	ClassDB::bind_method(D_METHOD("set_guid", "guid"), &FMOD_STUDIO_PARAMETER_DESCRIPTION::set_guid);
 	ClassDB::bind_method(D_METHOD("get_guid"), &FMOD_STUDIO_PARAMETER_DESCRIPTION::get_guid);
 
-	ADD_PROPERTY(PropertyInfo(Variant::STRING, "name"), "set_name", "get_name");
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "id", PROPERTY_HINT_RESOURCE_TYPE, "FMOD_STUDIO_PARAMETER_ID"), "set_id",
 			"get_id");
 	ADD_PROPERTY(PropertyInfo(Variant::REAL, "minimum"), "set_minimum", "get_minimum");
@@ -80,16 +77,6 @@ void FMOD_STUDIO_PARAMETER_DESCRIPTION::_bind_methods()
 			PropertyInfo(Variant::INT, "flags", PROPERTY_HINT_FLAGS, "READONLY, AUTOMATIC, GLOBAL, DISCRETE, LABELED"),
 			"set_flags", "get_flags");
 	ADD_PROPERTY(PropertyInfo(Variant::STRING, "guid"), "set_guid", "get_guid");
-}
-
-void FMOD_STUDIO_PARAMETER_DESCRIPTION::set_name(const String& name)
-{
-	this->name = name;
-}
-
-String FMOD_STUDIO_PARAMETER_DESCRIPTION::get_name() const
-{
-	return name;
 }
 
 void FMOD_STUDIO_PARAMETER_DESCRIPTION::set_id(const Ref<FMOD_STUDIO_PARAMETER_ID>& id)
@@ -165,7 +152,7 @@ String FMOD_STUDIO_PARAMETER_DESCRIPTION::get_guid() const
 void FMOD_STUDIO_PARAMETER_DESCRIPTION::set_parameter_description(
 		const ::FMOD_STUDIO_PARAMETER_DESCRIPTION& parameter_description)
 {
-	name = parameter_description.name;
+	set_name(parameter_description.name);
 	id = create_ref<FmodTypes::FMOD_STUDIO_PARAMETER_ID>();
 	id->set_parameter_id(parameter_description.id);
 	minimum = parameter_description.minimum;
@@ -179,7 +166,7 @@ void FMOD_STUDIO_PARAMETER_DESCRIPTION::set_parameter_description(
 void FMOD_STUDIO_PARAMETER_DESCRIPTION::get_parameter_description(
 		::FMOD_STUDIO_PARAMETER_DESCRIPTION& out_description) const
 {
-	out_description.name = name.utf8().get_data();
+	out_description.name = get_name().utf8().get_data();
 	id->get_parameter_id(out_description.id);
 	out_description.minimum = minimum;
 	out_description.maximum = maximum;

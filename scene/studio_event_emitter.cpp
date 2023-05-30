@@ -649,7 +649,7 @@ void StudioEventEmitter2D::_bind_methods()
 	ClassDB::bind_method(D_METHOD("get_allow_fadeout"), &StudioEventEmitter2D::get_allow_fadeout);
 	ClassDB::bind_method(D_METHOD("set_trigger_once", "trigger_once"), &StudioEventEmitter2D::set_trigger_once);
 	ClassDB::bind_method(D_METHOD("get_trigger_once"), &StudioEventEmitter2D::get_trigger_once);
-	ClassDB::bind_method(D_METHOD("set_rigidbody", "path"), &StudioEventEmitter2D::set_rigidbody_path);
+	ClassDB::bind_method(D_METHOD("set_rigidbody_path", "path"), &StudioEventEmitter2D::set_rigidbody_path);
 	ClassDB::bind_method(D_METHOD("get_rigidbody"), &StudioEventEmitter2D::get_rigidbody);
 	ClassDB::bind_method(D_METHOD("get_rigidbody_path"), &StudioEventEmitter2D::get_rigidbody_path);
 	ClassDB::bind_method(D_METHOD("set_overridden_parameters", "overridden_parameters"),

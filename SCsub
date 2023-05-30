@@ -4,6 +4,7 @@ import subprocess
 import glob
 from typing import Dict
 import html
+import methods
 
 if sys.version_info < (3,):
 
@@ -96,32 +97,19 @@ fmod_library = fmod_paths["fmod_library"]
 fmodstudio_library = fmod_paths["fmodstudio_library"]
 fmodstudioL_library = fmod_paths["fmodstudioL_library"]
 
-env["target_path"] = env["fmod_api"] + "/api/core/lib"
+env["target_path"] = os.environ["PWD"] + "/bin/"
 
 if env["target"] == "debug":
     env.Append(CPPDEFINES=["FMOD_DEBUG"])
     env_modules.Append(CPPDEFINES=["FMOD_DEBUG"])
 
 if env["platform"] == "windows":
-    env["target_path"] += "/win64/"
-    if env["target"] == "debug":
-        env["target_path"] += "debug/"
-        env.Append(CCFLAGS=["/FS", "/Zi"])
-    else:
-        env["target_path"] += "release/"
-
     env.Append(LINKFLAGS=["/WX"])
 
     env_modules.Append(CPPDEFINES=["FMOD_WIN"])
     env.Append(CPPDEFINES=["FMOD_WIN"])
 
 elif env["platform"] == "macos":
-    env["target_path"] += "/macos/"
-    if env["target"] == "debug":
-        env["target_path"] += "debug/"
-    else:
-        env["target_path"] += "release/"
-
     macos_install_name = "@rpath/libfmod.{}.{}.framework/libfmod.{}.{}".format(
         env["platform"], env["target"], env["platform"], env["target"]
     )
@@ -140,42 +128,18 @@ elif env["platform"] == "macos":
     env_modules.Append(CPPDEFINES=["FMOD_OSX"])
 
 elif env["platform"] == "linux":
-    env["target_path"] += "/linux/"
-
     env.Append(CCFLAGS=["-fPIC", "-Wwrite-strings"])
     env.Append(LINKFLAGS=["-Wl,-R,'$$ORIGIN'"])
     env.Append(LINKFLAGS=["-m64", "-fuse-ld=gold"])
-
-    if env["target"] == "debug":
-        env["target_path"] += "debug/"
-    else:
-        env["target_path"] += "release/"
 
     env.Append(CPPDEFINES=["FMOD_LINUX"])
     env_modules.Append(CPPDEFINES=["FMOD_LINUX"])
 
 elif env["platform"] == "android":
-    env["target_path"] += "/android/" + env["android_arch"] + "/"
-
-    if env["target"] == "debug":
-        env["target_path"] += "debug/"
-    else:
-        env["target_path"] += "release/"
-
     env.Append(CPPDEFINES=["FMOD_ANDROID"])
     env_modules.Append(CPPDEFINES=["FMOD_ANDROID"])
 
 elif env["platform"] == "ios":
-    env["target_path"] += "/ios/"
-
-    if env["ios_arch"] == "arm64":
-        env["target_path"] += "arm64/"
-
-    if env["target"] == "debug":
-        env["target_path"] += "debug/"
-    else:
-        env["target_path"] += "release/"
-
     if env["ios_arch"] == "x86_64":
         sdk_name = "iphonesimulator"
         env.Append(
@@ -252,8 +216,7 @@ else:
         env.Prepend(LIBS=[fmod_library, fmodstudio_library])
 
 if env["platform"] == "windows":
-
-    def copy_libs(self, arg, env, executor=None):
+    def copy_libs(target, source, env, executor=None):
         if env["target"] == "debug":
             Execute(
                 Copy(
@@ -280,9 +243,9 @@ if env["platform"] == "windows":
                     fmod_api_studio_libs_path + "fmodstudio.dll",
                 )
             )
+        return 0
 
-    #copy_libs_action = Action("", copy_libs)
-    #AddPostAction(library, copy_libs_action)
+    copy_libs("", "", env)
 
 if env["platform"] == "macos":
     def copy_libs(self, arg, env, executor=None):
@@ -325,8 +288,8 @@ if env["platform"] == "macos":
                 )
             )
 
-    #copy_libs_action = Action("", copy_libs)
-    #AddPostAction(library, copy_libs_action)
+    copy_libs_action = Action("", copy_libs)
+    AddPostAction(env.Program, copy_libs_action)
 
 if env["platform"] == "linux":
     import shutil
@@ -359,8 +322,8 @@ if env["platform"] == "linux":
                     dst_file = os.path.join(dst_dir, filename)
                     shutil.copy2(src_file, dst_file)
 
-    #copy_libs_action = Action("", copy_libs)
-    #AddPostAction(library, copy_libs_action)
+    copy_libs_action = Action("", copy_libs)
+    AddPostAction(env.Program, copy_libs_action)
 
 if env["platform"] == "ios":
     ios_lib_path = env["target_path"] + "libfmod.{}.{}.framework/libfmod.{}.{}".format(
@@ -416,7 +379,7 @@ if env["platform"] == "ios":
 
     target = os.path.join(output_dir, output_file)
     create_output_file_action = Action(target, create_output_file)
-    #AddPostAction(library, create_output_file)
+    AddPostAction(env.Program, create_output_file)
 
 if env["platform"] == "android":
     def copy_libs(self, arg, env, executor=None):
@@ -447,8 +410,8 @@ if env["platform"] == "android":
                 )
             )
 
-    #copy_libs_action = Action("", copy_libs)
-    #AddPostAction(library, copy_libs_action)
+    copy_libs_action = Action("", copy_libs)
+    AddPostAction(env.Program, copy_libs_action)
 
 env_modules.add_source_files(env.modules_sources, "*.cpp")
 env_modules.add_source_files(env.modules_sources, "**/*.cpp")
