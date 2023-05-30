@@ -2,6 +2,17 @@
 
 void StudioEventEmitter3DGizmoPlugin::_bind_methods()
 {
+	ClassDB::bind_method(D_METHOD("setup"), &StudioEventEmitter3DGizmoPlugin::setup);
+}
+
+void StudioEventEmitter3DGizmoPlugin::setup()
+{
+	if (ResourceLoader::exists(emitter_icon_path))
+	{
+		Ref<Texture> icon = ResourceLoader::load(emitter_icon_path);
+		create_icon_material("studio_event_emitter_3d_icon", icon);
+		create_material("studio_event_emitter_3d_material_billboard", Color(0.4, 0.8, 1), true, false, true);
+	}
 }
 
 bool StudioEventEmitter3DGizmoPlugin::has_gizmo(Spatial *for_node_3d) const

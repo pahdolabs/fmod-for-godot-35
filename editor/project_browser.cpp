@@ -664,7 +664,7 @@ void ProjectBrowserWindow::initialize()
 	set_exclusive(false);
 	connect("about_to_show", this, "on_about_to_popup");
 	connect("popup_hide", this, "on_close_requested");
-	connect("size_changed", this, "on_size_changed");
+	connect("resized", this, "on_size_changed");
 	FMODStudioEditorModule::get_singleton()->connect("banks_loaded", this, "on_banks_loaded");
 
 	Size2 window_size = BASE_WINDOW_SIZE;

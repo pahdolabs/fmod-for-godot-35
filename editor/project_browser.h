@@ -47,6 +47,7 @@ public:
 
 class ProjectBrowserTree : public Tree
 {
+	GDCLASS(ProjectBrowserTree, Tree);
 
 protected:
 	static void _bind_methods();
@@ -67,6 +68,7 @@ public:
 	void populate_browser();
 	void update_project_text();
 	void on_connection_finished();
+	void _notification(int p_what) {}
 };
 
 class DiscreteParameterControl : public SpinBox

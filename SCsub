@@ -97,14 +97,14 @@ fmod_library = fmod_paths["fmod_library"]
 fmodstudio_library = fmod_paths["fmodstudio_library"]
 fmodstudioL_library = fmod_paths["fmodstudioL_library"]
 
-env["target_path"] = os.environ["PWD"] + "/bin/"
+env["target_path"] = env.Dir("#bin").__str__() + "/"
 
 if env["target"] == "debug":
     env.Append(CPPDEFINES=["FMOD_DEBUG"])
     env_modules.Append(CPPDEFINES=["FMOD_DEBUG"])
 
 if env["platform"] == "windows":
-    env.Append(LINKFLAGS=["/WX"])
+    #env.Append(LINKFLAGS=["/WX"])
 
     env_modules.Append(CPPDEFINES=["FMOD_WIN"])
     env.Append(CPPDEFINES=["FMOD_WIN"])

@@ -574,8 +574,7 @@ Dictionary FMODStudioEditorModule::get_project_info_from_banks()
 	DirAccess *dir = DirAccess::open(resources_path);
 	if (dir == nullptr)
 	{
-		DirAccess::create_for_path(resources_path);
-		dir = DirAccess::open(resources_path);
+		dir = DirAccess::create_for_path(resources_path);
 	}
 
 	for (int64_t i = 0; i < resource_dirs.size(); i++)

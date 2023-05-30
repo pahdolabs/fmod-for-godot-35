@@ -21,16 +21,12 @@ private:
 public:
 	StudioEventEmitter3DGizmoPlugin()
 	{
-		if (ResourceLoader::exists(emitter_icon_path))
-		{
-			Ref<Texture> icon = ResourceLoader::load(emitter_icon_path);
-			create_icon_material("studio_event_emitter_3d_icon", icon);
-			create_material("studio_event_emitter_3d_material_billboard", Color(0.4, 0.8, 1), true, false, true);
-		}
+		call_deferred("setup");
 	}
 
 	bool has_gizmo(Spatial* for_node_3d) const;
 	virtual String get_name() const;
 	int get_priority() const;
 	void redraw(EditorSpatialGizmo* p_gizmo);
+	void setup();
 };

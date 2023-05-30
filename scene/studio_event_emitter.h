@@ -4,6 +4,7 @@
 #include "fmod_assets.h"
 #include "fmod_studio_editor_module.h"
 #include "scene/studio_listener.h"
+#include "scene/2d/node_2d.h"
 #include "scene/main/scene_tree.h"
 
 
