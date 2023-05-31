@@ -6,10 +6,6 @@
 
 class FMODGodotBlockingIO
 {
-	struct FileHandle
-	{
-		FileAccess *file;
-	};
 
 public:
 	static FMOD_RESULT F_CALLBACK file_open(const char* name, unsigned int* filesize, void** handle, void* userdata)
@@ -18,7 +14,6 @@ public:
 
 		Error err;
 		FileAccess *file = FileAccess::open(file_path, FileAccess::READ, &err);
-		
 		*handle = static_cast<void*>(file);
 		
 		if (err != OK)
@@ -54,11 +49,12 @@ public:
 			void* userdata)
 	{
 		FileAccess *file = static_cast<FileAccess*>(handle);
-
+		
 		Vector<uint8_t> file_buffer;
-		file->get_buffer(file_buffer.ptrw(), sizebytes);
-		int64_t size = file_buffer.size();
-		const uint8_t* data = file_buffer.ptrw();
+		file_buffer.resize(sizebytes);
+		int64_t size = file->get_buffer(file_buffer.ptrw(), sizebytes);
+		
+		const uint8_t* data = file_buffer.ptr();
 
 		memcpy(buffer, data, size * sizeof(uint8_t));
 

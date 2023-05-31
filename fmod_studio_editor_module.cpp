@@ -416,7 +416,7 @@ bool FMODStudioEditorModule::init()
 	}
 
 	String message = "[FMOD] Initialized Editor System";
-	(message);
+	print_line(message);
 
 	project_cache = get_project_cache();
 
@@ -429,7 +429,7 @@ void FMODStudioEditorModule::shutdown()
 	if (shutdown_fmod())
 	{
 		String message = "[FMOD] Shut down Editor System";
-		(message);
+		print_line(message);
 	}
 }
 
@@ -473,7 +473,10 @@ void FMODStudioEditorModule::load_all_banks()
 	String strings_bank_path = strings_bank_info["file_path"];
 
 	FMOD::Studio::Bank* strings_bank = nullptr;
-	studio_system->loadBankFile(strings_bank_path.utf8().get_data(), FMOD_STUDIO_LOAD_BANK_NORMAL, &strings_bank);
+	FMOD_RESULT result = studio_system->loadBankFile(strings_bank_path.utf8().get_data(), FMOD_STUDIO_LOAD_BANK_NORMAL, &strings_bank);
+	if(!ERROR_CHECK(result)) {
+		return;
+	}
 
 	for (int64_t i = 0; i < bank_files_infos.size(); i++)
 	{
@@ -575,6 +578,7 @@ Dictionary FMODStudioEditorModule::get_project_info_from_banks()
 	if (dir == nullptr)
 	{
 		dir = DirAccess::create_for_path(resources_path);
+		dir->make_dir_recursive(resources_path);
 	}
 
 	for (int64_t i = 0; i < resource_dirs.size(); i++)
@@ -1271,15 +1275,15 @@ void ProjectCache::initialize_cache(const Dictionary& project_info)
 	DirAccess *dir = DirAccess::open(cache_dir);
 	if (dir == nullptr)
 	{
-		DirAccess::create_for_path(cache_dir);
-		dir = DirAccess::open(cache_dir);
+		dir = DirAccess::create_for_path(cache_dir);
+		dir->make_dir_recursive(cache_dir);
 	}
 
 	const String cache_path = "res://addons/FMOD/editor/cache/fmod_project_cache.tres";
 	_take_over_path(cache_path);
 	ResourceSaver::save(cache_path, this);
 	String message = "[FMOD] Cache created in {0}";
-	(message.format(cache_path));
+	print_line(message.format(varray(cache_path)));
 	emit_changed();
 }
 

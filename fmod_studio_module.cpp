@@ -337,7 +337,7 @@ bool FMODStudioModule::init()
 	}
 
 	String message = "[FMOD] Initialized Runtime System";
-	(message);
+	print_line(message);
 
 	result = true;
 
@@ -358,7 +358,7 @@ void FMODStudioModule::shutdown()
 	if (shutdown_fmod())
 	{
 		String message = "[FMOD] Shut down Runtime System";
-		(message);
+		print_line(message);
 	}
 }
 

@@ -475,7 +475,7 @@ void ProjectBrowserWindow::on_generate_guids_button_pressed()
 	else
 	{
 		ResourceLoader::load(guids_path, "", true);
-		(String("[FMOD] GUIDs generated in {0}").format(guids_path));
+		(String("[FMOD] GUIDs generated in {0}").format(varray(guids_path)));
 	}
 }
 
@@ -609,7 +609,7 @@ void ProjectBrowserWindow::on_bank_popup_id_pressed(int32_t id)
 		{
 			String name = selected_item->get_text(0);
 			String result;
-			client->get_command(String("studio.project.build({ banks: '{0}' });").format(name), result);
+			client->get_command(String("studio.project.build({ banks: '{0}' });").format(varray(name)), result);
 		}
 		break;
 		default:
