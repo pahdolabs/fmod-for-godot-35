@@ -39,7 +39,7 @@ bool StudioParameterTrigger::_set(const StringName& p_name, const Variant& p_val
 			{
 				Ref<ParameterAsset> p = parameters.values()[i];
 
-				if (p->get_name() == parameter_name)
+				if (p->get_fm_name() == parameter_name)
 				{
 					parameter = parameters.values()[i];
 					break;
@@ -97,7 +97,7 @@ bool StudioParameterTrigger::_get(const StringName& p_name, Variant& r_ret) cons
 		{
 			Ref<ParameterAsset> p = parameters.values()[i];
 
-			if (p->get_name() == parameter_name)
+			if (p->get_fm_name() == parameter_name)
 			{
 				parameter = parameters.values()[i];
 				break;
@@ -254,7 +254,7 @@ bool StudioParameterTrigger::_property_get_revert(const StringName& p_name, Vari
 		{
 			Ref<ParameterAsset> p = parameters.values()[i];
 
-			if (p->get_name() == parameter_name)
+			if (p->get_fm_name() == parameter_name)
 			{
 				parameter = parameters.values()[i];
 				break;

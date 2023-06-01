@@ -183,7 +183,7 @@ void StudioGlobalParameterTrigger::trigger()
 	{
 		if (parameter.is_valid())
 		{
-			String parameter_name = parameter->get_name();
+			String parameter_name = parameter->get_fm_name();
 			Variant parameter_value = overridden_parameter["value"];
 
 			fmod_module->get_studio_system_ref()

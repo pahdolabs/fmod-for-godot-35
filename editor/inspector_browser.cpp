@@ -559,7 +559,7 @@ void InspectorBrowserProperty::on_event_popup_id_pressed(int32_t id)
 	{
 		case EventPopupItems::EVENT_POPUP_COPY_PATH:
 		{
-			String path = event->get_path();
+			String path = event->get_fm_path();
 			OS::get_singleton()->set_clipboard(path);
 		}
 		break;
@@ -571,7 +571,7 @@ void InspectorBrowserProperty::on_event_popup_id_pressed(int32_t id)
 		break;
 		case EventPopupItems::EVENT_POPUP_OPEN_IN_STUDIO:
 		{
-			String path = event->get_path();
+			String path = event->get_fm_path();
 			String result;
 			client->get_command("studio.window.navigateTo(studio.project.lookup('" + path + "'))", result);
 		}

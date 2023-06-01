@@ -188,7 +188,7 @@ void StudioBankLoader::unload()
 			Ref<BankAsset> bank_ref = banks[i];
 			Ref<StudioApi::Bank> bank =
 					fmod_module->get_studio_system_ref()
-							->get_bank(bank_ref->get_path());
+							->get_bank(bank_ref->get_fm_path());
 
 			if (bank_ref.is_valid())
 			{
@@ -230,7 +230,7 @@ void StudioBankLoader::set_num_banks(int num_banks)
 	if (is_inside_tree())
 	{
 		Ref<SceneTreeTimer> timer = get_tree()->create_timer(0.001);
-		timer->connect("timeout", this, "change_notify");
+		timer->connect("timeout", this, "_change_notify");
 	}
 }
 

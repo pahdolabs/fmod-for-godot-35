@@ -611,8 +611,8 @@ Dictionary FMODStudioEditorModule::get_project_info_from_banks()
 		{
 			String resource_path = resource_dirs["banks"];
 			Ref<BankAsset> asset = ResourceLoader::load(resource_path + guid + ".tres", "BankAsset");
-			asset->set_name(bank_asset->get_name());
-			asset->set_path(bank_asset->get_path());
+			asset->set_fm_name(bank_asset->get_fm_name());
+			asset->set_fm_path(bank_asset->get_fm_path());
 			asset->set_modified_time(bank_asset->get_modified_time());
 			ResourceSaver::save(resource_path + guid + ".tres", asset);
 			banks[guid] = asset;
@@ -645,8 +645,8 @@ Dictionary FMODStudioEditorModule::get_project_info_from_banks()
 
 					if (has_event_changed(asset, event))
 					{
-						asset->set_name(event->get_name());
-						asset->set_path(event->get_path());
+						asset->set_fm_name(event->get_fm_name());
+						asset->set_fm_path(event->get_fm_path());
 						asset->set_3d(event->get_3d());
 						asset->set_oneshot(event->get_oneshot());
 						asset->set_is_snapshot(event->get_is_snapshot());
@@ -676,8 +676,8 @@ Dictionary FMODStudioEditorModule::get_project_info_from_banks()
 					Ref<EventAsset> asset = ResourceLoader::load(resource_path + guid + ".tres", "EventAsset");
 					if (has_event_changed(asset, snapshot))
 					{
-						asset->set_name(snapshot->get_name());
-						asset->set_path(snapshot->get_path());
+						asset->set_fm_name(snapshot->get_fm_name());
+						asset->set_fm_path(snapshot->get_fm_path());
 						asset->set_3d(snapshot->get_3d());
 						asset->set_oneshot(snapshot->get_oneshot());
 						asset->set_is_snapshot(snapshot->get_is_snapshot());
@@ -713,8 +713,8 @@ Dictionary FMODStudioEditorModule::get_project_info_from_banks()
 				else
 				{
 					Ref<BusAsset> asset = ResourceLoader::load(resource_path + guid + ".tres", "BusAsset");
-					asset->set_name(bus->get_name());
-					asset->set_path(bus->get_path());
+					asset->set_fm_name(bus->get_fm_name());
+					asset->set_fm_path(bus->get_fm_path());
 					ResourceSaver::save(resource_path + guid + ".tres", asset);
 					busses[guid] = asset;
 				}
@@ -742,8 +742,8 @@ Dictionary FMODStudioEditorModule::get_project_info_from_banks()
 				else
 				{
 					Ref<VCAAsset> asset = ResourceLoader::load(resource_path + guid + ".tres", "VCAAsset");
-					asset->set_name(vca->get_name());
-					asset->set_path(vca->get_path());
+					asset->set_fm_name(vca->get_fm_name());
+					asset->set_fm_path(vca->get_fm_path());
 					ResourceSaver::save(resource_path + guid + ".tres", asset);
 					vcas[guid] = asset;
 				}
@@ -772,8 +772,8 @@ Dictionary FMODStudioEditorModule::get_project_info_from_banks()
 			else
 			{
 				Ref<ParameterAsset> asset = ResourceLoader::load(resource_path + guid + ".tres", "ParameterAsset");
-				asset->set_name(parameter->get_name());
-				asset->set_path(parameter->get_path());
+				asset->set_fm_name(parameter->get_fm_name());
+				asset->set_fm_path(parameter->get_fm_path());
 				asset->set_parameter_description(parameter->get_parameter_description());
 				FMOD_STUDIO_PARAMETER_DESCRIPTION desc;
 				parameter->get_parameter_description()->get_parameter_description(desc);
@@ -1030,8 +1030,8 @@ bool FMODStudioEditorModule::sort_items_by_path(const Variant& a, const Variant&
 		return false;
 	}
 
-	String path_a = a_asset->get_path();
-	String path_b = b_asset->get_path();
+	String path_a = a_asset->get_fm_path();
+	String path_b = b_asset->get_fm_path();
 
 	return path_a.naturalnocasecmp_to(path_b) < 0;
 }
@@ -1046,18 +1046,18 @@ bool FMODStudioEditorModule::sort_parameters_by_name(const Variant& a, const Var
 		return false;
 	}
 
-	return param_a->get_name().naturalnocasecmp_to(param_b->get_name()) < 0;
+	return param_a->get_fm_name().naturalnocasecmp_to(param_b->get_fm_name()) < 0;
 }
 
 bool FMODStudioEditorModule::has_event_changed(const Ref<EventAsset>& old_event, const Ref<EventAsset>& to_check)
 {
-	String old_name = old_event->get_name();
+	String old_name = old_event->get_fm_name();
 	bool old_3d = old_event->get_3d();
 	bool old_oneshot = old_event->get_oneshot();
 	float old_max_distance = old_event->get_max_distance();
 	float old_min_distance = old_event->get_min_distance();
 
-	if (old_name != to_check->get_name() ||
+	if (old_name != to_check->get_fm_name() ||
 			old_3d != to_check->get_3d() ||
 			old_oneshot != to_check->get_oneshot() ||
 			old_max_distance != to_check->get_max_distance() ||
@@ -1084,7 +1084,7 @@ bool FMODStudioEditorModule::has_event_changed(const Ref<EventAsset>& old_event,
 		Ref<ParameterAsset> new_parameter = new_parameters.values()[j];
 		Ref<ParameterAsset> old_parameter = old_parameters[new_parameter->get_guid()];
 
-		if (new_parameter->get_name() != old_parameter->get_name() ||
+		if (new_parameter->get_fm_name() != old_parameter->get_fm_name() ||
 				new_parameter->get_parameter_description()->get_maximum() != old_parameter->get_parameter_description()->get_maximum() ||
 				new_parameter->get_parameter_description()->get_minimum() != old_parameter->get_parameter_description()->get_minimum() ||
 				new_parameter->get_parameter_description()->get_flags() != old_parameter->get_parameter_description()->get_flags())

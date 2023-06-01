@@ -6,12 +6,36 @@ void FMODAsset::_bind_methods()
 {
 	ClassDB::bind_method(D_METHOD("set_guid", "guid"), &FMODAsset::set_guid);
 	ClassDB::bind_method(D_METHOD("get_guid"), &FMODAsset::get_guid);
+	ClassDB::bind_method(D_METHOD("set_fm_path", "path"), &FMODAsset::set_fm_path);
+	ClassDB::bind_method(D_METHOD("get_fm_path"), &FMODAsset::get_fm_path);
+	ClassDB::bind_method(D_METHOD("set_fm_name", "name"), &FMODAsset::set_fm_name);
+	ClassDB::bind_method(D_METHOD("get_fm_name"), &FMODAsset::get_fm_name);
 
 	ADD_PROPERTY(PropertyInfo(Variant::STRING, "guid", PropertyHint::PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT),
 
 			"set_guid", "get_guid");
-	ADD_PROPERTY(PropertyInfo(Variant::STRING, "path"), "set_path", "get_path");
-	ADD_PROPERTY(PropertyInfo(Variant::STRING, "name"), "set_name", "get_name");
+	ADD_PROPERTY(PropertyInfo(Variant::STRING, "path"), "set_fm_path", "get_fm_path");
+	ADD_PROPERTY(PropertyInfo(Variant::STRING, "name"), "set_fm_name", "get_fm_name");
+}
+
+void FMODAsset::set_fm_path(const String& path)
+{
+	this->path = path;
+}
+
+String FMODAsset::get_fm_path() const
+{
+	return path;
+}
+
+void FMODAsset::set_fm_name(const String& name)
+{
+	this->name = name;
+}
+
+String FMODAsset::get_fm_name() const
+{
+	return name;
 }
 
 void FMODAsset::set_guid(const String& guid)
@@ -50,7 +74,7 @@ void BankAsset::set_bank_ref(const FMOD::Studio::Bank* bank)
 {
 	String path;
 	fmod_obj_to_path(bank, path);
-	set_path(path);
+	set_fm_path(path);
 
 	Vector<String> arr = path.rsplit("/", true, 1);
 	String name{};
@@ -64,7 +88,7 @@ void BankAsset::set_bank_ref(const FMOD::Studio::Bank* bank)
 		name = "";
 	}
 
-	set_name(name);
+	set_fm_name(name);
 
 	FMOD_GUID guid{};
 	bank->getID(&guid);
@@ -148,7 +172,7 @@ void EventAsset::set_event_ref(FMOD::Studio::EventDescription* event_description
 
 	String path{};
 	fmod_obj_to_path(event_description, path);
-	set_path(path);
+	set_fm_path(path);
 
 	Vector<String> arr = path.rsplit("/", true, 1);
 	String name;
@@ -161,7 +185,7 @@ void EventAsset::set_event_ref(FMOD::Studio::EventDescription* event_description
 		name = "";
 	}
 
-	set_name(name);
+	set_fm_name(name);
 
 	bool is_snapshot{};
 	event_description->isSnapshot(&is_snapshot);
@@ -233,7 +257,7 @@ FMOD::Studio::EventDescription* EventAsset::get_event_description() const
 
 	if (studio_system)
 	{
-		FMODStudioEditorModule::get_singleton()->get_studio_system()->getEvent(get_path().utf8().get_data(),
+		FMODStudioEditorModule::get_singleton()->get_studio_system()->getEvent(get_fm_path().utf8().get_data(),
 				&event_description);
 	}
 
@@ -252,7 +276,7 @@ void EventAsset::set_event_ref_from_description_ref(const Ref<StudioApi::EventDe
 	set_guid(event_description->get_id());
 
 	String path = event_description->get_path();
-	set_path(path);
+	set_fm_path(path);
 
 	Vector<String> arr = path.rsplit("/", true, 1);
 	String name = "";
@@ -266,7 +290,7 @@ void EventAsset::set_event_ref_from_description_ref(const Ref<StudioApi::EventDe
 		name = "";
 	}
 
-	set_name(name);
+	set_fm_name(name);
 
 	set_is_snapshot(event_description->is_snapshot());
 
@@ -384,7 +408,7 @@ void BusAsset::set_bus_ref(const FMOD::Studio::Bus* bus)
 {
 	String path;
 	fmod_obj_to_path(bus, path);
-	set_path(path);
+	set_fm_path(path);
 
 	Vector<String> arr = path.rsplit("/", true, 1);
 	String name;
@@ -403,7 +427,7 @@ void BusAsset::set_bus_ref(const FMOD::Studio::Bus* bus)
 		name = "Master";
 	}
 
-	set_name(name);
+	set_fm_name(name);
 
 	FMOD_GUID guid{};
 	bus->getID(&guid);
@@ -419,7 +443,7 @@ void VCAAsset::set_vca_ref(const FMOD::Studio::VCA* vca)
 {
 	String path{};
 	fmod_obj_to_path(vca, path);
-	set_path(path);
+	set_fm_path(path);
 
 	Vector<String> arr = path.rsplit("/", true, 1);
 
@@ -433,7 +457,7 @@ void VCAAsset::set_vca_ref(const FMOD::Studio::VCA* vca)
 		name = "";
 	}
 
-	set_name(name);
+	set_fm_name(name);
 
 	FMOD_GUID guid{};
 	vca->getID(&guid);
@@ -483,14 +507,14 @@ void ParameterAsset::set_parameter_ref(const FMOD_STUDIO_PARAMETER_DESCRIPTION& 
 
 	if (result == FMOD_OK)
 	{
-		set_path(String(raw_buffer.c_str()));
+		set_fm_path(String(raw_buffer.c_str()));
 	}
 	else
 	{
-		set_path("");
+		set_fm_path("");
 	}
 
-	set_name(parameter_description.name);
+	set_fm_name(parameter_description.name);
 
 	this->parameter_description = create_ref<FmodTypes::FMOD_STUDIO_PARAMETER_DESCRIPTION>();
 	this->parameter_description->set_parameter_description(parameter_description);

@@ -26,7 +26,7 @@ bool StudioEventEmitterImpl<T>::_set(const StringName& p_name, const Variant& p_
 			{
 				Ref<ParameterAsset> p = parameters.values()[i];
 
-				if (p->get_name() == parameter_name)
+				if (p->get_fm_name() == parameter_name)
 				{
 					default_parameter = parameters.values()[i];
 					break;
@@ -104,7 +104,7 @@ bool StudioEventEmitterImpl<T>::_get(const StringName& p_name, Variant& r_ret) c
 		{
 			Ref<ParameterAsset> p = parameters.values()[i];
 
-			if (p->get_name() == parameter_name)
+			if (p->get_fm_name() == parameter_name)
 			{
 				default_parameter = parameters.values()[i];
 				break;
@@ -258,7 +258,7 @@ bool StudioEventEmitterImpl<T>::_property_get_revert(const StringName& p_name, V
 		{
 			Ref<ParameterAsset> p = parameters.values()[i];
 
-			if (p->get_name() == parameter_name)
+			if (p->get_fm_name() == parameter_name)
 			{
 				default_parameter = parameters.values()[i];
 				break;

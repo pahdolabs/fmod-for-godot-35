@@ -28,9 +28,15 @@ protected:
 public:
 	void set_guid(const String& guid);
 	String get_guid() const;
+	void set_fm_path(const String &path);
+	String get_fm_path() const;
+	void set_fm_name(const String& name);
+	String get_fm_name() const;
 
 private:
 	String guid{};
+	String path{};
+	String name{};
 };
 
 class BankAsset : public FMODAsset

@@ -3,7 +3,6 @@
 
 #include "core/io/stream_peer_tcp.h"
 #include "scene/main/timer.h"
-
 #include "core/class_db.h"
 #include "core/ustring.h"
 
@@ -44,6 +43,7 @@ public:
 			timer->connect("timeout", this, "on_connection_timeout");
 			timer->set_wait_time(0.3);
 			timer->set_autostart(true);
+			timer->set_one_shot(true);
 
 			node->add_child(timer);
 			timer->set_owner(node);
@@ -57,6 +57,11 @@ public:
 
 	void on_connection_timeout()
 	{
+		if (get_status() == Status::STATUS_CONNECTING) {
+			timer->start();
+			return;
+		}
+		
 		if (get_status() == Status::STATUS_CONNECTED)
 		{
 			client_is_connected = true;
@@ -91,24 +96,24 @@ public:
 	Error get_command(const String& command, String& result)
 	{
 		CharString charstr = command.utf8();
-		Vector<uint8_t> command_val;
-		size_t len = charstr.length();
-		command_val.resize(len);
-		memcpy(command_val.ptrw(), charstr.ptr(), len);
+		Vector<uint8_t> utf8_buffer;
+		int len = charstr.length();
+		utf8_buffer.resize(len);
+		memcpy(utf8_buffer.ptrw(), charstr.ptr(), len);
 		
-		if (put_data(command_val.ptrw(), len) != Error::OK)
+		if (put_data(utf8_buffer.ptr(), len) != Error::OK)
 		{
 			return Error::FAILED;
 		}
 
 		int32_t bytes = get_available_bytes();
+		utf8_buffer.clear();
+		utf8_buffer.resize(bytes);
 
-		PoolByteArray bytes_array;
 		if (bytes >= 0)
 		{
-			bytes_array.resize(bytes);
-			
-			if (get_data(bytes_array.write().ptr(), bytes) != Error::OK)
+			int error = get_data(utf8_buffer.ptrw(), bytes);
+			if (error != Error::OK)
 			{
 				return Error::FAILED;
 			}
@@ -117,45 +122,34 @@ public:
 		{
 			return Error::FAILED;
 		}
-		int err = bytes_array[0];
-		if (err != Error::OK)
+		
+		if (utf8_buffer.empty())
 		{
-			return Error::FAILED;
-		}
-
-		PoolByteArray data_array = bytes_array;
-
-		if (data_array.empty())
-		{
-			while (data_array.empty())
+			while (utf8_buffer.empty())
 			{
-				int bytes = get_available_bytes();
-				bytes_array.resize(bytes);
-				get_data(bytes_array.write().ptr(), bytes);
-				data_array = bytes_array;
+				bytes = get_available_bytes();
+				utf8_buffer.resize(bytes);
+				get_data(utf8_buffer.ptrw(), bytes);
 			}
 		}
 
-		while (data_array[data_array.size() - 1] != 0)
+		while (utf8_buffer[utf8_buffer.size() - 1] != 0)
 		{
-			int bytes = get_available_bytes();
-			bytes_array.resize(bytes);
-			get_data(bytes_array.write().ptr(), bytes);
-			data_array = bytes_array;
+			bytes = get_available_bytes();
+			utf8_buffer.resize(bytes);
+			get_data(utf8_buffer.ptrw(), bytes);
 		}
 
-		if (data_array.size() == 0)
+		if (utf8_buffer.empty())
 		{
 			return Error::FAILED;
 		}
 
-		if (data_array[data_array.size() - 1] == 0)
+		StreamPeerBuffer string_buffer;
+		string_buffer.put_data(utf8_buffer.ptr(), bytes);
+		if (utf8_buffer[utf8_buffer.size() - 1] == 0)
 		{
-			CharString message_char;
-			message_char.resize(data_array.size());
-			memcpy(message_char.ptrw(), data_array.read().ptr(), data_array.size());
-			
-			String message = String(message_char);
+			String message = string_buffer.get_utf8_string(bytes).strip_escapes();
 			message = message.replace("out(): ", "");
 			result = message;
 			return Error::OK;
