@@ -342,7 +342,7 @@ bool FMODStudioModule::init()
 	result = true;
 
 	const String settings_path = get_platform_setting_path(PlatformSettingsPath::FMOD_SETTINGS_PATH);
-	Vector<String> banks_to_load_at_startup = get_platform_project_setting(settings_path + String("banks_to_load_at_startup"));
+	Array banks_to_load_at_startup = get_platform_project_setting(settings_path + String("banks_to_load_at_startup"));
 
 	for (int64_t i = 0; i < banks_to_load_at_startup.size(); i++)
 	{

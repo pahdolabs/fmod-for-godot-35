@@ -10,6 +10,8 @@ void FMODAsset::_bind_methods()
 	ADD_PROPERTY(PropertyInfo(Variant::STRING, "guid", PropertyHint::PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT),
 
 			"set_guid", "get_guid");
+	ADD_PROPERTY(PropertyInfo(Variant::STRING, "path"), "set_path", "get_path");
+	ADD_PROPERTY(PropertyInfo(Variant::STRING, "name"), "set_name", "get_name");
 }
 
 void FMODAsset::set_guid(const String& guid)

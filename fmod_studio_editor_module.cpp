@@ -349,7 +349,7 @@ Array FMODStudioEditorModule::get_bank_file_infos(const String& bank_path) const
 	Array files;
 
 	Error err;
-	DirAccess *dir = DirAccess::open(bank_path, &err);
+	DirAccessRef dir = DirAccess::open(bank_path, &err);
 
 	if (err == Error::OK)
 	{
@@ -364,7 +364,7 @@ Array FMODStudioEditorModule::get_bank_file_infos(const String& bank_path) const
 
 				bank_info["file_path"] = bank_path + String("/") + file_name;
 
-				FileAccess *file =
+				FileAccessRef file =
 						FileAccess::open(bank_path + String("/") + file_name, FileAccess::ModeFlags::READ);
 
 				bank_info["md5"] = file->get_md5(bank_path + String("/") + file_name);
@@ -564,7 +564,7 @@ Ref<ProjectCache> FMODStudioEditorModule::get_project_cache()
 
 Dictionary FMODStudioEditorModule::get_project_info_from_banks()
 {
-	const String resources_path = "res://addons/FMOD/editor/resources";
+	const String resources_base_path = "res://addons/FMOD/editor/resources/";
 
 	Dictionary resource_dirs;
 	resource_dirs["events"] = "res://addons/FMOD/editor/resources/events/";
@@ -574,11 +574,11 @@ Dictionary FMODStudioEditorModule::get_project_info_from_banks()
 	resource_dirs["banks"] = "res://addons/FMOD/editor/resources/banks/";
 	resource_dirs["parameters"] = "res://addons/FMOD/editor/resources/parameters/";
 
-	DirAccess *dir = DirAccess::open(resources_path);
+	DirAccess *dir = DirAccess::open(resources_base_path);
 	if (dir == nullptr)
 	{
-		dir = DirAccess::create_for_path(resources_path);
-		dir->make_dir_recursive(resources_path);
+		dir = DirAccess::create_for_path(resources_base_path);
+		dir->make_dir_recursive(resources_base_path);
 	}
 
 	for (int64_t i = 0; i < resource_dirs.size(); i++)
@@ -603,16 +603,18 @@ Dictionary FMODStudioEditorModule::get_project_info_from_banks()
 
 		if (!FileAccess::exists(resource_dirs["banks"] + guid + ".tres"))
 		{
-			ResourceSaver::save(resource_dirs["banks"] + guid + ".tres", bank_asset);
+			String resource_path = resource_dirs["banks"];
+			ResourceSaver::save(resource_path + guid + ".tres", bank_asset);
 			banks[guid] = bank_asset;
 		}
 		else
 		{
-			Ref<BankAsset> asset = ResourceLoader::load(resource_dirs["banks"] + guid + ".tres", "BankAsset");
+			String resource_path = resource_dirs["banks"];
+			Ref<BankAsset> asset = ResourceLoader::load(resource_path + guid + ".tres", "BankAsset");
 			asset->set_name(bank_asset->get_name());
 			asset->set_path(bank_asset->get_path());
 			asset->set_modified_time(bank_asset->get_modified_time());
-			ResourceSaver::save(resource_dirs["banks"] + guid + ".tres", asset);
+			ResourceSaver::save(resource_path + guid + ".tres", asset);
 			banks[guid] = asset;
 		}
 
@@ -630,14 +632,16 @@ Dictionary FMODStudioEditorModule::get_project_info_from_banks()
 				Ref<EventAsset> event = events_array[i];
 				String guid = event->get_guid();
 
-				if (!FileAccess::exists(resource_dirs["events"] + guid + ".tres"))
+				String resource_path = resource_dirs["events"];
+
+				if (!FileAccess::exists( resource_path + guid + ".tres"))
 				{
-					ResourceSaver::save(resource_dirs["events"] + guid + ".tres", event);
+					ResourceSaver::save(resource_path + guid + ".tres", event);
 					events[guid] = event;
 				}
 				else
 				{
-					Ref<EventAsset> asset = ResourceLoader::load(resource_dirs["events"] + guid + ".tres", "EventAsset");
+					Ref<EventAsset> asset = ResourceLoader::load(resource_path + guid + ".tres", "EventAsset");
 
 					if (has_event_changed(asset, event))
 					{
@@ -649,7 +653,7 @@ Dictionary FMODStudioEditorModule::get_project_info_from_banks()
 						asset->set_min_distance(event->get_min_distance());
 						asset->set_max_distance(event->get_max_distance());
 						asset->set_parameters(event->get_parameters());
-						ResourceSaver::save(resource_dirs["events"] + guid + ".tres", asset);
+						ResourceSaver::save(resource_path + guid + ".tres", asset);
 					}
 					events[guid] = asset;
 				}
@@ -660,14 +664,16 @@ Dictionary FMODStudioEditorModule::get_project_info_from_banks()
 				Ref<EventAsset> snapshot = snapshots_array[i];
 				String guid = snapshot->get_guid();
 
-				if (!FileAccess::exists(resource_dirs["snapshots"] + guid + ".tres"))
+				String resource_path = resource_dirs["snapshots"];
+
+				if (!FileAccess::exists(resource_path + guid + ".tres"))
 				{
-					ResourceSaver::save(resource_dirs["snapshots"] + guid + ".tres", snapshot);
-					snapshots[guid] = ResourceSaver::save(resource_dirs["snapshots"] + guid + ".tres", snapshot);
+					ResourceSaver::save(resource_path + guid + ".tres", snapshot);
+					snapshots[guid] = ResourceSaver::save(resource_path + guid + ".tres", snapshot);
 				}
 				else
 				{
-					Ref<EventAsset> asset = ResourceLoader::load(resource_dirs["snapshots"] + guid + ".tres", "EventAsset");
+					Ref<EventAsset> asset = ResourceLoader::load(resource_path + guid + ".tres", "EventAsset");
 					if (has_event_changed(asset, snapshot))
 					{
 						asset->set_name(snapshot->get_name());
@@ -678,7 +684,7 @@ Dictionary FMODStudioEditorModule::get_project_info_from_banks()
 						asset->set_min_distance(snapshot->get_min_distance());
 						asset->set_max_distance(snapshot->get_max_distance());
 						asset->set_parameters(snapshot->get_parameters());
-						ResourceSaver::save(resource_dirs["snapshots"] + guid + ".tres", asset);
+						ResourceSaver::save(resource_path + guid + ".tres", asset);
 					}
 					snapshots[guid] = asset;
 				}
@@ -697,17 +703,19 @@ Dictionary FMODStudioEditorModule::get_project_info_from_banks()
 				Ref<BusAsset> bus = bus_infos[i];
 				String guid = bus->get_guid();
 
-				if (!FileAccess::exists(resource_dirs["busses"] + guid + ".tres"))
+				String resource_path = resource_dirs["busses"];
+
+				if (!FileAccess::exists(resource_path + guid + ".tres"))
 				{
-					ResourceSaver::save(resource_dirs["busses"] + guid + ".tres", bus);
+					ResourceSaver::save(resource_path + guid + ".tres", bus);
 					busses[guid] = bus;
 				}
 				else
 				{
-					Ref<BusAsset> asset = ResourceLoader::load(resource_dirs["busses"] + guid + ".tres", "BusAsset");
+					Ref<BusAsset> asset = ResourceLoader::load(resource_path + guid + ".tres", "BusAsset");
 					asset->set_name(bus->get_name());
 					asset->set_path(bus->get_path());
-					ResourceSaver::save(resource_dirs["busses"] + guid + ".tres", asset);
+					ResourceSaver::save(resource_path + guid + ".tres", asset);
 					busses[guid] = asset;
 				}
 			}
@@ -724,17 +732,19 @@ Dictionary FMODStudioEditorModule::get_project_info_from_banks()
 				Ref<VCAAsset> vca = vca_infos[i];
 				String guid = vca->get_guid();
 
-				if (!FileAccess::exists(resource_dirs["vcas"] + guid + ".tres"))
+				String resource_path = resource_dirs["vcas"];
+
+				if (!FileAccess::exists(resource_path + guid + ".tres"))
 				{
-					ResourceSaver::save(resource_dirs["vcas"] + guid + ".tres", vca);
+					ResourceSaver::save(resource_path + guid + ".tres", vca);
 					vcas[guid] = vca;
 				}
 				else
 				{
-					Ref<VCAAsset> asset = ResourceLoader::load(resource_dirs["vcas"] + guid + ".tres", "VCAAsset");
+					Ref<VCAAsset> asset = ResourceLoader::load(resource_path + guid + ".tres", "VCAAsset");
 					asset->set_name(vca->get_name());
 					asset->set_path(vca->get_path());
-					ResourceSaver::save(resource_dirs["vcas"] + guid + ".tres", asset);
+					ResourceSaver::save(resource_path + guid + ".tres", asset);
 					vcas[guid] = asset;
 				}
 			}
@@ -752,21 +762,23 @@ Dictionary FMODStudioEditorModule::get_project_info_from_banks()
 			Ref<ParameterAsset> parameter = parameter_infos[i];
 			String guid = parameter->get_guid();
 
-			if (!FileAccess::exists(resource_dirs["parameters"] + guid + ".tres"))
+			String resource_path = resource_dirs["parameters"];
+
+			if (!FileAccess::exists(resource_path + guid + ".tres"))
 			{
-				ResourceSaver::save(resource_dirs["parameters"] + guid + ".tres", parameter);
+				ResourceSaver::save(resource_path + guid + ".tres", parameter);
 				parameters[guid] = parameter;
 			}
 			else
 			{
-				Ref<ParameterAsset> asset = ResourceLoader::load(resource_dirs["parameters"] + guid + ".tres", "ParameterAsset");
+				Ref<ParameterAsset> asset = ResourceLoader::load(resource_path + guid + ".tres", "ParameterAsset");
 				asset->set_name(parameter->get_name());
 				asset->set_path(parameter->get_path());
 				asset->set_parameter_description(parameter->get_parameter_description());
 				FMOD_STUDIO_PARAMETER_DESCRIPTION desc;
 				parameter->get_parameter_description()->get_parameter_description(desc);
 				asset->set_parameter_ref(desc);
-				ResourceSaver::save(resource_dirs["parameters"] + guid + ".tres", asset);
+				ResourceSaver::save(resource_path + guid + ".tres", asset);
 				parameters[guid] = asset;
 			}
 		}

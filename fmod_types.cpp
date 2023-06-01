@@ -12,6 +12,8 @@ void FMOD_STUDIO_PARAMETER_ID::_bind_methods()
 
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "data1"), "set_data_1", "get_data_1");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "data2"), "set_data_2", "get_data_2");
+	ADD_PROPERTY(PropertyInfo(Variant::STRING, "path"), "set_path", "get_path");
+	ADD_PROPERTY(PropertyInfo(Variant::STRING, "name"), "set_name", "get_name");
 }
 
 void FMOD_STUDIO_PARAMETER_ID::set_data1(const unsigned int& data1)
