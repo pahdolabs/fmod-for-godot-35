@@ -20,7 +20,7 @@ protected:
 	static void _bind_methods();
 
 private:
-	FMOD::Studio::System* studio_system;
+	FMOD_STUDIO_SYSTEM* studio_system;
 	Ref<StudioApi::StudioSystem> studio_system_ref;
 
 	bool initialize_fmod();
@@ -38,8 +38,8 @@ public:
 	void shutdown();
 
 	Ref<StudioApi::StudioSystem> get_studio_system_ref();
-	FMOD::Studio::System* get_studio_system() const;
-	FMOD::System* get_core_system() const;
+	FMOD_STUDIO_SYSTEM* get_studio_system() const;
+	FMOD_SYSTEM* get_core_system() const;
 
 	using FMOD_STUDIO_LOADING_STATE = ::FMOD_STUDIO_LOADING_STATE;
 	using FMOD_STUDIO_LOAD_MEMORY_MODE = ::FMOD_STUDIO_LOAD_MEMORY_MODE;

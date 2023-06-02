@@ -409,9 +409,9 @@ void StudioEventEmitterImpl<T>::update_playing_status(bool force)
 		Transform2D t2d = transform;
 		should_play_instance = ListenerImpl::distance_to_nearest_listener(t2d.get_origin()) <= max_distance * max_distance;
 	}
-	else if (type == Variant::Type::TRANSFORM3D)
+	else if (type == Variant::Type::TRANSFORM)
 	{
-		Transform3D t3d = transform;
+		Transform t3d = transform;
 		should_play_instance = ListenerImpl::distance_to_nearest_listener(t3d.get_origin()) <= max_distance * max_distance;
 	}
 

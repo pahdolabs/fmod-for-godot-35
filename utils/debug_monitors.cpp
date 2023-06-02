@@ -105,15 +105,15 @@ void FMODDebugMonitor::process_debug_info()
 
 	FMOD_STUDIO_CPU_USAGE studioUsage{};
 	FMOD_CPU_USAGE coreUsage{};
-	ERROR_CHECK(studio_system->getCPUUsage(&studioUsage, &coreUsage));
+	ERROR_CHECK(FMOD_Studio_System_GetCPUUsage(studio_system, &studioUsage, &coreUsage));
 
 	int currentAlloc{}, maxAlloc{};
-	ERROR_CHECK(FMOD::Memory_GetStats(&currentAlloc, &maxAlloc));
+	ERROR_CHECK(FMOD_Memory_GetStats(&currentAlloc, &maxAlloc, false));
 	currentAlloc = currentAlloc >> 20;
 	maxAlloc = maxAlloc >> 20;
 
 	int channels{}, real_channels{};
-	ERROR_CHECK(core_system->getChannelsPlaying(&channels, &real_channels));
+	ERROR_CHECK(FMOD_System_GetChannelsPlaying(core_system, &channels, &real_channels));
 
 	dsp_cpu_info = coreUsage.dsp;
 	studio_cpu_info = studioUsage.update;

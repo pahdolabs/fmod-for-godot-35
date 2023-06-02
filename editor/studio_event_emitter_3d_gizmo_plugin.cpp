@@ -70,10 +70,10 @@ void StudioEventEmitter3DGizmoPlugin::redraw(EditorSpatialGizmo *gizmo_ref)
 		return;
 	}
 
-	FMOD::Studio::EventDescription* event = event_asset->get_event_description();
+	FMOD_STUDIO_EVENTDESCRIPTION* event = event_asset->get_event_description();
 
-	bool is_3d{};
-	event->is3D(&is_3d);
+	FMOD_BOOL is_3d{};
+	FMOD_Studio_EventDescription_Is3D(event, &is_3d);
 
 	if (!is_3d)
 	{
@@ -84,7 +84,7 @@ void StudioEventEmitter3DGizmoPlugin::redraw(EditorSpatialGizmo *gizmo_ref)
 	float r_min{};
 	float max_distance{};
 	float min_distance{};
-	event->getMinMaxDistance(&min_distance, &max_distance);
+	FMOD_Studio_EventDescription_GetMinMaxDistance(event, &min_distance, &max_distance);
 
 	if (max_distance > CMP_EPSILON)
 	{

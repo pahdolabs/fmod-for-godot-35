@@ -20,6 +20,7 @@
 #include "core/class_db.h"
 
 #include <map>
+#include <vector>
 #include <unordered_map>
 
 #ifdef FMOD_OSX
@@ -80,22 +81,22 @@ protected:
 	static void _bind_methods();
 
 private:
-	FMOD::Studio::System* studio_system;
-	FMOD::System* core_system;
+	FMOD_STUDIO_SYSTEM* studio_system;
+	FMOD_SYSTEM* core_system;
 	Ref<ProjectCache> project_cache;
 	std::unordered_map<FMODIconType, Ref<Texture>> icons;
 	Array bank_refs;
-	std::map<FMOD::Studio::Bank*, Ref<BankAsset>> bank_loading_check;
-	std::vector<FMOD::Studio::EventInstance*> preview_events;
+	std::map<FMOD_STUDIO_BANK*, Ref<BankAsset>> bank_loading_check;
+	std::vector<FMOD_STUDIO_EVENTINSTANCE*> preview_events;
 	bool banks_loaded = false;
 	bool is_initialized = false;
 
 	bool initialize_fmod();
 	bool shutdown_fmod();
 
-	Dictionary get_event_list(const FMOD::Studio::Bank* bank, int count) const;
-	Array get_bus_list(const FMOD::Studio::Bank* bank, int count) const;
-	Array get_vca_list(const FMOD::Studio::Bank* bank, int count) const;
+	Dictionary get_event_list(const FMOD_STUDIO_BANK* bank, int count) const;
+	Array get_bus_list(const FMOD_STUDIO_BANK* bank, int count) const;
+	Array get_vca_list(const FMOD_STUDIO_BANK* bank, int count) const;
 	Array get_global_parameter_list(int count) const;
 	Array get_bank_file_infos(const String& bankPath) const;
 	Ref<BankAsset> get_bank_reference(const Dictionary& file_bank_info) const;
@@ -132,7 +133,7 @@ public:
 	void stop_events(bool allow_fadeout);
 	void set_preview_parameter(const String& parameter_name, float value);
 
-	FMOD::Studio::System* get_studio_system();
+	FMOD_STUDIO_SYSTEM* get_studio_system();
 
 	void set_is_initialized(bool initialized);
 	bool get_is_initialized() const;

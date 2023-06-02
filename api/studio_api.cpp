@@ -65,32 +65,32 @@ void StudioSystem::_bind_methods()
 	ClassDB::bind_method(D_METHOD("get_memory_usage", "memory_usage"), &StudioSystem::get_memory_usage);
 }
 
-void StudioSystem::set_instance(FMOD::Studio::System* studio_system)
+void StudioSystem::set_instance(FMOD_STUDIO_SYSTEM* studio_system)
 {
 	this->studio_system = studio_system;
 }
 
 bool StudioSystem::is_valid() const
 {
-	return studio_system->isValid();
+	return FMOD_Studio_System_IsValid(studio_system);
 }
 
 bool StudioSystem::flush_commands() const
 {
-	return ERROR_CHECK(studio_system->flushCommands());
+	return ERROR_CHECK(FMOD_Studio_System_FlushCommands(studio_system));
 }
 
 bool StudioSystem::flush_sample_loading() const
 {
-	return ERROR_CHECK(studio_system->flushSampleLoading());
+	return ERROR_CHECK(FMOD_Studio_System_FlushSampleLoading(studio_system));
 }
 
 Ref<EventDescription> StudioSystem::get_event(const String& event_path) const
 {
-	FMOD::Studio::EventDescription* event_description = nullptr;
+	FMOD_STUDIO_EVENTDESCRIPTION* event_description = nullptr;
 	Ref<EventDescription> ref = create_ref<EventDescription>();
 
-	if (ERROR_CHECK(studio_system->getEvent(event_path.utf8().get_data(), &event_description)))
+	if (ERROR_CHECK(FMOD_Studio_System_GetEvent(studio_system, event_path.utf8().get_data(), &event_description)))
 	{
 		ref->set_instance(event_description);
 	}
@@ -100,10 +100,10 @@ Ref<EventDescription> StudioSystem::get_event(const String& event_path) const
 
 Ref<Bus> StudioSystem::get_bus(const String& bus_path) const
 {
-	FMOD::Studio::Bus* bus = nullptr;
+	FMOD_STUDIO_BUS* bus = nullptr;
 	Ref<Bus> ref = create_ref<Bus>();
 
-	if (ERROR_CHECK(studio_system->getBus(bus_path.utf8().get_data(), &bus)))
+	if (ERROR_CHECK(FMOD_Studio_System_GetBus(studio_system, bus_path.utf8().get_data(), &bus)))
 	{
 		ref->set_instance(bus);
 	}
@@ -113,11 +113,11 @@ Ref<Bus> StudioSystem::get_bus(const String& bus_path) const
 
 Ref<VCA> StudioSystem::get_vca(const String& vca_path) const
 {
-	FMOD::Studio::VCA* vca = nullptr;
+	FMOD_STUDIO_VCA* vca = nullptr;
 
 	Ref<VCA> ref = create_ref<VCA>();
 
-	if (ERROR_CHECK(studio_system->getVCA(vca_path.utf8().get_data(), &vca)))
+	if (ERROR_CHECK(FMOD_Studio_System_GetVCA(studio_system, vca_path.utf8().get_data(), &vca)))
 	{
 		ref->set_instance(vca);
 	}
@@ -127,10 +127,10 @@ Ref<VCA> StudioSystem::get_vca(const String& vca_path) const
 
 Ref<Bank> StudioSystem::get_bank(const String& bank_path) const
 {
-	FMOD::Studio::Bank* bank = nullptr;
+	FMOD_STUDIO_BANK* bank = nullptr;
 	Ref<Bank> ref = create_ref<Bank>();
 
-	if (ERROR_CHECK(studio_system->getBank(bank_path.utf8().get_data(), &bank)))
+	if (ERROR_CHECK(FMOD_Studio_System_GetBank(studio_system, bank_path.utf8().get_data(), &bank)))
 	{
 		ref->set_instance(bank);
 	}
@@ -140,13 +140,13 @@ Ref<Bank> StudioSystem::get_bank(const String& bank_path) const
 
 Ref<EventDescription> StudioSystem::get_event_by_id(const String& event_guid) const
 {
-	FMOD::Studio::EventDescription* event_description = nullptr;
+	FMOD_STUDIO_EVENTDESCRIPTION *event_description = nullptr;
 
 	FMOD_GUID guid{};
-	FMOD::Studio::parseID(event_guid.utf8().get_data(), &guid);
+	FMOD_Studio_ParseID(event_guid.utf8().get_data(), &guid);
 	Ref<EventDescription> ref = create_ref<EventDescription>();
 
-	if (ERROR_CHECK(studio_system->getEventByID(&guid, &event_description)))
+	if (ERROR_CHECK(FMOD_Studio_System_GetEventByID(studio_system, &guid, &event_description)))
 	{
 		ref->set_instance(event_description);
 	}
@@ -156,13 +156,13 @@ Ref<EventDescription> StudioSystem::get_event_by_id(const String& event_guid) co
 
 Ref<Bus> StudioSystem::get_bus_by_id(const String& bus_guid) const
 {
-	FMOD::Studio::Bus* bus = nullptr;
+	FMOD_STUDIO_BUS* bus = nullptr;
 
 	FMOD_GUID guid{};
-	FMOD::Studio::parseID(bus_guid.utf8().get_data(), &guid);
+	FMOD_Studio_ParseID(bus_guid.utf8().get_data(), &guid);
 	Ref<Bus> ref = create_ref<Bus>();
 
-	if (ERROR_CHECK(studio_system->getBusByID(&guid, &bus)))
+	if (ERROR_CHECK(FMOD_Studio_System_GetBusByID(studio_system, &guid, &bus)))
 	{
 		ref->set_instance(bus);
 	}
@@ -172,13 +172,13 @@ Ref<Bus> StudioSystem::get_bus_by_id(const String& bus_guid) const
 
 Ref<VCA> StudioSystem::get_vca_by_id(const String& vca_guid) const
 {
-	FMOD::Studio::VCA* vca = nullptr;
+	FMOD_STUDIO_VCA* vca = nullptr;
 
 	FMOD_GUID guid{};
-	FMOD::Studio::parseID(vca_guid.utf8().get_data(), &guid);
+	FMOD_Studio_ParseID(vca_guid.utf8().get_data(), &guid);
 	Ref<VCA> ref = create_ref<VCA>();
 
-	if (ERROR_CHECK(studio_system->getVCAByID(&guid, &vca)))
+	if (ERROR_CHECK(FMOD_Studio_System_GetVCAByID(studio_system, &guid, &vca)))
 	{
 		ref->set_instance(vca);
 	}
@@ -188,13 +188,13 @@ Ref<VCA> StudioSystem::get_vca_by_id(const String& vca_guid) const
 
 Ref<Bank> StudioSystem::get_bank_by_id(const String& bank_guid) const
 {
-	FMOD::Studio::Bank* bank = nullptr;
+	FMOD_STUDIO_BANK* bank = nullptr;
 
 	FMOD_GUID guid{};
-	FMOD::Studio::parseID(bank_guid.utf8().get_data(), &guid);
+	FMOD_Studio_ParseID(bank_guid.utf8().get_data(), &guid);
 	Ref<Bank> ref = create_ref<Bank>();
 
-	if (ERROR_CHECK(studio_system->getBankByID(&guid, &bank)))
+	if (ERROR_CHECK(FMOD_Studio_System_GetBankByID(studio_system, &guid, &bank)))
 	{
 		ref->set_instance(bank);
 	}
@@ -208,7 +208,7 @@ Ref<FmodTypes::FMOD_STUDIO_PARAMETER_DESCRIPTION> StudioSystem::get_parameter_de
 	FMOD_STUDIO_PARAMETER_DESCRIPTION description{};
 	Ref<FmodTypes::FMOD_STUDIO_PARAMETER_DESCRIPTION> ref = create_ref<FmodTypes::FMOD_STUDIO_PARAMETER_DESCRIPTION>();
 
-	if (ERROR_CHECK(studio_system->getParameterDescriptionByName(name.utf8().get_data(), &description)))
+	if (ERROR_CHECK(FMOD_Studio_System_GetParameterDescriptionByName(studio_system, name.utf8().get_data(), &description)))
 	{
 		ref->set_parameter_description(description);
 	}
@@ -231,7 +231,7 @@ Ref<FmodTypes::FMOD_STUDIO_PARAMETER_DESCRIPTION> StudioSystem::get_parameter_de
 	parameter_id->get_parameter_id(id);
 
 	FMOD_STUDIO_PARAMETER_DESCRIPTION description;
-	if (ERROR_CHECK(studio_system->getParameterDescriptionByID(id, &description)))
+	if (ERROR_CHECK(FMOD_Studio_System_GetParameterDescriptionByID(studio_system, id, &description)))
 	{
 		ref->set_parameter_description(description);
 	}
@@ -248,7 +248,7 @@ String StudioSystem::get_parameter_label_by_name(const String& name, int label_i
 	do
 	{
 		raw_buffer.resize(actual_size);
-		result = studio_system->getParameterLabelByName(name.utf8().get_data(), label_index, &raw_buffer[0],
+		result = FMOD_Studio_System_GetParameterLabelByName(studio_system, name.utf8().get_data(), label_index, &raw_buffer[0],
 				actual_size, &actual_size);
 
 		if (result == FMOD_ERR_INVALID_PARAM || result == FMOD_ERR_EVENT_NOTFOUND)
@@ -278,7 +278,7 @@ String StudioSystem::get_parameter_label_by_id(const Ref<FmodTypes::FMOD_STUDIO_
 	do
 	{
 		raw_buffer.resize(actual_size);
-		result = studio_system->getParameterLabelByID(id, label_index, &raw_buffer[0], actual_size, &actual_size);
+		result = FMOD_Studio_System_GetParameterLabelByID(studio_system, id, label_index, &raw_buffer[0], actual_size, &actual_size);
 
 		if (result == FMOD_ERR_INVALID_PARAM || result == FMOD_ERR_EVENT_NOTFOUND)
 		{
@@ -303,7 +303,7 @@ Dictionary StudioSystem::get_parameter_by_id(const Ref<FmodTypes::FMOD_STUDIO_PA
 	FMOD_STUDIO_PARAMETER_ID id{};
 	parameter_id->get_parameter_id(id);
 
-	if (ERROR_CHECK(studio_system->getParameterByID(id, &value, &final_value)))
+	if (ERROR_CHECK(FMOD_Studio_System_GetParameterByID(studio_system, id, &value, &final_value)))
 	{
 		result["value"] = value;
 		result["final_value"] = final_value;
@@ -319,7 +319,7 @@ bool StudioSystem::set_parameter_by_id(const Ref<FmodTypes::FMOD_STUDIO_PARAMETE
 	FMOD_STUDIO_PARAMETER_ID id{};
 	parameter_id->get_parameter_id(id);
 
-	return ERROR_CHECK(studio_system->setParameterByID(id, value, ignore_seek_speed));
+	return ERROR_CHECK(FMOD_Studio_System_SetParameterByID(studio_system, id, value, ignore_seek_speed));
 }
 
 bool StudioSystem::set_parameter_by_id_with_label(const Ref<FmodTypes::FMOD_STUDIO_PARAMETER_ID>& parameter_id,
@@ -328,7 +328,7 @@ bool StudioSystem::set_parameter_by_id_with_label(const Ref<FmodTypes::FMOD_STUD
 	FMOD_STUDIO_PARAMETER_ID id{};
 	parameter_id->get_parameter_id(id);
 
-	return ERROR_CHECK(studio_system->setParameterByIDWithLabel(id, label.utf8().get_data(), ignore_seek_speed));
+	return ERROR_CHECK(FMOD_Studio_System_SetParameterByIDWithLabel(studio_system, id, label.utf8().get_data(), ignore_seek_speed));
 }
 
 bool StudioSystem::set_parameters_by_ids(const Array& parameter_ids, const Array& values, int count,
@@ -347,7 +347,7 @@ bool StudioSystem::set_parameters_by_ids(const Array& parameter_ids, const Array
 		parameter_values[i] = values[i];
 	}
 
-	return ERROR_CHECK(studio_system->setParametersByIDs(ids.get(), parameter_values.get(), count, ignore_seek_speed));
+	return ERROR_CHECK(FMOD_Studio_System_SetParametersByIDs(studio_system, ids.get(), parameter_values.get(), count, ignore_seek_speed));
 }
 
 Dictionary StudioSystem::get_parameter_by_name(const String& name) const
@@ -355,7 +355,7 @@ Dictionary StudioSystem::get_parameter_by_name(const String& name) const
 	float value{}, final_value{};
 	Dictionary result;
 
-	if (ERROR_CHECK(studio_system->getParameterByName(name.utf8().get_data(), &value, &final_value)))
+	if (ERROR_CHECK(FMOD_Studio_System_GetParameterByName(studio_system, name.utf8().get_data(), &value, &final_value)))
 	{
 		result["value"] = value;
 		result["final_value"] = final_value;
@@ -367,21 +367,21 @@ Dictionary StudioSystem::get_parameter_by_name(const String& name) const
 
 bool StudioSystem::set_parameter_by_name(const String& name, float value, bool ignore_seek_speed) const
 {
-	return ERROR_CHECK(studio_system->setParameterByName(name.utf8().get_data(), value, ignore_seek_speed));
+	return ERROR_CHECK(FMOD_Studio_System_SetParameterByName(studio_system, name.utf8().get_data(), value, ignore_seek_speed));
 }
 
 bool StudioSystem::set_parameter_by_name_with_label(const String& name, const String& label,
 		bool ignore_seek_speed) const
 {
 	return ERROR_CHECK(
-			studio_system->setParameterByNameWithLabel(name.utf8().get_data(), label.utf8().get_data(), ignore_seek_speed));
+			FMOD_Studio_System_SetParameterByNameWithLabel(studio_system, name.utf8().get_data(), label.utf8().get_data(), ignore_seek_speed));
 }
 
 String StudioSystem::lookup_id(const String& path) const
 {
 	FMOD_GUID guid{};
 
-	if (ERROR_CHECK(studio_system->lookupID(path.utf8().get_data(), &guid)))
+	if (ERROR_CHECK(FMOD_Studio_System_LookupID(studio_system, path.utf8().get_data(), &guid)))
 	{
 		return guid_to_string(guid);
 	}
@@ -392,7 +392,7 @@ String StudioSystem::lookup_id(const String& path) const
 String StudioSystem::lookup_path(const String& guid) const
 {
 	FMOD_GUID fmod_guid{};
-	FMOD::Studio::parseID(guid.utf8().get_data(), &fmod_guid);
+	FMOD_Studio_ParseID(guid.utf8().get_data(), &fmod_guid);
 
 	String path;
 	int actual_size{ 512 };
@@ -401,7 +401,7 @@ String StudioSystem::lookup_path(const String& guid) const
 	do
 	{
 		raw_buffer.resize(actual_size);
-		result = studio_system->lookupPath(&fmod_guid, &raw_buffer[0], actual_size, &actual_size);
+		result = FMOD_Studio_System_LookupPath(studio_system, &fmod_guid, &raw_buffer[0], actual_size, &actual_size);
 	} while (result == FMOD_ERR_TRUNCATED);
 
 	return String(raw_buffer.c_str());
@@ -411,7 +411,7 @@ int StudioSystem::get_num_listeners() const
 {
 	int num_listeners{};
 
-	if (ERROR_CHECK(studio_system->getNumListeners(&num_listeners)))
+	if (ERROR_CHECK(FMOD_Studio_System_GetNumListeners(studio_system, &num_listeners)))
 	{
 		return num_listeners;
 	}
@@ -421,7 +421,7 @@ int StudioSystem::get_num_listeners() const
 
 bool StudioSystem::set_num_listeners(int num_listeners) const
 {
-	return ERROR_CHECK(studio_system->setNumListeners(num_listeners));
+	return ERROR_CHECK(FMOD_Studio_System_SetNumListeners(studio_system, num_listeners));
 }
 
 Dictionary StudioSystem::get_listener_attributes(int listener) const
@@ -429,7 +429,7 @@ Dictionary StudioSystem::get_listener_attributes(int listener) const
 	FMOD_3D_ATTRIBUTES attributes{};
 	FMOD_VECTOR attenuation{};
 
-	ERROR_CHECK(studio_system->getListenerAttributes(listener, &attributes, &attenuation));
+	ERROR_CHECK(FMOD_Studio_System_GetListenerAttributes(studio_system, listener, &attributes, &attenuation));
 
 	Ref<FmodTypes::FMOD_3D_ATTRIBUTES> fmod_attributes = create_ref<FmodTypes::FMOD_3D_ATTRIBUTES>();
 	fmod_attributes->set_3d_attributes(attributes);
@@ -460,7 +460,7 @@ bool StudioSystem::set_listener_attributes(int listener, Ref<FmodTypes::FMOD_3D_
 			Vector3 attenuation_vector = attenuation_position;
 			vector3_to_fmod_vector(attenuation_vector, attenuation);
 
-			return ERROR_CHECK(studio_system->setListenerAttributes(listener, &fmod_attributes, &attenuation));
+			return ERROR_CHECK(FMOD_Studio_System_SetListenerAttributes(studio_system, listener, &fmod_attributes, &attenuation));
 		}
 		case Variant::Type::VECTOR2:
 		{
@@ -468,11 +468,11 @@ bool StudioSystem::set_listener_attributes(int listener, Ref<FmodTypes::FMOD_3D_
 			Vector2 attenuation_vector = attenuation_position;
 			vector2_to_fmod_vector(attenuation_vector, attenuation);
 
-			return ERROR_CHECK(studio_system->setListenerAttributes(listener, &fmod_attributes, &attenuation));
+			return ERROR_CHECK(FMOD_Studio_System_SetListenerAttributes(studio_system, listener, &fmod_attributes, &attenuation));
 		}
 		default:
 		{
-			return ERROR_CHECK(studio_system->setListenerAttributes(listener, &fmod_attributes, nullptr));
+			return ERROR_CHECK(FMOD_Studio_System_SetListenerAttributes(studio_system, listener, &fmod_attributes, nullptr));
 		}
 	}
 }
@@ -480,7 +480,7 @@ bool StudioSystem::set_listener_attributes(int listener, Ref<FmodTypes::FMOD_3D_
 float StudioSystem::get_listener_weight(int listener) const
 {
 	float weight{};
-	if (ERROR_CHECK(studio_system->getListenerWeight(listener, &weight)))
+	if (ERROR_CHECK(FMOD_Studio_System_GetListenerWeight(studio_system, listener, &weight)))
 	{
 		return weight;
 	}
@@ -490,20 +490,20 @@ float StudioSystem::get_listener_weight(int listener) const
 
 bool StudioSystem::set_listener_weight(int listener, float weight) const
 {
-	return ERROR_CHECK(studio_system->setListenerWeight(listener, weight));
+	return ERROR_CHECK(FMOD_Studio_System_SetListenerWeight(studio_system, listener, weight));
 }
 
 bool StudioSystem::update() const
 {
-	return ERROR_CHECK(studio_system->update());
+	return ERROR_CHECK(FMOD_Studio_System_Update(studio_system));
 }
 
 Ref<Bank> StudioSystem::load_bank_file(const String& bank_path, FMOD_STUDIO_LOAD_BANK_FLAGS load_bank_flags,
 		bool load_sample_data) const
 {
-	FMOD::Studio::Bank* bank = nullptr;
+	FMOD_STUDIO_BANK* bank = nullptr;
 
-	ERROR_CHECK(studio_system->loadBankFile(bank_path.utf8().get_data(), load_bank_flags, &bank));
+	ERROR_CHECK(FMOD_Studio_System_LoadBankFile(studio_system, bank_path.utf8().get_data(), load_bank_flags, &bank));
 
 	Ref<Bank> ref = create_ref<Bank>();
 	ref->set_instance(bank);
@@ -513,13 +513,13 @@ Ref<Bank> StudioSystem::load_bank_file(const String& bank_path, FMOD_STUDIO_LOAD
 
 bool StudioSystem::unload_all() const
 {
-	return ERROR_CHECK(studio_system->unloadAll());
+	return ERROR_CHECK(FMOD_Studio_System_UnloadAll(studio_system));
 }
 
 Ref<FmodTypes::FMOD_STUDIO_BUFFER_USAGE> StudioSystem::get_buffer_usage() const
 {
 	FMOD_STUDIO_BUFFER_USAGE usage{};
-	ERROR_CHECK(studio_system->getBufferUsage(&usage));
+	ERROR_CHECK(FMOD_Studio_System_GetBufferUsage(studio_system, &usage));
 
 	Ref<FmodTypes::FMOD_STUDIO_BUFFER_USAGE> ref = create_ref<FmodTypes::FMOD_STUDIO_BUFFER_USAGE>();
 	ref->set_buffer_usage(usage);
@@ -528,13 +528,13 @@ Ref<FmodTypes::FMOD_STUDIO_BUFFER_USAGE> StudioSystem::get_buffer_usage() const
 
 bool StudioSystem::reset_buffer_usage() const
 {
-	return ERROR_CHECK(studio_system->resetBufferUsage());
+	return ERROR_CHECK(FMOD_Studio_System_ResetBufferUsage(studio_system));
 }
 
 int StudioSystem::get_bank_count() const
 {
 	int bank_count{};
-	if (ERROR_CHECK(studio_system->getBankCount(&bank_count)))
+	if (ERROR_CHECK(FMOD_Studio_System_GetBankCount(studio_system, &bank_count)))
 	{
 		return bank_count;
 	}
@@ -545,10 +545,10 @@ int StudioSystem::get_bank_count() const
 Array StudioSystem::get_bank_list(int capacity) const
 {
 	Array bank_list;
-	std::unique_ptr<FMOD::Studio::Bank*[]> banks = std::make_unique<FMOD::Studio::Bank*[]>(capacity);
+	std::unique_ptr<FMOD_STUDIO_BANK*[]> banks = std::make_unique<FMOD_STUDIO_BANK*[]>(capacity);
 
 	int bank_count{};
-	ERROR_CHECK(studio_system->getBankList(banks.get(), capacity, &bank_count));
+	ERROR_CHECK(FMOD_Studio_System_GetBankList(studio_system, banks.get(), capacity, &bank_count));
 
 	for (int i = 0; i < bank_count; i++)
 	{
@@ -565,7 +565,7 @@ Array StudioSystem::get_bank_list(int capacity) const
 int StudioSystem::get_parameter_description_count() const
 {
 	int parameter_description_count{};
-	if (ERROR_CHECK(studio_system->getParameterDescriptionCount(&parameter_description_count)))
+	if (ERROR_CHECK(FMOD_Studio_System_GetParameterDescriptionCount(studio_system, &parameter_description_count)))
 	{
 		return parameter_description_count;
 	}
@@ -581,7 +581,7 @@ Array StudioSystem::get_parameter_description_list(int capacity) const
 			std::make_unique<FMOD_STUDIO_PARAMETER_DESCRIPTION[]>(capacity);
 
 	int parameter_description_count{};
-	ERROR_CHECK(studio_system->getParameterDescriptionList(parameter_descriptions.get(), capacity,
+	ERROR_CHECK(FMOD_Studio_System_GetParameterDescriptionList(studio_system, parameter_descriptions.get(), capacity,
 			&parameter_description_count));
 
 	for (int i = 0; i < parameter_description_count; i++)
@@ -599,21 +599,21 @@ Array StudioSystem::get_parameter_description_list(int capacity) const
 
 bool StudioSystem::start_command_capture(const String& file_name, const FMOD_STUDIO_COMMANDCAPTURE_FLAGS flags) const
 {
-	return ERROR_CHECK(studio_system->startCommandCapture(file_name.utf8().get_data(), flags));
+	return ERROR_CHECK(FMOD_Studio_System_StartCommandCapture(studio_system, file_name.utf8().get_data(), flags));
 }
 
 bool StudioSystem::stop_command_capture() const
 {
-	return ERROR_CHECK(studio_system->stopCommandCapture());
+	return ERROR_CHECK(FMOD_Studio_System_StopCommandCapture(studio_system));
 }
 
 Ref<CommandReplay> StudioSystem::load_command_replay(const String& file_name,
 		FMOD_STUDIO_COMMANDREPLAY_FLAGS flags) const
 {
-	FMOD::Studio::CommandReplay* replay = nullptr;
+	FMOD_STUDIO_COMMANDREPLAY* replay = nullptr;
 	Ref<CommandReplay> ref = create_ref<CommandReplay>();
 
-	if (ERROR_CHECK(studio_system->loadCommandReplay(file_name.utf8().get_data(), flags, &replay)))
+	if (ERROR_CHECK(FMOD_Studio_System_LoadCommandReplay(studio_system, file_name.utf8().get_data(), flags, &replay)))
 	{
 		ref->set_instance(replay);
 	}
@@ -624,7 +624,7 @@ Ref<CommandReplay> StudioSystem::load_command_replay(const String& file_name,
 bool StudioSystem::set_callback(Object* target, StringName function_name, Array binds, FMOD_STUDIO_SYSTEM_CALLBACK_TYPE callback_mask) const
 {
 	void* user_data;
-	studio_system->getUserData(&user_data);
+	FMOD_Studio_System_GetUserData(studio_system, &user_data);
 
 	CallbackData* callable_data = static_cast<CallbackData*>(user_data);
 
@@ -639,9 +639,9 @@ bool StudioSystem::set_callback(Object* target, StringName function_name, Array 
 		callable_data->function_name = function_name;
 		callable_data->binds = binds;
 		void* data = static_cast<void*>(callable_data);
-		studio_system->setUserData(data);
+		FMOD_Studio_System_SetUserData(studio_system, data);
 
-		return ERROR_CHECK(studio_system->setCallback(
+		return ERROR_CHECK(FMOD_Studio_System_SetCallback(studio_system, 
 				[](FMOD_STUDIO_SYSTEM* system, FMOD_STUDIO_SYSTEM_CALLBACK_TYPE type, void* commanddata,
 						void* userdata) -> FMOD_RESULT
 				{
@@ -661,8 +661,8 @@ bool StudioSystem::set_callback(Object* target, StringName function_name, Array 
 	{
 		if (callable_data)
 		{
-			FMOD_RESULT result = studio_system->setCallback(nullptr, FMOD_STUDIO_SYSTEM_CALLBACK_ALL);
-			studio_system->setUserData(nullptr);
+			FMOD_RESULT result = FMOD_Studio_System_SetCallback(studio_system, nullptr, FMOD_STUDIO_SYSTEM_CALLBACK_ALL);
+			FMOD_Studio_System_SetUserData(studio_system, nullptr);
 			memfree(callable_data);
 			return result;
 		}
@@ -677,7 +677,7 @@ void StudioSystem::get_cpu_usage(Ref<FmodTypes::FMOD_STUDIO_CPU_USAGE> studio,
 	FMOD_STUDIO_CPU_USAGE studio_usage{};
 	FMOD_CPU_USAGE core_usage{};
 
-	if (ERROR_CHECK(studio_system->getCPUUsage(&studio_usage, &core_usage)))
+	if (ERROR_CHECK(FMOD_Studio_System_GetCPUUsage(studio_system, &studio_usage, &core_usage)))
 	{
 		core->set_cpu_usage(core_usage);
 		studio->set_cpu_usage(studio_usage);
@@ -689,7 +689,7 @@ void StudioSystem::get_memory_usage(
 {
 	FMOD_STUDIO_MEMORY_USAGE usage{};
 
-	if (ERROR_CHECK(studio_system->getMemoryUsage(&usage)))
+	if (ERROR_CHECK(FMOD_Studio_System_GetMemoryUsage(studio_system, &usage)))
 	{
 		memory_usage->set_memory_usage(usage);
 	}
@@ -737,26 +737,26 @@ void EventDescription::_bind_methods()
 	ClassDB::bind_method(D_METHOD("set_callback", "callable", "callback_mask"), &EventDescription::set_callback);
 }
 
-void EventDescription::set_instance(FMOD::Studio::EventDescription* event_description)
+void EventDescription::set_instance(FMOD_STUDIO_EVENTDESCRIPTION* event_description)
 {
 	this->event_description = event_description;
 }
 
-FMOD::Studio::EventDescription* EventDescription::get_instance() const
+FMOD_STUDIO_EVENTDESCRIPTION* EventDescription::get_instance() const
 {
 	return event_description;
 }
 
 bool EventDescription::is_valid() const
 {
-	return event_description->isValid();
+	return FMOD_Studio_EventDescription_IsValid(event_description);
 }
 
 String EventDescription::get_id() const
 {
 	String id;
 	FMOD_GUID guid{};
-	if (ERROR_CHECK(event_description->getID(&guid)))
+	if (ERROR_CHECK(FMOD_Studio_EventDescription_GetID(event_description, &guid)))
 	{
 		id = guid_to_string(guid);
 		return id;
@@ -777,7 +777,7 @@ int EventDescription::get_parameter_description_count() const
 {
 	int count{};
 
-	if (ERROR_CHECK(event_description->getParameterDescriptionCount(&count)))
+	if (ERROR_CHECK(FMOD_Studio_EventDescription_GetParameterDescriptionCount(event_description, &count)))
 	{
 		return count;
 	}
@@ -790,7 +790,7 @@ Ref<FmodTypes::FMOD_STUDIO_PARAMETER_DESCRIPTION> EventDescription::get_paramete
 	Ref<FmodTypes::FMOD_STUDIO_PARAMETER_DESCRIPTION> ref = create_ref<FmodTypes::FMOD_STUDIO_PARAMETER_DESCRIPTION>();
 	FMOD_STUDIO_PARAMETER_DESCRIPTION description{};
 
-	if (ERROR_CHECK(event_description->getParameterDescriptionByIndex(index, &description)))
+	if (ERROR_CHECK(FMOD_Studio_EventDescription_GetParameterDescriptionByIndex(event_description, index, &description)))
 	{
 		ref->set_parameter_description(description);
 		return ref;
@@ -805,7 +805,7 @@ Ref<FmodTypes::FMOD_STUDIO_PARAMETER_DESCRIPTION> EventDescription::get_paramete
 	Ref<FmodTypes::FMOD_STUDIO_PARAMETER_DESCRIPTION> ref = create_ref<FmodTypes::FMOD_STUDIO_PARAMETER_DESCRIPTION>();
 	FMOD_STUDIO_PARAMETER_DESCRIPTION description{};
 
-	if (ERROR_CHECK(event_description->getParameterDescriptionByName(name.utf8().get_data(), &description)))
+	if (ERROR_CHECK(FMOD_Studio_EventDescription_GetParameterDescriptionByName(event_description, name.utf8().get_data(), &description)))
 	{
 		ref->set_parameter_description(description);
 		return ref;
@@ -825,7 +825,7 @@ Ref<FmodTypes::FMOD_STUDIO_PARAMETER_DESCRIPTION> EventDescription::get_paramete
 
 	FMOD_STUDIO_PARAMETER_DESCRIPTION description{};
 
-	if (ERROR_CHECK(event_description->getParameterDescriptionByID(id, &description)))
+	if (ERROR_CHECK(FMOD_Studio_EventDescription_GetParameterDescriptionByID(event_description, id, &description)))
 	{
 		ref->set_parameter_description(description);
 		return ref;
@@ -844,7 +844,7 @@ String EventDescription::get_parameter_label_by_index(int index, int label_index
 	{
 		raw_buffer.resize(actual_size);
 		result =
-				event_description->getParameterLabelByIndex(index, label_index, &raw_buffer[0], actual_size, &actual_size);
+				FMOD_Studio_EventDescription_GetParameterLabelByIndex(event_description, index, label_index, &raw_buffer[0], actual_size, &actual_size);
 
 		if (result == FMOD_ERR_INVALID_PARAM)
 		{
@@ -870,7 +870,7 @@ String EventDescription::get_parameter_label_by_name(const String& name, int lab
 	do
 	{
 		raw_buffer.resize(actual_size);
-		result = event_description->getParameterLabelByName(name.utf8().get_data(), label_index, &raw_buffer[0],
+		result = FMOD_Studio_EventDescription_GetParameterLabelByName(event_description, name.utf8().get_data(), label_index, &raw_buffer[0],
 				actual_size, &actual_size);
 
 		if (result == FMOD_ERR_INVALID_PARAM || result == FMOD_ERR_EVENT_NOTFOUND)
@@ -902,7 +902,7 @@ String EventDescription::get_parameter_label_by_id(const Ref<FmodTypes::FMOD_STU
 	do
 	{
 		raw_buffer.resize(actual_size);
-		result = event_description->getParameterLabelByID(id, label_index, &raw_buffer[0], actual_size, &actual_size);
+		result = FMOD_Studio_EventDescription_GetParameterLabelByID(event_description, id, label_index, &raw_buffer[0], actual_size, &actual_size);
 
 		if (result == FMOD_ERR_INVALID_PARAM || result == FMOD_ERR_EVENT_NOTFOUND)
 		{
@@ -923,7 +923,7 @@ int EventDescription::get_user_property_count() const
 {
 	int count{};
 
-	if (ERROR_CHECK(event_description->getUserPropertyCount(&count)))
+	if (ERROR_CHECK(FMOD_Studio_EventDescription_GetUserPropertyCount(event_description, &count)))
 	{
 		return count;
 	}
@@ -936,7 +936,7 @@ Ref<FmodTypes::FMOD_STUDIO_USER_PROPERTY> EventDescription::get_user_property_by
 	Ref<FmodTypes::FMOD_STUDIO_USER_PROPERTY> ref = create_ref<FmodTypes::FMOD_STUDIO_USER_PROPERTY>();
 
 	FMOD_STUDIO_USER_PROPERTY property{};
-	if (ERROR_CHECK(event_description->getUserPropertyByIndex(index, &property)))
+	if (ERROR_CHECK(FMOD_Studio_EventDescription_GetUserPropertyByIndex(event_description, index, &property)))
 	{
 		ref->set_user_property(property);
 		return ref;
@@ -951,7 +951,7 @@ Ref<FmodTypes::FMOD_STUDIO_USER_PROPERTY> EventDescription::get_user_property(co
 
 	FMOD_STUDIO_USER_PROPERTY property{};
 
-	if (ERROR_CHECK(event_description->getUserProperty(name.utf8().get_data(), &property)))
+	if (ERROR_CHECK(FMOD_Studio_EventDescription_GetUserProperty(event_description, name.utf8().get_data(), &property)))
 	{
 		ref->set_user_property(property);
 		return ref;
@@ -964,7 +964,7 @@ int EventDescription::get_length() const
 {
 	int length{};
 
-	if (ERROR_CHECK(event_description->getLength(&length)))
+	if (ERROR_CHECK(FMOD_Studio_EventDescription_GetLength(event_description, &length)))
 	{
 		return length;
 	}
@@ -977,7 +977,7 @@ Dictionary EventDescription::get_min_max_distance() const
 	Dictionary min_max_distance;
 
 	float min_distance{}, max_distance{};
-	ERROR_CHECK(event_description->getMinMaxDistance(&min_distance, &max_distance));
+	ERROR_CHECK(FMOD_Studio_EventDescription_GetMinMaxDistance(event_description, &min_distance, &max_distance));
 	min_max_distance["min"] = min_distance;
 	min_max_distance["max"] = max_distance;
 
@@ -988,7 +988,7 @@ float EventDescription::get_sound_size() const
 {
 	float sound_size{};
 
-	if (ERROR_CHECK(event_description->getSoundSize(&sound_size)))
+	if (ERROR_CHECK(FMOD_Studio_EventDescription_GetSoundSize(event_description, &sound_size)))
 	{
 		return sound_size;
 	}
@@ -998,9 +998,9 @@ float EventDescription::get_sound_size() const
 
 bool EventDescription::is_snapshot() const
 {
-	bool is_snapshot{};
+	FMOD_BOOL is_snapshot{};
 
-	if (ERROR_CHECK(event_description->isSnapshot(&is_snapshot)))
+	if (ERROR_CHECK(FMOD_Studio_EventDescription_IsSnapshot(event_description, &is_snapshot)))
 	{
 		return is_snapshot;
 	}
@@ -1010,9 +1010,9 @@ bool EventDescription::is_snapshot() const
 
 bool EventDescription::is_oneshot() const
 {
-	bool is_oneshot{};
+	FMOD_BOOL is_oneshot{};
 
-	if (ERROR_CHECK(event_description->isOneshot(&is_oneshot)))
+	if (ERROR_CHECK(FMOD_Studio_EventDescription_IsOneshot(event_description, &is_oneshot)))
 	{
 		return is_oneshot;
 	}
@@ -1022,9 +1022,9 @@ bool EventDescription::is_oneshot() const
 
 bool EventDescription::is_stream() const
 {
-	bool is_stream{};
+	FMOD_BOOL is_stream{};
 
-	if (ERROR_CHECK(event_description->isStream(&is_stream)))
+	if (ERROR_CHECK(FMOD_Studio_EventDescription_IsStream(event_description, &is_stream)))
 	{
 		return is_stream;
 	}
@@ -1034,9 +1034,9 @@ bool EventDescription::is_stream() const
 
 bool EventDescription::is_3d() const
 {
-	bool is_3d{};
+	FMOD_BOOL is_3d{};
 
-	if (ERROR_CHECK(event_description->is3D(&is_3d)))
+	if (ERROR_CHECK(FMOD_Studio_EventDescription_Is3D(event_description, &is_3d)))
 	{
 		return is_3d;
 	}
@@ -1046,9 +1046,9 @@ bool EventDescription::is_3d() const
 
 bool EventDescription::is_doppler_enabled() const
 {
-	bool is_doppler_enabled{};
+	FMOD_BOOL is_doppler_enabled{};
 
-	if (ERROR_CHECK(event_description->isDopplerEnabled(&is_doppler_enabled)))
+	if (ERROR_CHECK(FMOD_Studio_EventDescription_IsDopplerEnabled(event_description, &is_doppler_enabled)))
 	{
 		return is_doppler_enabled;
 	}
@@ -1058,9 +1058,9 @@ bool EventDescription::is_doppler_enabled() const
 
 bool EventDescription::has_sustain_point() const
 {
-	bool has_sustain_point{};
+	FMOD_BOOL has_sustain_point{};
 
-	if (ERROR_CHECK(event_description->hasSustainPoint(&has_sustain_point)))
+	if (ERROR_CHECK(FMOD_Studio_EventDescription_HasSustainPoint(event_description, &has_sustain_point)))
 	{
 		return has_sustain_point;
 	}
@@ -1071,9 +1071,9 @@ bool EventDescription::has_sustain_point() const
 Ref<EventInstance> EventDescription::create_instance()
 {
 	Ref<EventInstance> ref = create_ref<EventInstance>();
-	FMOD::Studio::EventInstance* instance = nullptr;
+	FMOD_STUDIO_EVENTINSTANCE* instance = nullptr;
 
-	if (ERROR_CHECK(event_description->createInstance(&instance)))
+	if (ERROR_CHECK(FMOD_Studio_EventDescription_CreateInstance(event_description, &instance)))
 	{
 		ref->set_instance(instance);
 		return ref;
@@ -1086,7 +1086,7 @@ int EventDescription::get_instance_count() const
 {
 	int count{};
 
-	if (ERROR_CHECK(event_description->getInstanceCount(&count)))
+	if (ERROR_CHECK(FMOD_Studio_EventDescription_GetInstanceCount(event_description, &count)))
 	{
 		return count;
 	}
@@ -1098,11 +1098,11 @@ Array EventDescription::get_instance_list(int capacity)
 {
 	Array instance_list;
 
-	std::unique_ptr<FMOD::Studio::EventInstance*[]> instances =
-			std::make_unique<FMOD::Studio::EventInstance*[]>(capacity);
+	std::unique_ptr<FMOD_STUDIO_EVENTINSTANCE*[]> instances =
+			std::make_unique<FMOD_STUDIO_EVENTINSTANCE*[]>(capacity);
 
 	int event_instance_count{};
-	if (ERROR_CHECK(event_description->getInstanceList(instances.get(), capacity, &event_instance_count)))
+	if (ERROR_CHECK(FMOD_Studio_EventDescription_GetInstanceList(event_description, instances.get(), capacity, &event_instance_count)))
 	{
 		for (int i = 0; i < event_instance_count; i++)
 		{
@@ -1120,7 +1120,7 @@ Array EventDescription::get_instance_list(int capacity)
 
 bool EventDescription::load_sample_data() const
 {
-	if (ERROR_CHECK(event_description->loadSampleData()))
+	if (ERROR_CHECK(FMOD_Studio_EventDescription_LoadSampleData(event_description)))
 	{
 		return true;
 	}
@@ -1130,7 +1130,7 @@ bool EventDescription::load_sample_data() const
 
 bool EventDescription::unload_sample_data() const
 {
-	if (ERROR_CHECK(event_description->unloadSampleData()))
+	if (ERROR_CHECK(FMOD_Studio_EventDescription_UnloadSampleData(event_description)))
 	{
 		return true;
 	}
@@ -1142,7 +1142,7 @@ FMOD_STUDIO_LOADING_STATE EventDescription::get_sample_loading_state() const
 {
 	FMOD_STUDIO_LOADING_STATE loading_state = FMOD_STUDIO_LOADING_STATE::FMOD_STUDIO_LOADING_STATE_UNLOADED;
 
-	if (ERROR_CHECK(event_description->getSampleLoadingState(&loading_state)))
+	if (ERROR_CHECK(FMOD_Studio_EventDescription_GetSampleLoadingState(event_description, &loading_state)))
 	{
 		return loading_state;
 	}
@@ -1152,7 +1152,7 @@ FMOD_STUDIO_LOADING_STATE EventDescription::get_sample_loading_state() const
 
 bool EventDescription::release_all_instances() const
 {
-	if (ERROR_CHECK(event_description->releaseAllInstances()))
+	if (ERROR_CHECK(FMOD_Studio_EventDescription_ReleaseAllInstances(event_description)))
 	{
 		return true;
 	}
@@ -1163,7 +1163,7 @@ bool EventDescription::release_all_instances() const
 bool EventDescription::set_callback(Object* target, StringName function_name, Array binds, FMOD_STUDIO_EVENT_CALLBACK_TYPE callback_mask) const
 {
 	void* user_data;
-	event_description->getUserData(&user_data);
+	FMOD_Studio_EventDescription_GetUserData(event_description, &user_data);
 	CallbackData* callable_data = static_cast<CallbackData*>(user_data);
 
 	if (target != nullptr)
@@ -1177,14 +1177,13 @@ bool EventDescription::set_callback(Object* target, StringName function_name, Ar
 		callable_data->function_name = function_name;
 		callable_data->binds = binds;
 		void* data = static_cast<void*>(callable_data);
-		event_description->setUserData(data);
+		FMOD_Studio_EventDescription_SetUserData(event_description, data);
 
-		return ERROR_CHECK(event_description->setCallback(
+		return ERROR_CHECK(FMOD_Studio_EventDescription_SetCallback(event_description, 
 				[](FMOD_STUDIO_EVENT_CALLBACK_TYPE type, FMOD_STUDIO_EVENTINSTANCE* event, void* parameters) -> FMOD_RESULT
 				{
-					FMOD::Studio::EventInstance* event_instance = reinterpret_cast<FMOD::Studio::EventInstance*>(event);
 					void* data;
-					event_instance->getUserData(&data);
+					FMOD_Studio_EventInstance_GetUserData(event, &data);
 					CallbackData* callable = static_cast<CallbackData*>(data);
 
 					Dictionary callback_info;
@@ -1235,8 +1234,8 @@ bool EventDescription::set_callback(Object* target, StringName function_name, Ar
 	{
 		if (callable_data)
 		{
-			FMOD_RESULT result = event_description->setCallback(nullptr, FMOD_STUDIO_EVENT_CALLBACK_ALL);
-			event_description->setUserData(nullptr);
+			FMOD_RESULT result = FMOD_Studio_EventDescription_SetCallback(event_description, nullptr, FMOD_STUDIO_EVENT_CALLBACK_ALL);
+			FMOD_Studio_EventDescription_SetUserData(event_description, nullptr);
 			memfree(callable_data);
 			return result;
 		}
@@ -1289,22 +1288,22 @@ void EventInstance::_bind_methods()
 	ClassDB::bind_method(D_METHOD("set_callback", "callable", "callback_mask"), &EventInstance::set_callback);
 }
 
-void EventInstance::set_instance(FMOD::Studio::EventInstance* event_instance)
+void EventInstance::set_instance(FMOD_STUDIO_EVENTINSTANCE* event_instance)
 {
 	this->event_instance = event_instance;
 }
 
 bool EventInstance::is_valid() const
 {
-	return event_instance->isValid();
+	return FMOD_Studio_EventInstance_IsValid(event_instance);
 }
 
 Ref<EventDescription> EventInstance::get_description()
 {
 	Ref<EventDescription> ref = create_ref<EventDescription>();
-	FMOD::Studio::EventDescription* description;
+	FMOD_STUDIO_EVENTDESCRIPTION* description;
 
-	if (ERROR_CHECK(event_instance->getDescription(&description)))
+	if (ERROR_CHECK(FMOD_Studio_EventInstance_GetDescription(event_instance, &description)))
 	{
 		ref->set_instance(description);
 
@@ -1319,7 +1318,7 @@ Dictionary EventInstance::get_volume() const
 	float volume{}, final_volume{};
 	Dictionary result;
 
-	if (ERROR_CHECK(event_instance->getVolume(&volume, &final_volume)))
+	if (ERROR_CHECK(FMOD_Studio_EventInstance_GetVolume(event_instance, &volume, &final_volume)))
 	{
 		result["volume"] = volume;
 		result["final_volume"] = final_volume;
@@ -1331,7 +1330,7 @@ Dictionary EventInstance::get_volume() const
 
 bool EventInstance::set_volume(float volume) const
 {
-	return ERROR_CHECK(event_instance->setVolume(volume));
+	return ERROR_CHECK(FMOD_Studio_EventInstance_SetVolume(event_instance, volume));
 }
 
 Dictionary EventInstance::get_pitch() const
@@ -1339,7 +1338,7 @@ Dictionary EventInstance::get_pitch() const
 	float pitch{}, final_pitch{};
 	Dictionary result;
 
-	if (ERROR_CHECK(event_instance->getPitch(&pitch, &final_pitch)))
+	if (ERROR_CHECK(FMOD_Studio_EventInstance_GetPitch(event_instance, &pitch, &final_pitch)))
 	{
 		result["pitch"] = pitch;
 		result["final_pitch"] = final_pitch;
@@ -1351,14 +1350,14 @@ Dictionary EventInstance::get_pitch() const
 
 bool EventInstance::set_pitch(float pitch) const
 {
-	return ERROR_CHECK(event_instance->setPitch(pitch));
+	return ERROR_CHECK(FMOD_Studio_EventInstance_SetPitch(event_instance, pitch));
 }
 
 void EventInstance::get_3d_attributes(Ref<FmodTypes::FMOD_3D_ATTRIBUTES> attributes_ref) const
 {
 	FMOD_3D_ATTRIBUTES attributes{};
 
-	if (ERROR_CHECK(event_instance->get3DAttributes(&attributes)))
+	if (ERROR_CHECK(FMOD_Studio_EventInstance_Get3DAttributes(event_instance, &attributes)))
 	{
 		attributes_ref->set_3d_attributes(attributes);
 	}
@@ -1369,14 +1368,14 @@ bool EventInstance::set_3d_attributes(const Ref<FmodTypes::FMOD_3D_ATTRIBUTES>& 
 	FMOD_3D_ATTRIBUTES attributes{};
 	attributes_ref->get_3d_attributes(attributes);
 
-	return ERROR_CHECK(event_instance->set3DAttributes(&attributes));
+	return ERROR_CHECK(FMOD_Studio_EventInstance_Set3DAttributes(event_instance, &attributes));
 }
 
 unsigned int EventInstance::get_listener_mask() const
 {
 	unsigned int listener_mask{};
 
-	if (ERROR_CHECK(event_instance->getListenerMask(&listener_mask)))
+	if (ERROR_CHECK(FMOD_Studio_EventInstance_GetListenerMask(event_instance, &listener_mask)))
 	{
 		return listener_mask;
 	}
@@ -1386,7 +1385,7 @@ unsigned int EventInstance::get_listener_mask() const
 
 bool EventInstance::set_listener_mask(const unsigned int mask)
 {
-	if (ERROR_CHECK(event_instance->setListenerMask(mask)))
+	if (ERROR_CHECK(FMOD_Studio_EventInstance_SetListenerMask(event_instance, mask)))
 	{
 		return true;
 	}
@@ -1398,7 +1397,7 @@ float EventInstance::get_property(int event_property) const
 {
 	float property{};
 
-	if (ERROR_CHECK(event_instance->getProperty(static_cast<FMOD_STUDIO_EVENT_PROPERTY>(event_property), &property)))
+	if (ERROR_CHECK(FMOD_Studio_EventInstance_GetProperty(event_instance, static_cast<FMOD_STUDIO_EVENT_PROPERTY>(event_property), &property)))
 	{
 		return property;
 	}
@@ -1409,7 +1408,7 @@ float EventInstance::get_property(int event_property) const
 bool EventInstance::set_property(int event_property, float property_value)
 {
 	if (ERROR_CHECK(
-				event_instance->setProperty(static_cast<FMOD_STUDIO_EVENT_PROPERTY>(event_property), property_value)))
+				FMOD_Studio_EventInstance_SetProperty(event_instance, static_cast<FMOD_STUDIO_EVENT_PROPERTY>(event_property), property_value)))
 	{
 		return true;
 	}
@@ -1421,7 +1420,7 @@ float EventInstance::get_reverb_level(int index) const
 {
 	float reverb_level{};
 
-	if (ERROR_CHECK(event_instance->getReverbLevel(index, &reverb_level)))
+	if (ERROR_CHECK(FMOD_Studio_EventInstance_GetReverbLevel(event_instance, index, &reverb_level)))
 	{
 		return reverb_level;
 	}
@@ -1431,7 +1430,7 @@ float EventInstance::get_reverb_level(int index) const
 
 bool EventInstance::set_reverb_level(int index, float level)
 {
-	if (ERROR_CHECK(event_instance->setReverbLevel(index, level)))
+	if (ERROR_CHECK(FMOD_Studio_EventInstance_SetReverbLevel(event_instance, index, level)))
 	{
 		return true;
 	}
@@ -1441,9 +1440,9 @@ bool EventInstance::set_reverb_level(int index, float level)
 
 bool EventInstance::get_paused() const
 {
-	bool paused{};
+	FMOD_BOOL paused{};
 
-	if (ERROR_CHECK(event_instance->getPaused(&paused)))
+	if (ERROR_CHECK(FMOD_Studio_EventInstance_GetPaused(event_instance, &paused)))
 	{
 		return paused;
 	}
@@ -1453,24 +1452,24 @@ bool EventInstance::get_paused() const
 
 bool EventInstance::set_paused(bool paused) const
 {
-	return ERROR_CHECK(event_instance->setPaused(paused));
+	return ERROR_CHECK(FMOD_Studio_EventInstance_SetPaused(event_instance, paused));
 }
 
 bool EventInstance::start() const
 {
-	return ERROR_CHECK(event_instance->start());
+	return ERROR_CHECK(FMOD_Studio_EventInstance_Start(event_instance));
 }
 
 bool EventInstance::stop(int stop_mode) const
 {
-	return ERROR_CHECK(event_instance->stop(static_cast<FMOD_STUDIO_STOP_MODE>(stop_mode)));
+	return ERROR_CHECK(FMOD_Studio_EventInstance_Stop(event_instance, static_cast<FMOD_STUDIO_STOP_MODE>(stop_mode)));
 }
 
 int EventInstance::get_timeline_position() const
 {
 	int timeline_position{};
 
-	if (ERROR_CHECK(event_instance->getTimelinePosition(&timeline_position)))
+	if (ERROR_CHECK(FMOD_Studio_EventInstance_GetTimelinePosition(event_instance, &timeline_position)))
 	{
 		return timeline_position;
 	}
@@ -1480,14 +1479,14 @@ int EventInstance::get_timeline_position() const
 
 bool EventInstance::set_timeline_position(int position) const
 {
-	return ERROR_CHECK(event_instance->setTimelinePosition(position));
+	return ERROR_CHECK(FMOD_Studio_EventInstance_SetTimelinePosition(event_instance, position));
 }
 
 FMOD_STUDIO_PLAYBACK_STATE EventInstance::get_playback_state() const
 {
 	FMOD_STUDIO_PLAYBACK_STATE playback_state = FMOD_STUDIO_PLAYBACK_STATE::FMOD_STUDIO_PLAYBACK_STOPPED;
 
-	if (ERROR_CHECK(event_instance->getPlaybackState(&playback_state)))
+	if (ERROR_CHECK(FMOD_Studio_EventInstance_GetPlaybackState(event_instance, &playback_state)))
 	{
 		return playback_state;
 	}
@@ -1501,7 +1500,7 @@ Dictionary EventInstance::get_min_max_distance() const
 
 	float min_distance{}, max_distance{};
 
-	if (ERROR_CHECK(event_instance->getMinMaxDistance(&min_distance, &max_distance)))
+	if (ERROR_CHECK(FMOD_Studio_EventInstance_GetMinMaxDistance(event_instance, &min_distance, &max_distance)))
 	{
 		min_max_distance["min"] = min_distance;
 		min_max_distance["max"] = max_distance;
@@ -1514,7 +1513,7 @@ Dictionary EventInstance::get_min_max_distance() const
 
 bool EventInstance::release()
 {
-	if (ERROR_CHECK(event_instance->release()))
+	if (ERROR_CHECK(FMOD_Studio_EventInstance_Release(event_instance)))
 	{
 		return true;
 	}
@@ -1524,9 +1523,9 @@ bool EventInstance::release()
 
 bool EventInstance::is_virtual() const
 {
-	bool is_virtual{};
+	FMOD_BOOL is_virtual{};
 
-	if (ERROR_CHECK(event_instance->isVirtual(&is_virtual)))
+	if (ERROR_CHECK(FMOD_Studio_EventInstance_IsVirtual(event_instance, &is_virtual)))
 	{
 		return is_virtual;
 	}
@@ -1542,7 +1541,7 @@ Dictionary EventInstance::get_parameter_by_id(const Ref<FmodTypes::FMOD_STUDIO_P
 	FMOD_STUDIO_PARAMETER_ID id{};
 	parameter_id->get_parameter_id(id);
 
-	if (ERROR_CHECK(event_instance->getParameterByID(id, &value, &final_value)))
+	if (ERROR_CHECK(FMOD_Studio_EventInstance_GetParameterByID(event_instance, id, &value, &final_value)))
 	{
 		result["value"] = value;
 		result["final_value"] = final_value;
@@ -1558,7 +1557,7 @@ bool EventInstance::set_parameter_by_id(const Ref<FmodTypes::FMOD_STUDIO_PARAMET
 	FMOD_STUDIO_PARAMETER_ID id;
 	parameter_id->get_parameter_id(id);
 
-	return ERROR_CHECK(event_instance->setParameterByID(id, value, ignore_seek_speed));
+	return ERROR_CHECK(FMOD_Studio_EventInstance_SetParameterByID(event_instance, id, value, ignore_seek_speed));
 }
 
 bool EventInstance::set_parameter_by_id_with_label(const Ref<FmodTypes::FMOD_STUDIO_PARAMETER_ID>& parameter_id,
@@ -1567,7 +1566,7 @@ bool EventInstance::set_parameter_by_id_with_label(const Ref<FmodTypes::FMOD_STU
 	FMOD_STUDIO_PARAMETER_ID id;
 	parameter_id->get_parameter_id(id);
 
-	return ERROR_CHECK(event_instance->setParameterByIDWithLabel(id, label.utf8().get_data(), ignore_seek_speed));
+	return ERROR_CHECK(FMOD_Studio_EventInstance_SetParameterByIDWithLabel(event_instance, id, label.utf8().get_data(), ignore_seek_speed));
 }
 
 bool EventInstance::set_parameters_by_ids(const Array ids, const Array values, int count, bool ignore_seek_speed) const
@@ -1583,7 +1582,7 @@ bool EventInstance::set_parameters_by_ids(const Array ids, const Array values, i
 	}
 
 	if (ERROR_CHECK(
-				event_instance->setParametersByIDs(parameter_ids.get(), parameter_values.get(), count, ignore_seek_speed)))
+				FMOD_Studio_EventInstance_SetParametersByIDs(event_instance, parameter_ids.get(), parameter_values.get(), count, ignore_seek_speed)))
 	{
 		return true;
 	}
@@ -1596,7 +1595,7 @@ Dictionary EventInstance::get_parameter_by_name(const String& name) const
 	Dictionary result;
 	float value{}, final_value{};
 
-	if (ERROR_CHECK(event_instance->getParameterByName(name.utf8().get_data(), &value, &final_value)))
+	if (ERROR_CHECK(FMOD_Studio_EventInstance_GetParameterByName(event_instance, name.utf8().get_data(), &value, &final_value)))
 	{
 		result["value"] = value;
 		result["final_value"] = final_value;
@@ -1608,25 +1607,25 @@ Dictionary EventInstance::get_parameter_by_name(const String& name) const
 
 bool EventInstance::set_parameter_by_name(const String& name, float value, bool ignore_seek_speed) const
 {
-	return ERROR_CHECK(event_instance->setParameterByName(name.utf8().get_data(), value, ignore_seek_speed));
+	return ERROR_CHECK(FMOD_Studio_EventInstance_SetParameterByName(event_instance, name.utf8().get_data(), value, ignore_seek_speed));
 }
 
 bool EventInstance::set_parameter_by_name_with_label(const String& name, const String& label, bool ignore_seek_speed)
 {
-	return ERROR_CHECK(event_instance->setParameterByNameWithLabel(name.utf8().get_data(), label.utf8().get_data(),
+	return ERROR_CHECK(FMOD_Studio_EventInstance_SetParameterByNameWithLabel(event_instance, name.utf8().get_data(), label.utf8().get_data(),
 			ignore_seek_speed));
 }
 
 bool EventInstance::key_off() const
 {
-	return ERROR_CHECK(event_instance->keyOff());
+	return ERROR_CHECK(FMOD_Studio_EventInstance_KeyOff(event_instance));
 }
 
 void EventInstance::get_cpu_usage(Dictionary cpu_usage)
 {
 	unsigned int exclusive{}, inclusive{};
 
-	if (ERROR_CHECK(event_instance->getCPUUsage(&exclusive, &inclusive)))
+	if (ERROR_CHECK(FMOD_Studio_EventInstance_GetCPUUsage(event_instance, &exclusive, &inclusive)))
 	{
 		cpu_usage["exclusive"] = exclusive;
 		cpu_usage["inclusive"] = inclusive;
@@ -1637,7 +1636,7 @@ void EventInstance::get_memory_usage(Ref<FmodTypes::FMOD_STUDIO_MEMORY_USAGE> me
 {
 	FMOD_STUDIO_MEMORY_USAGE memory_usage{};
 
-	if (ERROR_CHECK(event_instance->getMemoryUsage(&memory_usage)))
+	if (ERROR_CHECK(FMOD_Studio_EventInstance_GetMemoryUsage(event_instance, &memory_usage)))
 	{
 		memory_usage_ref->set_memory_usage(memory_usage);
 	}
@@ -1646,7 +1645,7 @@ void EventInstance::get_memory_usage(Ref<FmodTypes::FMOD_STUDIO_MEMORY_USAGE> me
 bool EventInstance::set_callback(Object* target, StringName function_name, Array binds, FMOD_STUDIO_EVENT_CALLBACK_TYPE callback_mask) const
 {
 	void* user_data;
-	event_instance->getUserData(&user_data);
+	FMOD_Studio_EventInstance_GetUserData(event_instance, &user_data);
 	CallbackData* callable_data = static_cast<CallbackData*>(user_data);
 
 	if (target != nullptr)
@@ -1660,14 +1659,13 @@ bool EventInstance::set_callback(Object* target, StringName function_name, Array
 		callable_data->function_name = function_name;
 		callable_data->binds = binds;
 		void* data = static_cast<void*>(callable_data);
-		event_instance->setUserData(data);
+		FMOD_Studio_EventInstance_SetUserData(event_instance, data);
 
-		return ERROR_CHECK(event_instance->setCallback(
+		return ERROR_CHECK(FMOD_Studio_EventInstance_SetCallback(event_instance, 
 				[](FMOD_STUDIO_EVENT_CALLBACK_TYPE type, FMOD_STUDIO_EVENTINSTANCE* event, void* parameters) -> FMOD_RESULT
 				{
-					FMOD::Studio::EventInstance* event_instance = reinterpret_cast<FMOD::Studio::EventInstance*>(event);
 					void* data;
-					event_instance->getUserData(&data);
+					FMOD_Studio_EventInstance_GetUserData(event, &data);
 					CallbackData* callable = static_cast<CallbackData*>(data);
 
 					Dictionary callback_info;
@@ -1718,8 +1716,8 @@ bool EventInstance::set_callback(Object* target, StringName function_name, Array
 	{
 		if (callable_data)
 		{
-			FMOD_RESULT result = event_instance->setCallback(nullptr, FMOD_STUDIO_EVENT_CALLBACK_ALL);
-			event_instance->setUserData(nullptr);
+			FMOD_RESULT result = FMOD_Studio_EventInstance_SetCallback(event_instance, nullptr, FMOD_STUDIO_EVENT_CALLBACK_ALL);
+			FMOD_Studio_EventInstance_SetUserData(event_instance, nullptr);
 			memfree(callable_data);
 			return result;
 		}
@@ -1746,14 +1744,14 @@ void Bus::_bind_methods()
 	ClassDB::bind_method(D_METHOD("get_memory_usage", "memory_usage"), &Bus::get_memory_usage);
 }
 
-void Bus::set_instance(FMOD::Studio::Bus* bus)
+void Bus::set_instance(FMOD_STUDIO_BUS* bus)
 {
 	this->bus = bus;
 }
 
 bool Bus::is_valid() const
 {
-	return bus->isValid();
+	return FMOD_Studio_Bus_IsValid(bus);
 }
 
 String Bus::get_id() const
@@ -1761,7 +1759,7 @@ String Bus::get_id() const
 	String id;
 	FMOD_GUID guid{};
 
-	if (ERROR_CHECK(bus->getID(&guid)))
+	if (ERROR_CHECK(FMOD_Studio_Bus_GetID(bus, &guid)))
 	{
 		id = guid_to_string(guid);
 		return id;
@@ -1783,7 +1781,7 @@ Dictionary Bus::get_volume() const
 	Dictionary result;
 	float volume{}, final_volume{};
 
-	if (ERROR_CHECK(bus->getVolume(&volume, &final_volume)))
+	if (ERROR_CHECK(FMOD_Studio_Bus_GetVolume(bus, &volume, &final_volume)))
 	{
 		result["volume"] = volume;
 		result["final_volume"] = final_volume;
@@ -1796,14 +1794,14 @@ Dictionary Bus::get_volume() const
 
 bool Bus::set_volume(float volume) const
 {
-	return ERROR_CHECK(bus->setVolume(volume));
+	return ERROR_CHECK(FMOD_Studio_Bus_SetVolume(bus, volume));
 }
 
 bool Bus::get_paused() const
 {
-	bool paused{};
+	FMOD_BOOL paused{};
 
-	if (ERROR_CHECK(bus->getPaused(&paused)))
+	if (ERROR_CHECK(FMOD_Studio_Bus_GetPaused(bus, &paused)))
 	{
 		return paused;
 	}
@@ -1813,14 +1811,14 @@ bool Bus::get_paused() const
 
 bool Bus::set_paused(bool paused) const
 {
-	return ERROR_CHECK(bus->setPaused(paused));
+	return ERROR_CHECK(FMOD_Studio_Bus_SetPaused(bus, paused));
 }
 
 bool Bus::get_mute() const
 {
-	bool muted{};
+	FMOD_BOOL muted{};
 
-	if (ERROR_CHECK(bus->getMute(&muted)))
+	if (ERROR_CHECK(FMOD_Studio_Bus_GetMute(bus, &muted)))
 	{
 		return muted;
 	}
@@ -1830,29 +1828,29 @@ bool Bus::get_mute() const
 
 bool Bus::set_mute(bool mute) const
 {
-	return ERROR_CHECK(bus->setMute(mute));
+	return ERROR_CHECK(FMOD_Studio_Bus_SetMute(bus, mute));
 }
 
 bool Bus::stop_all_events(int stop_mode) const
 {
-	return ERROR_CHECK(bus->stopAllEvents(static_cast<FMOD_STUDIO_STOP_MODE>(stop_mode)));
+	return ERROR_CHECK(FMOD_Studio_Bus_StopAllEvents(bus, static_cast<FMOD_STUDIO_STOP_MODE>(stop_mode)));
 }
 
 bool Bus::lock_channel_group() const
 {
-	return ERROR_CHECK(bus->lockChannelGroup());
+	return ERROR_CHECK(FMOD_Studio_Bus_LockChannelGroup(bus));
 }
 
 bool Bus::unlock_channel_group() const
 {
-	return ERROR_CHECK(bus->unlockChannelGroup());
+	return ERROR_CHECK(FMOD_Studio_Bus_UnlockChannelGroup(bus));
 }
 
 void Bus::get_cpu_usage(Dictionary cpu_usage) const
 {
 	unsigned int exclusive{}, inclusive{};
 
-	ERROR_CHECK(bus->getCPUUsage(&exclusive, &inclusive));
+	ERROR_CHECK(FMOD_Studio_Bus_GetCPUUsage(bus, &exclusive, &inclusive));
 	cpu_usage["exclusive"] = exclusive;
 	cpu_usage["inclusive"] = inclusive;
 }
@@ -1861,7 +1859,7 @@ void Bus::get_memory_usage(Ref<FmodTypes::FMOD_STUDIO_MEMORY_USAGE> memory_usage
 {
 	FMOD_STUDIO_MEMORY_USAGE memory_usage{};
 
-	if (ERROR_CHECK(bus->getMemoryUsage(&memory_usage)))
+	if (ERROR_CHECK(FMOD_Studio_Bus_GetMemoryUsage(bus, &memory_usage)))
 	{
 		memory_usage_ref->set_memory_usage(memory_usage);
 	}
@@ -1876,14 +1874,14 @@ void VCA::_bind_methods()
 	ClassDB::bind_method(D_METHOD("set_volume", "volume"), &VCA::set_volume);
 }
 
-void VCA::set_instance(FMOD::Studio::VCA* vca)
+void VCA::set_instance(FMOD_STUDIO_VCA* vca)
 {
 	this->vca = vca;
 }
 
 bool VCA::is_valid() const
 {
-	return vca->isValid();
+	return FMOD_Studio_VCA_IsValid(vca);
 }
 
 String VCA::get_id() const
@@ -1891,7 +1889,7 @@ String VCA::get_id() const
 	String id;
 	FMOD_GUID guid{};
 
-	if (ERROR_CHECK(vca->getID(&guid)))
+	if (ERROR_CHECK(FMOD_Studio_VCA_GetID(vca, &guid)))
 	{
 		id = guid_to_string(guid);
 		return id;
@@ -1913,7 +1911,7 @@ Dictionary VCA::get_volume() const
 	Dictionary result;
 	float volume{}, final_volume{};
 
-	if (ERROR_CHECK(vca->getVolume(&volume, &final_volume)))
+	if (ERROR_CHECK(FMOD_Studio_VCA_GetVolume(vca, &volume, &final_volume)))
 	{
 		result["volume"] = volume;
 		result["final_volume"] = final_volume;
@@ -1926,7 +1924,7 @@ Dictionary VCA::get_volume() const
 
 bool VCA::set_volume(float volume) const
 {
-	return ERROR_CHECK(vca->setVolume(volume));
+	return ERROR_CHECK(FMOD_Studio_VCA_SetVolume(vca, volume));
 }
 
 void Bank::_bind_methods()
@@ -1947,14 +1945,14 @@ void Bank::_bind_methods()
 	ClassDB::bind_method(D_METHOD("get_vca_list", "capacity"), &Bank::get_vca_list);
 }
 
-void Bank::set_instance(FMOD::Studio::Bank* bank)
+void Bank::set_instance(FMOD_STUDIO_BANK* bank)
 {
 	this->bank = bank;
 }
 
 bool Bank::is_valid() const
 {
-	return bank->isValid();
+	return FMOD_Studio_Bank_IsValid(bank);
 }
 
 String Bank::get_id() const
@@ -1962,7 +1960,7 @@ String Bank::get_id() const
 	String id;
 	FMOD_GUID guid{};
 
-	if (ERROR_CHECK(bank->getID(&guid)))
+	if (ERROR_CHECK(FMOD_Studio_Bank_GetID(bank, &guid)))
 	{
 		id = guid_to_string(guid);
 		return id;
@@ -1981,7 +1979,7 @@ String Bank::get_path() const
 
 bool Bank::unload()
 {
-	if (ERROR_CHECK(bank->unload()))
+	if (ERROR_CHECK(FMOD_Studio_Bank_Unload(bank)))
 	{
 		return true;
 	}
@@ -1991,7 +1989,7 @@ bool Bank::unload()
 
 bool Bank::load_sample_data() const
 {
-	if (ERROR_CHECK(bank->loadSampleData()))
+	if (ERROR_CHECK(FMOD_Studio_Bank_LoadSampleData(bank)))
 	{
 		return true;
 	}
@@ -2001,7 +1999,7 @@ bool Bank::load_sample_data() const
 
 bool Bank::unload_sample_data() const
 {
-	if (ERROR_CHECK(bank->unloadSampleData()))
+	if (ERROR_CHECK(FMOD_Studio_Bank_UnloadSampleData(bank)))
 	{
 		return true;
 	}
@@ -2013,7 +2011,7 @@ FMOD_STUDIO_LOADING_STATE Bank::get_loading_state() const
 {
 	FMOD_STUDIO_LOADING_STATE loading_state = FMOD_STUDIO_LOADING_STATE_ERROR;
 
-	if (ERROR_CHECK(bank->getLoadingState(&loading_state)))
+	if (ERROR_CHECK(FMOD_Studio_Bank_GetLoadingState(bank, &loading_state)))
 	{
 		return loading_state;
 	}
@@ -2025,7 +2023,7 @@ FMOD_STUDIO_LOADING_STATE Bank::get_sample_loading_state() const
 {
 	FMOD_STUDIO_LOADING_STATE loading_state = FMOD_STUDIO_LOADING_STATE_ERROR;
 
-	if (ERROR_CHECK(bank->getSampleLoadingState(&loading_state)))
+	if (ERROR_CHECK(FMOD_Studio_Bank_GetSampleLoadingState(bank, &loading_state)))
 	{
 		return loading_state;
 	}
@@ -2037,7 +2035,7 @@ int Bank::get_event_count() const
 {
 	int count{};
 
-	if (bank->getEventCount(&count), "Failed to get Event Count for Bank")
+	if (FMOD_Studio_Bank_GetEventCount(bank, &count), "Failed to get Event Count for Bank")
 	{
 		return count;
 	}
@@ -2048,11 +2046,11 @@ int Bank::get_event_count() const
 Array Bank::get_event_list(int capacity)
 {
 	Array event_list;
-	std::unique_ptr<FMOD::Studio::EventDescription*[]> descriptions =
-			std::make_unique<FMOD::Studio::EventDescription*[]>(capacity);
+	std::unique_ptr<FMOD_STUDIO_EVENTDESCRIPTION*[]> descriptions =
+			std::make_unique<FMOD_STUDIO_EVENTDESCRIPTION*[]>(capacity);
 
 	int count{};
-	if (ERROR_CHECK(bank->getEventList(descriptions.get(), capacity, &count)))
+	if (ERROR_CHECK(FMOD_Studio_Bank_GetEventList(bank, descriptions.get(), capacity, &count)))
 	{
 		for (int i = 0; i < count; i++)
 		{
@@ -2073,7 +2071,7 @@ int Bank::get_bus_count() const
 {
 	int count{};
 
-	if (bank->getBusCount(&count), "Failed to get Bus Count for Bank")
+	if (FMOD_Studio_Bank_GetBusCount(bank, &count), "Failed to get Bus Count for Bank")
 	{
 		return count;
 	}
@@ -2084,10 +2082,10 @@ int Bank::get_bus_count() const
 Array Bank::get_bus_list(int capacity)
 {
 	Array bus_list;
-	std::unique_ptr<FMOD::Studio::Bus*[]> busses = std::make_unique<FMOD::Studio::Bus*[]>(capacity);
+	std::unique_ptr<FMOD_STUDIO_BUS*[]> busses = std::make_unique<FMOD_STUDIO_BUS*[]>(capacity);
 
 	int count{};
-	if (ERROR_CHECK(bank->getBusList(busses.get(), capacity, &count)))
+	if (ERROR_CHECK(FMOD_Studio_Bank_GetBusList(bank, busses.get(), capacity, &count)))
 	{
 		for (int i = 0; i < count; i++)
 		{
@@ -2108,7 +2106,7 @@ int Bank::get_vca_count() const
 {
 	int count{};
 
-	if (ERROR_CHECK(bank->getVCACount(&count)))
+	if (ERROR_CHECK(FMOD_Studio_Bank_GetVCACount(bank, &count)))
 	{
 		return count;
 	}
@@ -2119,10 +2117,10 @@ int Bank::get_vca_count() const
 Array Bank::get_vca_list(int capacity)
 {
 	Array vca_list;
-	std::unique_ptr<FMOD::Studio::VCA*[]> vcas = std::make_unique<FMOD::Studio::VCA*[]>(capacity);
+	std::unique_ptr<FMOD_STUDIO_VCA*[]> vcas = std::make_unique<FMOD_STUDIO_VCA*[]>(capacity);
 
 	int count{};
-	if (ERROR_CHECK(bank->getVCAList(vcas.get(), capacity, &count)))
+	if (ERROR_CHECK(FMOD_Studio_Bank_GetVCAList(bank, vcas.get(), capacity, &count)))
 	{
 		for (int i = 0; i < count; i++)
 		{
@@ -2159,21 +2157,21 @@ void CommandReplay::_bind_methods()
 	ClassDB::bind_method(D_METHOD("release"), &CommandReplay::release);
 }
 
-void CommandReplay::set_instance(FMOD::Studio::CommandReplay* command_replay)
+void CommandReplay::set_instance(FMOD_STUDIO_COMMANDREPLAY* command_replay)
 {
 	this->command_replay = command_replay;
 }
 
 bool CommandReplay::is_valid() const
 {
-	return command_replay->isValid();
+	return FMOD_Studio_CommandReplay_IsValid(command_replay);
 }
 
 float CommandReplay::get_length() const
 {
 	float length{};
 
-	if (ERROR_CHECK(command_replay->getLength(&length)))
+	if (ERROR_CHECK(FMOD_Studio_CommandReplay_GetLength(command_replay, &length)))
 	{
 		return length;
 	}
@@ -2185,7 +2183,7 @@ int CommandReplay::get_command_count() const
 {
 	int command_count{};
 
-	if (ERROR_CHECK(command_replay->getCommandCount(&command_count)))
+	if (ERROR_CHECK(FMOD_Studio_CommandReplay_GetCommandCount(command_replay, &command_count)))
 	{
 		return command_count;
 	}
@@ -2198,7 +2196,7 @@ Dictionary CommandReplay::get_command_info(int index) const
 	Dictionary command_info;
 	FMOD_STUDIO_COMMAND_INFO info{};
 
-	if (ERROR_CHECK(command_replay->getCommandInfo(index, &info)))
+	if (ERROR_CHECK(FMOD_Studio_CommandReplay_GetCommandInfo(command_replay, index, &info)))
 	{
 		command_info["command_name"] = String(info.commandname);
 		command_info["parent_command_index"] = info.parentcommandindex;
@@ -2221,7 +2219,7 @@ String CommandReplay::get_command_string(int index, int length) const
 
 	char* cstr_buffer = new char[length + 1];
 
-	if (ERROR_CHECK(command_replay->getCommandString(index, cstr_buffer, length)))
+	if (ERROR_CHECK(FMOD_Studio_CommandReplay_GetCommandString(command_replay, index, cstr_buffer, length)))
 	{
 		command_string = String(cstr_buffer);
 		delete[] cstr_buffer;
@@ -2235,7 +2233,7 @@ int CommandReplay::get_command_at_time(float time) const
 {
 	int commandAtTime{};
 
-	if (ERROR_CHECK(command_replay->getCommandAtTime(time, &commandAtTime)))
+	if (ERROR_CHECK(FMOD_Studio_CommandReplay_GetCommandAtTime(command_replay, time, &commandAtTime)))
 	{
 		return commandAtTime;
 	}
@@ -2245,34 +2243,34 @@ int CommandReplay::get_command_at_time(float time) const
 
 bool CommandReplay::set_bank_path(const String& bank_path)
 {
-	return ERROR_CHECK(command_replay->setBankPath(bank_path.utf8().get_data()));
+	return ERROR_CHECK(FMOD_Studio_CommandReplay_SetBankPath(command_replay, bank_path.utf8().get_data()));
 }
 
 bool CommandReplay::start()
 {
-	return ERROR_CHECK(command_replay->start());
+	return ERROR_CHECK(FMOD_Studio_CommandReplay_Start(command_replay));
 }
 
 bool CommandReplay::stop()
 {
-	return ERROR_CHECK(command_replay->stop());
+	return ERROR_CHECK(FMOD_Studio_CommandReplay_Stop(command_replay));
 }
 
 bool CommandReplay::seek_to_time(float time)
 {
-	return ERROR_CHECK(command_replay->seekToTime(time));
+	return ERROR_CHECK(FMOD_Studio_CommandReplay_SeekToTime(command_replay, time));
 }
 
 bool CommandReplay::seek_to_command(int index)
 {
-	return ERROR_CHECK(command_replay->seekToCommand(index));
+	return ERROR_CHECK(FMOD_Studio_CommandReplay_SeekToCommand(command_replay, index));
 }
 
 bool CommandReplay::get_paused() const
 {
-	bool paused{};
+	FMOD_BOOL paused;
 
-	if (ERROR_CHECK(command_replay->getPaused(&paused)))
+	if (ERROR_CHECK(FMOD_Studio_CommandReplay_GetPaused(command_replay, &paused)))
 	{
 		return paused;
 	}
@@ -2282,14 +2280,14 @@ bool CommandReplay::get_paused() const
 
 bool CommandReplay::set_paused(bool paused)
 {
-	return ERROR_CHECK(command_replay->setPaused(paused));
+	return ERROR_CHECK(FMOD_Studio_CommandReplay_SetPaused(command_replay, paused));
 }
 
 FMOD_STUDIO_PLAYBACK_STATE CommandReplay::get_playback_state() const
 {
 	FMOD_STUDIO_PLAYBACK_STATE playback_state = FMOD_STUDIO_PLAYBACK_STATE::FMOD_STUDIO_PLAYBACK_STOPPED;
 
-	if (ERROR_CHECK(command_replay->getPlaybackState(&playback_state)))
+	if (ERROR_CHECK(FMOD_Studio_CommandReplay_GetPlaybackState(command_replay, &playback_state)))
 	{
 		return playback_state;
 	}
@@ -2304,7 +2302,7 @@ Dictionary CommandReplay::get_current_command() const
 	int index{};
 	float current_time{};
 
-	if (ERROR_CHECK(command_replay->getCurrentCommand(&index, &current_time)))
+	if (ERROR_CHECK(FMOD_Studio_CommandReplay_GetCurrentCommand(command_replay, &index, &current_time)))
 	{
 		current_command["command_index"] = index;
 		current_command["current_time"] = current_time;
@@ -2316,5 +2314,5 @@ Dictionary CommandReplay::get_current_command() const
 
 bool CommandReplay::release()
 {
-	return ERROR_CHECK(command_replay->release());
+	return ERROR_CHECK(FMOD_Studio_CommandReplay_Release(command_replay));
 }

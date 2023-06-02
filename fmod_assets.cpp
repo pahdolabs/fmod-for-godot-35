@@ -70,7 +70,7 @@ void BankAsset::set_bank_file_info(const Dictionary& file_bank_info)
 	this->modified_time = file_bank_info["modified_time"];
 }
 
-void BankAsset::set_bank_ref(const FMOD::Studio::Bank* bank)
+void BankAsset::set_bank_ref(const FMOD_STUDIO_BANK* bank)
 {
 	String path;
 	fmod_obj_to_path(bank, path);
@@ -91,7 +91,8 @@ void BankAsset::set_bank_ref(const FMOD::Studio::Bank* bank)
 	set_fm_name(name);
 
 	FMOD_GUID guid{};
-	bank->getID(&guid);
+	FMOD_STUDIO_BANK *cs_bank = const_cast<FMOD_STUDIO_BANK*>(bank);
+	FMOD_Studio_Bank_GetID(cs_bank, &guid);
 	String string_guid = guid_to_string(guid);
 	set_guid(string_guid);
 }
@@ -151,22 +152,22 @@ void EventAsset::_bind_methods()
 			"set_parameters", "get_parameters");
 }
 
-void EventAsset::set_event_ref(FMOD::Studio::EventDescription* event_description)
+void EventAsset::set_event_ref(FMOD_STUDIO_EVENTDESCRIPTION* event_description)
 {
-	bool is_3d{};
-	event_description->is3D(&is_3d);
+	FMOD_BOOL is_3d{};
+	FMOD_Studio_EventDescription_Is3D(event_description, &is_3d);
 	set_3d(is_3d);
-	bool is_oneshot{};
-	event_description->isOneshot(&is_oneshot);
+	FMOD_BOOL is_oneshot{};
+	FMOD_Studio_EventDescription_IsOneshot(event_description, &is_oneshot);
 	set_oneshot(is_oneshot);
 
 	float min_distance{}, max_distance{};
-	event_description->getMinMaxDistance(&min_distance, &max_distance);
+	FMOD_Studio_EventDescription_GetMinMaxDistance(event_description, &min_distance, &max_distance);
 	set_min_distance(min_distance);
 	set_max_distance(max_distance);
 
 	FMOD_GUID guid{};
-	event_description->getID(&guid);
+	FMOD_Studio_EventDescription_GetID(event_description, &guid);
 	String string_guid = guid_to_string(guid);
 	set_guid(string_guid);
 
@@ -187,8 +188,8 @@ void EventAsset::set_event_ref(FMOD::Studio::EventDescription* event_description
 
 	set_fm_name(name);
 
-	bool is_snapshot{};
-	event_description->isSnapshot(&is_snapshot);
+	FMOD_BOOL is_snapshot{};
+	FMOD_Studio_EventDescription_IsSnapshot(event_description, &is_snapshot);
 	set_is_snapshot(is_snapshot);
 
 	if (is_snapshot)
@@ -197,12 +198,12 @@ void EventAsset::set_event_ref(FMOD::Studio::EventDescription* event_description
 	}
 
 	int parameter_count{};
-	event_description->getParameterDescriptionCount(&parameter_count);
+	FMOD_Studio_EventDescription_GetParameterDescriptionCount(event_description, &parameter_count);
 
 	for (int i = 0; i < parameter_count; i++)
 	{
 		FMOD_STUDIO_PARAMETER_DESCRIPTION parameter_description = {};
-		if (event_description->getParameterDescriptionByIndex(i, &parameter_description) == FMOD_OK)
+		if (FMOD_Studio_EventDescription_GetParameterDescriptionByIndex(event_description, i, &parameter_description) == FMOD_OK)
 		{
 			bool global = parameter_description.flags & FMOD_STUDIO_PARAMETER_GLOBAL;
 			bool read_only = parameter_description.flags & FMOD_STUDIO_PARAMETER_READONLY;
@@ -228,7 +229,7 @@ void EventAsset::set_event_ref(FMOD::Studio::EventDescription* event_description
 					{
 						raw_buffer.resize(actual_size);
 
-						result = event_description->getParameterLabelByID(parameter_description.id, i, &raw_buffer[0],
+						result = FMOD_Studio_EventDescription_GetParameterLabelByID(event_description, parameter_description.id, i, &raw_buffer[0],
 								actual_size, &actual_size);
 
 						if (result == FMOD_ERR_EVENT_NOTFOUND || result == FMOD_ERR_INVALID_PARAM)
@@ -250,15 +251,14 @@ void EventAsset::set_event_ref(FMOD::Studio::EventDescription* event_description
 	}
 }
 
-FMOD::Studio::EventDescription* EventAsset::get_event_description() const
+FMOD_STUDIO_EVENTDESCRIPTION* EventAsset::get_event_description() const
 {
-	FMOD::Studio::EventDescription* event_description = nullptr;
-	FMOD::Studio::System* studio_system = FMODStudioEditorModule::get_singleton()->get_studio_system();
+	FMOD_STUDIO_EVENTDESCRIPTION* event_description = nullptr;
+	FMOD_STUDIO_SYSTEM* studio_system = FMODStudioEditorModule::get_singleton()->get_studio_system();
 
 	if (studio_system)
 	{
-		FMODStudioEditorModule::get_singleton()->get_studio_system()->getEvent(get_fm_path().utf8().get_data(),
-				&event_description);
+		FMOD_Studio_System_GetEvent(studio_system, get_fm_path().utf8().get_data(), &event_description);
 	}
 
 	return event_description;
@@ -404,7 +404,7 @@ void BusAsset::_bind_methods()
 {
 }
 
-void BusAsset::set_bus_ref(const FMOD::Studio::Bus* bus)
+void BusAsset::set_bus_ref(const FMOD_STUDIO_BUS* bus)
 {
 	String path;
 	fmod_obj_to_path(bus, path);
@@ -430,7 +430,8 @@ void BusAsset::set_bus_ref(const FMOD::Studio::Bus* bus)
 	set_fm_name(name);
 
 	FMOD_GUID guid{};
-	bus->getID(&guid);
+	FMOD_STUDIO_BUS *cs_bus = const_cast<FMOD_STUDIO_BUS*>(bus);
+	FMOD_Studio_Bus_GetID(cs_bus, &guid);
 	String string_guid = guid_to_string(guid);
 	set_guid(string_guid);
 }
@@ -439,7 +440,7 @@ void VCAAsset::_bind_methods()
 {
 }
 
-void VCAAsset::set_vca_ref(const FMOD::Studio::VCA* vca)
+void VCAAsset::set_vca_ref(const FMOD_STUDIO_VCA* vca)
 {
 	String path{};
 	fmod_obj_to_path(vca, path);
@@ -460,7 +461,8 @@ void VCAAsset::set_vca_ref(const FMOD::Studio::VCA* vca)
 	set_fm_name(name);
 
 	FMOD_GUID guid{};
-	vca->getID(&guid);
+	FMOD_STUDIO_VCA *cs_vca = const_cast<FMOD_STUDIO_VCA*>(vca);
+	FMOD_Studio_VCA_GetID(cs_vca, &guid);
 	String string_guid = guid_to_string(guid);
 	set_guid(string_guid);
 }
@@ -492,10 +494,10 @@ void ParameterAsset::set_parameter_ref(const FMOD_STUDIO_PARAMETER_DESCRIPTION& 
 	{
 		raw_buffer.resize(actual_size);
 
-		FMOD::Studio::System* studio_system = FMODStudioEditorModule::get_singleton()->get_studio_system();
+		FMOD_STUDIO_SYSTEM* studio_system = FMODStudioEditorModule::get_singleton()->get_studio_system();
 		if (studio_system)
 		{
-			result = studio_system->lookupPath(std::as_const(guid), &raw_buffer[0], actual_size, &actual_size);
+			result = FMOD_Studio_System_LookupPath(studio_system, guid, &raw_buffer[0], actual_size, &actual_size);
 		}
 
 		if (result == FMOD_ERR_EVENT_NOTFOUND)
@@ -534,10 +536,10 @@ void ParameterAsset::set_parameter_ref(const FMOD_STUDIO_PARAMETER_DESCRIPTION& 
 			{
 				raw_buffer.resize(actual_size);
 
-				FMOD::Studio::System* studio_system = FMODStudioEditorModule::get_singleton()->get_studio_system();
+				FMOD_STUDIO_SYSTEM* studio_system = FMODStudioEditorModule::get_singleton()->get_studio_system();
 				if (studio_system)
 				{
-					result = studio_system->getParameterLabelByID(parameter_description.id, i, &raw_buffer[0],
+					result = FMOD_Studio_System_GetParameterLabelByID(studio_system, parameter_description.id, i, &raw_buffer[0],
 							actual_size, &actual_size);
 				}
 

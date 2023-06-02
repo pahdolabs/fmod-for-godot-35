@@ -114,7 +114,7 @@ func play_one_shot_id(guid: String, position = null) -> void:
 	var type = typeof(position)
 	if type == TYPE_OBJECT:
 		RuntimeUtils.to_3d_attributes_node(attributes, position, null)
-	elif type in [TYPE_VECTOR3, TYPE_VECTOR2, TYPE_TRANSFORM2D, TYPE_TRANSFORM3D]:
+	elif type in [TYPE_VECTOR3, TYPE_VECTOR2, TYPE_TRANSFORM2D, TYPE_TRANSFORM]:
 		RuntimeUtils.to_3d_attributes(attributes, position)
 	else:
 		RuntimeUtils.to_3d_attributes(attributes, Vector3(0, 0, 0))

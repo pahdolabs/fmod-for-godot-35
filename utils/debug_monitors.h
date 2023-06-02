@@ -20,8 +20,8 @@ private:
 	int max_alloc_info = 0;
 	int channels_info = 0;
 	int real_channels_info = 0;
-	FMOD::Studio::System* studio_system = nullptr;
-	FMOD::System* core_system = nullptr;
+	FMOD_STUDIO_SYSTEM* studio_system = nullptr;
+	FMOD_SYSTEM* core_system = nullptr;
 
 public:
 	void _notification(int p_what);

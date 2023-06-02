@@ -1,6 +1,7 @@
 #ifndef FMOD_UTILS
 #define FMOD_UTILS
 
+#include <fmod_studio.h>
 #include "core/object.h"
 #include "core/project_settings.h"
 #include "core/vector.h"
@@ -261,8 +262,7 @@ static inline Ref<T> create_ref()
 	return ref;
 }
 
-template <class T>
-static inline void fmod_obj_to_path(const T& obj, String& out_path)
+static inline void fmod_obj_to_path(const FMOD_STUDIO_EVENTDESCRIPTION* obj, String& out_path)
 {
 	int actualSize = 512;
 	auto rawBuffer = std::string(512, ' ');
@@ -270,7 +270,8 @@ static inline void fmod_obj_to_path(const T& obj, String& out_path)
 	do
 	{
 		rawBuffer.resize(actualSize);
-		result = obj->getPath(&rawBuffer[0], actualSize, &actualSize);
+		FMOD_STUDIO_EVENTDESCRIPTION* cs_obj = const_cast<FMOD_STUDIO_EVENTDESCRIPTION*>(obj);
+		result = FMOD_Studio_EventDescription_GetPath(cs_obj, &rawBuffer[0], actualSize, &actualSize);
 
 		if (result == FMOD_ERR_EVENT_NOTFOUND)
 		{
@@ -288,5 +289,90 @@ static inline void fmod_obj_to_path(const T& obj, String& out_path)
 		out_path = String();
 	}
 }
+
+static inline void fmod_obj_to_path(const FMOD_STUDIO_BUS* obj, String& out_path)
+{
+	int actualSize = 512;
+	auto rawBuffer = std::string(512, ' ');
+	FMOD_RESULT result = FMOD_RESULT::FMOD_ERR_TRUNCATED;
+	do
+	{
+		rawBuffer.resize(actualSize);
+		FMOD_STUDIO_BUS* cs_obj = const_cast<FMOD_STUDIO_BUS*>(obj);
+		result = FMOD_Studio_Bus_GetPath(cs_obj, &rawBuffer[0], actualSize, &actualSize);
+
+		if (result == FMOD_ERR_EVENT_NOTFOUND)
+		{
+			ERR_PRINT("[FMOD] Failed to get the Path of an FMOD Object");
+			break;
+		}
+	} while (result == FMOD_ERR_TRUNCATED);
+
+	if (result == FMOD_OK)
+	{
+		out_path = String(rawBuffer.c_str());
+	}
+	else
+	{
+		out_path = String();
+	}
+}
+
+static inline void fmod_obj_to_path(const FMOD_STUDIO_VCA* obj, String& out_path)
+{
+	int actualSize = 512;
+	auto rawBuffer = std::string(512, ' ');
+	FMOD_RESULT result = FMOD_RESULT::FMOD_ERR_TRUNCATED;
+	do
+	{
+		rawBuffer.resize(actualSize);
+		FMOD_STUDIO_VCA* cs_obj = const_cast<FMOD_STUDIO_VCA*>(obj);
+		result = FMOD_Studio_VCA_GetPath(cs_obj, &rawBuffer[0], actualSize, &actualSize);
+
+		if (result == FMOD_ERR_EVENT_NOTFOUND)
+		{
+			ERR_PRINT("[FMOD] Failed to get the Path of an FMOD Object");
+			break;
+		}
+	} while (result == FMOD_ERR_TRUNCATED);
+
+	if (result == FMOD_OK)
+	{
+		out_path = String(rawBuffer.c_str());
+	}
+	else
+	{
+		out_path = String();
+	}
+}
+
+static inline void fmod_obj_to_path(const FMOD_STUDIO_BANK* obj, String& out_path)
+{
+	int actualSize = 512;
+	auto rawBuffer = std::string(512, ' ');
+	FMOD_RESULT result = FMOD_RESULT::FMOD_ERR_TRUNCATED;
+	do
+	{
+		rawBuffer.resize(actualSize);
+		FMOD_STUDIO_BANK* cs_obj = const_cast<FMOD_STUDIO_BANK*>(obj);
+		result = FMOD_Studio_Bank_GetPath(cs_obj, &rawBuffer[0], actualSize, &actualSize);
+
+		if (result == FMOD_ERR_EVENT_NOTFOUND)
+		{
+			ERR_PRINT("[FMOD] Failed to get the Path of an FMOD Object");
+			break;
+		}
+	} while (result == FMOD_ERR_TRUNCATED);
+
+	if (result == FMOD_OK)
+	{
+		out_path = String(rawBuffer.c_str());
+	}
+	else
+	{
+		out_path = String();
+	}
+}
+
 
 #endif // FMOD_UTILS

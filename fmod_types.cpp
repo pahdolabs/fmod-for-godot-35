@@ -175,7 +175,7 @@ void FMOD_STUDIO_PARAMETER_DESCRIPTION::get_parameter_description(
 	out_description.defaultvalue = defaultvalue;
 	out_description.type = type;
 	out_description.flags = flags;
-	FMOD::Studio::parseID(guid.utf8().get_data(), &out_description.guid);
+	FMOD_Studio_ParseID(guid.utf8().get_data(), &out_description.guid);
 }
 
 void FMOD_STUDIO_USER_PROPERTY::_bind_methods()

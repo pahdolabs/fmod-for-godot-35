@@ -30,10 +30,10 @@ protected:
 	static void _bind_methods();
 
 private:
-	FMOD::Studio::System* studio_system = nullptr;
+	FMOD_STUDIO_SYSTEM* studio_system = nullptr;
 
 public:
-	void set_instance(FMOD::Studio::System* studio_system);
+	void set_instance(FMOD_STUDIO_SYSTEM* studio_system);
 
 	bool is_valid() const;
 
@@ -110,11 +110,11 @@ protected:
 	static void _bind_methods();
 
 private:
-	FMOD::Studio::EventDescription* event_description = nullptr;
+	FMOD_STUDIO_EVENTDESCRIPTION* event_description = nullptr;
 
 public:
-	void set_instance(FMOD::Studio::EventDescription* event_description);
-	FMOD::Studio::EventDescription* get_instance() const;
+	void set_instance(FMOD_STUDIO_EVENTDESCRIPTION* event_description);
+	FMOD_STUDIO_EVENTDESCRIPTION* get_instance() const;
 
 	bool is_valid() const;
 
@@ -164,10 +164,10 @@ protected:
 	static void _bind_methods();
 
 private:
-	FMOD::Studio::EventInstance* event_instance = nullptr;
+	FMOD_STUDIO_EVENTINSTANCE* event_instance = nullptr;
 
 public:
-	void set_instance(FMOD::Studio::EventInstance* event_instance);
+	void set_instance(FMOD_STUDIO_EVENTINSTANCE* event_instance);
 
 	bool is_valid() const;
 
@@ -236,10 +236,10 @@ protected:
 	static void _bind_methods();
 
 private:
-	FMOD::Studio::Bus* bus = nullptr;
+	FMOD_STUDIO_BUS* bus = nullptr;
 
 public:
-	void set_instance(FMOD::Studio::Bus* bus);
+	void set_instance(FMOD_STUDIO_BUS* bus);
 
 	bool is_valid() const;
 
@@ -274,10 +274,10 @@ protected:
 	static void _bind_methods();
 
 private:
-	FMOD::Studio::VCA* vca = nullptr;
+	FMOD_STUDIO_VCA* vca = nullptr;
 
 public:
-	void set_instance(FMOD::Studio::VCA* vca);
+	void set_instance(FMOD_STUDIO_VCA* vca);
 
 	bool is_valid() const;
 
@@ -296,10 +296,10 @@ protected:
 	static void _bind_methods();
 
 private:
-	FMOD::Studio::Bank* bank = nullptr;
+	FMOD_STUDIO_BANK* bank = nullptr;
 
 public:
-	void set_instance(FMOD::Studio::Bank* bank);
+	void set_instance(FMOD_STUDIO_BANK* bank);
 
 	bool is_valid() const;
 
@@ -329,10 +329,10 @@ protected:
 	static void _bind_methods();
 
 private:
-	FMOD::Studio::CommandReplay* command_replay = nullptr;
+	FMOD_STUDIO_COMMANDREPLAY* command_replay = nullptr;
 
 public:
-	void set_instance(FMOD::Studio::CommandReplay* command_replay);
+	void set_instance(FMOD_STUDIO_COMMANDREPLAY* command_replay);
 
 	bool is_valid() const;
 

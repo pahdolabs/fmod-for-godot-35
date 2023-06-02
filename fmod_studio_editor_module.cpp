@@ -116,26 +116,26 @@ bool FMODStudioEditorModule::initialize_fmod()
 {
 	const String settings_path = get_platform_setting_path(PlatformSettingsPath::FMOD_SETTINGS_PATH);
 
-	if (!ERROR_CHECK(FMOD::Studio::System::create(&studio_system)))
+	if (!ERROR_CHECK(FMOD_Studio_System_Create(&studio_system, FMOD_VERSION)))
 	{
 		return false;
 	}
 
-	FMOD::System* core_system;
+	FMOD_SYSTEM* core_system;
 
-	if (!ERROR_CHECK(studio_system->getCoreSystem(&core_system)))
+	if (!ERROR_CHECK(FMOD_Studio_System_GetCoreSystem(studio_system, &core_system)))
 	{
 		return false;
 	}
 
-	if (!ERROR_CHECK(core_system->setFileSystem(&FMODGodotBlockingIO::file_open, &FMODGodotBlockingIO::file_close,
+	if (!ERROR_CHECK(FMOD_System_SetFileSystem(core_system, &FMODGodotBlockingIO::file_open, &FMODGodotBlockingIO::file_close,
 				&FMODGodotBlockingIO::file_read, &FMODGodotBlockingIO::file_seek, 0, 0,
 				-1)))
 	{
 		return false;
 	}
 
-	if (!ERROR_CHECK(core_system->setOutput(FMOD_OUTPUTTYPE::FMOD_OUTPUTTYPE_AUTODETECT)))
+	if (!ERROR_CHECK(FMOD_System_SetOutput(core_system, FMOD_OUTPUTTYPE::FMOD_OUTPUTTYPE_AUTODETECT)))
 	{
 		return false;
 	}
@@ -145,7 +145,7 @@ bool FMODStudioEditorModule::initialize_fmod()
 	const unsigned int speaker_mode =
 			static_cast<unsigned int>(get_platform_project_setting(settings_path + String("speaker_mode")));
 
-	if (!ERROR_CHECK(core_system->setSoftwareFormat(sample_rate, static_cast<FMOD_SPEAKERMODE>(speaker_mode), 0)))
+	if (!ERROR_CHECK(FMOD_System_SetSoftwareFormat(core_system, sample_rate, static_cast<FMOD_SPEAKERMODE>(speaker_mode), 0)))
 	{
 		return false;
 	}
@@ -156,7 +156,7 @@ bool FMODStudioEditorModule::initialize_fmod()
 
 	if (buffer_length > 0 && num_buffers > 0)
 	{
-		core_system->setDSPBufferSize(buffer_length, num_buffers);
+		FMOD_System_SetDSPBufferSize(core_system, buffer_length, num_buffers);
 	}
 
 	FMOD_ADVANCEDSETTINGS fmod_advanced_settings{};
@@ -173,7 +173,7 @@ bool FMODStudioEditorModule::initialize_fmod()
 		fmod_advanced_settings.maxFADPCMCodecs = real_channels;
 	}
 
-	if (!ERROR_CHECK(core_system->setSoftwareChannels(real_channels)))
+	if (!ERROR_CHECK(FMOD_System_SetSoftwareChannels(core_system, real_channels)))
 	{
 		return false;
 	}
@@ -190,7 +190,7 @@ bool FMODStudioEditorModule::initialize_fmod()
 
 		fmod_studio_advanced_settings.encryptionkey = encryption_key.utf8().get_data();
 
-		if (!ERROR_CHECK(studio_system->setAdvancedSettings(&fmod_studio_advanced_settings)))
+		if (!ERROR_CHECK(FMOD_Studio_System_SetAdvancedSettings(studio_system, &fmod_studio_advanced_settings)))
 		{
 			return false;
 		}
@@ -199,14 +199,14 @@ bool FMODStudioEditorModule::initialize_fmod()
 	const int virtual_channels =
 			static_cast<int>(get_platform_project_setting(settings_path + String("virtual_channel_count")));
 
-	if (!ERROR_CHECK(studio_system->initialize(virtual_channels, studio_init_flags, FMOD_INIT_NORMAL | FMOD_INIT_3D_RIGHTHANDED, nullptr)))
+	if (!ERROR_CHECK(FMOD_Studio_System_Initialize(studio_system, virtual_channels, studio_init_flags, FMOD_INIT_NORMAL | FMOD_INIT_3D_RIGHTHANDED, nullptr)))
 	{
 		return false;
 	}
 
 #ifdef FMOD_OSX
 	AudioUnit audio_unit;
-	core_system->getOutputHandle((void**)&audio_unit);
+	core_system->getOutputHandle(core_system, (void**)&audio_unit);
 	AudioDeviceID device_id;
 	UInt32 audio_device_id_size = sizeof(device_id);
 	AudioUnitGetProperty(audio_unit, kAudioOutputUnitProperty_CurrentDevice, kAudioUnitScope_Global, 0, &device_id,
@@ -223,12 +223,12 @@ bool FMODStudioEditorModule::initialize_fmod()
 
 bool FMODStudioEditorModule::shutdown_fmod()
 {
-	if (studio_system->isValid())
+	if (FMOD_Studio_System_IsValid(studio_system))
 	{
-		ERROR_CHECK(studio_system->unloadAll());
-		ERROR_CHECK(studio_system->update());
+		ERROR_CHECK(FMOD_Studio_System_UnloadAll(studio_system));
+		ERROR_CHECK(FMOD_Studio_System_Update(studio_system));
 
-		if (ERROR_CHECK(studio_system->release()))
+		if (ERROR_CHECK(FMOD_Studio_System_Release(studio_system)))
 		{
 			return true;
 		}
@@ -237,20 +237,22 @@ bool FMODStudioEditorModule::shutdown_fmod()
 	return false;
 }
 
-Dictionary FMODStudioEditorModule::get_event_list(const FMOD::Studio::Bank* bank, int count) const
+Dictionary FMODStudioEditorModule::get_event_list(const FMOD_STUDIO_BANK* bank, int count) const
 {
-	auto list = std::vector<FMOD::Studio::EventDescription*>(static_cast<size_t>(count));
+	auto list = std::vector<FMOD_STUDIO_EVENTDESCRIPTION*>(static_cast<size_t>(count));
 	Array events;
 	Array snapshots;
+	
+	FMOD_STUDIO_BANK *cs_bank = const_cast<FMOD_STUDIO_BANK*>(bank);
 
-	if (ERROR_CHECK(bank->getEventList(list.data(), count, nullptr)))
+	if (ERROR_CHECK(FMOD_Studio_Bank_GetEventList(cs_bank, list.data(), count, nullptr)))
 	{
 		for (const auto& item : list)
 		{
 			if (item != nullptr)
 			{
-				bool is_snapshot = false;
-				item->isSnapshot(&is_snapshot);
+				FMOD_BOOL is_snapshot = false;
+				FMOD_Studio_EventDescription_IsSnapshot(item, &is_snapshot);
 
 				if (is_snapshot)
 				{
@@ -275,12 +277,14 @@ Dictionary FMODStudioEditorModule::get_event_list(const FMOD::Studio::Bank* bank
 	return result;
 }
 
-Array FMODStudioEditorModule::get_bus_list(const FMOD::Studio::Bank* bank, int count) const
+Array FMODStudioEditorModule::get_bus_list(const FMOD_STUDIO_BANK* bank, int count) const
 {
-	auto list = std::vector<FMOD::Studio::Bus*>(static_cast<size_t>(count));
+	auto list = std::vector<FMOD_STUDIO_BUS*>(static_cast<size_t>(count));
 	Array busses;
+	
+	FMOD_STUDIO_BANK *cs_bank = const_cast<FMOD_STUDIO_BANK*>(bank);
 
-	if (ERROR_CHECK(bank->getBusList(list.data(), count, nullptr)))
+	if (ERROR_CHECK(FMOD_Studio_Bank_GetBusList(cs_bank, list.data(), count, nullptr)))
 	{
 		for (const auto& item : list)
 		{
@@ -297,12 +301,14 @@ Array FMODStudioEditorModule::get_bus_list(const FMOD::Studio::Bank* bank, int c
 	return busses;
 }
 
-Array FMODStudioEditorModule::get_vca_list(const FMOD::Studio::Bank* bank, int count) const
+Array FMODStudioEditorModule::get_vca_list(const FMOD_STUDIO_BANK* bank, int count) const
 {
-	auto list = std::vector<FMOD::Studio::VCA*>(static_cast<size_t>(count));
+	auto list = std::vector<FMOD_STUDIO_VCA*>(static_cast<size_t>(count));
 	Array vcas;
+	
+	FMOD_STUDIO_BANK *cs_bank = const_cast<FMOD_STUDIO_BANK*>(bank);
 
-	if (ERROR_CHECK(bank->getVCAList(list.data(), count, nullptr)))
+	if (ERROR_CHECK(FMOD_Studio_Bank_GetVCAList(cs_bank, list.data(), count, nullptr)))
 	{
 		for (const auto& item : list)
 		{
@@ -324,7 +330,7 @@ Array FMODStudioEditorModule::get_global_parameter_list(int count) const
 	auto list = std::vector<FMOD_STUDIO_PARAMETER_DESCRIPTION>(static_cast<size_t>(count));
 	Array parameters;
 
-	if (ERROR_CHECK(get_singleton()->studio_system->getParameterDescriptionList(list.data(), count, &count)))
+	if (ERROR_CHECK(FMOD_Studio_System_GetParameterDescriptionList(get_singleton()->studio_system, list.data(), count, &count)))
 	{
 		for (const auto& parameter_description : list)
 		{
@@ -472,8 +478,8 @@ void FMODStudioEditorModule::load_all_banks()
 	Dictionary strings_bank_info = bank_files_infos[index];
 	String strings_bank_path = strings_bank_info["file_path"];
 
-	FMOD::Studio::Bank* strings_bank = nullptr;
-	FMOD_RESULT result = studio_system->loadBankFile(strings_bank_path.utf8().get_data(), FMOD_STUDIO_LOAD_BANK_NORMAL, &strings_bank);
+	FMOD_STUDIO_BANK* strings_bank = nullptr;
+	FMOD_RESULT result = FMOD_Studio_System_LoadBankFile(studio_system, strings_bank_path.utf8().get_data(), FMOD_STUDIO_LOAD_BANK_NORMAL, &strings_bank);
 	if(!ERROR_CHECK(result)) {
 		return;
 	}
@@ -491,8 +497,8 @@ void FMODStudioEditorModule::load_all_banks()
 			continue;
 		}
 
-		FMOD::Studio::Bank* bank = nullptr;
-		studio_system->loadBankFile(file_path.utf8().get_data(), FMOD_STUDIO_LOAD_BANK_NONBLOCKING, &bank);
+		FMOD_STUDIO_BANK* bank = nullptr;
+		FMOD_Studio_System_LoadBankFile(studio_system, file_path.utf8().get_data(), FMOD_STUDIO_LOAD_BANK_NONBLOCKING, &bank);
 		Ref<BankAsset> bank_asset = get_bank_reference(bank_files_infos[i]);
 		bank_loading_check.emplace(bank, bank_asset);
 	}
@@ -502,9 +508,9 @@ void FMODStudioEditorModule::load_all_banks()
 
 void FMODStudioEditorModule::unload_all_banks()
 {
-	studio_system->unloadAll();
-	studio_system->update();
-	studio_system->flushCommands();
+	FMOD_Studio_System_UnloadAll(studio_system);
+	FMOD_Studio_System_Update(studio_system);
+	FMOD_Studio_System_FlushCommands(studio_system);
 	bank_refs.clear();
 }
 
@@ -514,7 +520,7 @@ void FMODStudioEditorModule::create_icon(const String& icon_path, FMODIconType i
 
 	if (texture.is_valid())
 	{
-		icons.try_emplace(icon_type, texture);
+		icons.emplace(icon_type, texture);
 	}
 }
 
@@ -595,11 +601,11 @@ Dictionary FMODStudioEditorModule::get_project_info_from_banks()
 	for (int64_t i = 0; i < bank_refs.size(); i++)
 	{
 		Ref<BankAsset> bank_asset = bank_refs[i];
-		FMOD::Studio::Bank* bank = nullptr;
+		FMOD_STUDIO_BANK* bank = nullptr;
 		String guid = bank_asset->get_guid();
 		FMOD_GUID fmod_guid{};
 		FMOD_Studio_ParseID(guid.utf8().get_data(), &fmod_guid);
-		studio_system->getBankByID(&fmod_guid, &bank);
+		FMOD_Studio_System_GetBankByID(studio_system, &fmod_guid, &bank);
 
 		if (!FileAccess::exists(resource_dirs["banks"] + guid + ".tres"))
 		{
@@ -619,7 +625,7 @@ Dictionary FMODStudioEditorModule::get_project_info_from_banks()
 		}
 
 		int event_count = 0;
-		bank->getEventCount(&event_count);
+		FMOD_Studio_Bank_GetEventCount(bank, &event_count);
 
 		if (event_count > 0)
 		{
@@ -692,7 +698,7 @@ Dictionary FMODStudioEditorModule::get_project_info_from_banks()
 		}
 
 		int bus_count = 0;
-		bank->getBusCount(&bus_count);
+		FMOD_Studio_Bank_GetBusCount(bank, &bus_count);
 
 		if (bus_count > 0)
 		{
@@ -722,7 +728,7 @@ Dictionary FMODStudioEditorModule::get_project_info_from_banks()
 		}
 
 		int vca_count = 0;
-		bank->getVCACount(&vca_count);
+		FMOD_Studio_Bank_GetVCACount(bank, &vca_count);
 
 		if (vca_count > 0)
 		{
@@ -752,7 +758,7 @@ Dictionary FMODStudioEditorModule::get_project_info_from_banks()
 	}
 
 	int parameter_count = 0;
-	studio_system->getParameterDescriptionCount(&parameter_count);
+	FMOD_Studio_System_GetParameterDescriptionCount(studio_system, &parameter_count);
 
 	if (parameter_count > 0)
 	{
@@ -1098,16 +1104,16 @@ bool FMODStudioEditorModule::has_event_changed(const Ref<EventAsset>& old_event,
 
 void FMODStudioEditorModule::play_event(const String& guid)
 {
-	FMOD::Studio::EventDescription* event_description = nullptr;
+	FMOD_STUDIO_EVENTDESCRIPTION* event_description = nullptr;
 	FMOD_GUID fmod_guid;
 	FMOD_Studio_ParseID(guid.utf8().get_data(), &fmod_guid);
-	studio_system->getEventByID(&fmod_guid, &event_description);
-	FMOD::Studio::EventInstance* event_instance = nullptr;
+	FMOD_Studio_System_GetEventByID(studio_system, &fmod_guid, &event_description);
+	FMOD_STUDIO_EVENTINSTANCE* event_instance = nullptr;
 
-	event_description->createInstance(&event_instance);
-	event_instance->start();
+	FMOD_Studio_EventDescription_CreateInstance(event_description, &event_instance);
+	FMOD_Studio_EventInstance_Start(event_instance);
 
-	studio_system->update();
+	FMOD_Studio_System_Update(studio_system);
 
 	preview_events.push_back(event_instance);
 }
@@ -1118,9 +1124,9 @@ void FMODStudioEditorModule::stop_events(bool allow_fadeout)
 
 	for (int i = 0; i < preview_events.size(); i++)
 	{
-		preview_events[i]->stop(stop_mode);
-		preview_events[i]->release();
-		studio_system->update();
+		FMOD_Studio_EventInstance_Stop(preview_events[i], stop_mode);
+		FMOD_Studio_EventInstance_Release(preview_events[i]);
+		FMOD_Studio_System_Update(studio_system);
 	}
 	preview_events.clear();
 }
@@ -1130,13 +1136,13 @@ void FMODStudioEditorModule::set_preview_parameter(const String& parameter_name,
 	// note(alex): make this better in the future
 	for (int i = 0; i < preview_events.size(); i++)
 	{
-		preview_events[i]->setParameterByName(parameter_name.utf8().get_data(), value);
+		FMOD_Studio_EventInstance_SetParameterByName(preview_events[i], parameter_name.utf8().get_data(), value, false);
 	}
 
-	studio_system->update();
+	FMOD_Studio_System_Update(studio_system);
 }
 
-FMOD::Studio::System* FMODStudioEditorModule::get_studio_system()
+FMOD_STUDIO_SYSTEM* FMODStudioEditorModule::get_studio_system()
 {
 	return studio_system;
 }
@@ -1163,7 +1169,7 @@ void FMODStudioEditorModule::poll_banks_loading_state(Object* timer_object)
 		for (auto it = bank_loading_check.cbegin(); it != bank_loading_check.cend();)
 		{
 			FMOD_STUDIO_LOADING_STATE state = FMOD_STUDIO_LOADING_STATE_UNLOADED;
-			ERROR_CHECK(it->first->getLoadingState(&state));
+			ERROR_CHECK(FMOD_Studio_Bank_GetLoadingState(it->first, &state));
 			if (state == FMOD_STUDIO_LOADING_STATE_LOADED)
 			{
 				Ref<BankAsset> asset = it->second;
@@ -1173,7 +1179,7 @@ void FMODStudioEditorModule::poll_banks_loading_state(Object* timer_object)
 			}
 			else
 			{
-				studio_system->update();
+				FMOD_Studio_System_Update(studio_system);
 				++it;
 			}
 		}

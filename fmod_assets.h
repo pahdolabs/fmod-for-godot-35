@@ -48,7 +48,7 @@ protected:
 
 public:
 	void set_bank_file_info(const Dictionary& file_bank_info);
-	void set_bank_ref(const FMOD::Studio::Bank* bank);
+	void set_bank_ref(const FMOD_STUDIO_BANK* bank);
 	void set_file_path(const String& file_path);
 	String get_file_path() const;
 	void set_modified_time(int modified_time);
@@ -67,8 +67,8 @@ protected:
 	static void _bind_methods();
 
 public:
-	void set_event_ref(FMOD::Studio::EventDescription* event_description);
-	FMOD::Studio::EventDescription* get_event_description() const;
+	void set_event_ref(FMOD_STUDIO_EVENTDESCRIPTION* event_description);
+	FMOD_STUDIO_EVENTDESCRIPTION* get_event_description() const;
 
 	void set_event_ref_from_description_ref(const Ref<StudioApi::EventDescription>& event_description);
 
@@ -109,7 +109,7 @@ protected:
 	static void _bind_methods();
 
 public:
-	void set_bus_ref(const FMOD::Studio::Bus* bus);
+	void set_bus_ref(const FMOD_STUDIO_BUS* bus);
 };
 
 class VCAAsset : public FMODAsset
@@ -120,7 +120,7 @@ protected:
 	static void _bind_methods();
 
 public:
-	void set_vca_ref(const FMOD::Studio::VCA* vca);
+	void set_vca_ref(const FMOD_STUDIO_VCA* vca);
 };
 
 class ParameterAsset : public FMODAsset

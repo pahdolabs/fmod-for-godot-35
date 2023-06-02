@@ -2,8 +2,8 @@
 #define FMOD_TYPES_H
 
 #include "utils/fmod_utils.h"
-#include <fmod.hpp>
-#include <fmod_studio.hpp>
+#include <fmod.h>
+#include <fmod_studio.h>
 #include "core/reference.h"
 
 namespace FmodTypes

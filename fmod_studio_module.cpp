@@ -122,19 +122,19 @@ void FMODStudioModule::_bind_methods()
 
 bool FMODStudioModule::initialize_fmod()
 {
-	if (!ERROR_CHECK(FMOD::Studio::System::create(&studio_system)))
+	if (!ERROR_CHECK(FMOD_Studio_System_Create(&studio_system, FMOD_VERSION)))
 	{
 		return false;
 	}
 
-	FMOD::System* core_system;
+	FMOD_SYSTEM* core_system;
 
-	if (!ERROR_CHECK(studio_system->getCoreSystem(&core_system)))
+	if (!ERROR_CHECK(FMOD_Studio_System_GetCoreSystem(studio_system, &core_system)))
 	{
 		return false;
 	}
 
-	if (!ERROR_CHECK(core_system->setFileSystem(&FMODGodotBlockingIO::file_open, &FMODGodotBlockingIO::file_close,
+	if (!ERROR_CHECK(FMOD_System_SetFileSystem(core_system, &FMODGodotBlockingIO::file_open, &FMODGodotBlockingIO::file_close,
 				&FMODGodotBlockingIO::file_read, &FMODGodotBlockingIO::file_seek, 0, 0,
 				-1)))
 	{
@@ -146,12 +146,12 @@ bool FMODStudioModule::initialize_fmod()
 	unsigned int ouput_type =
 			static_cast<unsigned int>(get_platform_project_setting(settings_path + String("fmod_output_type")));
 
-	if (!ERROR_CHECK(core_system->setOutput(static_cast<FMOD_OUTPUTTYPE>(ouput_type))))
+	if (!ERROR_CHECK(FMOD_System_SetOutput(core_system, static_cast<FMOD_OUTPUTTYPE>(ouput_type))))
 	{
 		String warning_message = "[WARNING]: " + String("Failed to set the selected Output Type. Initializing FMOD with OUTPUTTYPE_NOSOUND.") + " " + __FUNCTION__ + " in " + __FILE__ +
 				":" + String::num(__LINE__);
 		WARN_PRINT(warning_message);
-		core_system->setOutput(FMOD_OUTPUTTYPE_NOSOUND);
+		FMOD_System_SetOutput(core_system, FMOD_OUTPUTTYPE_NOSOUND);
 	}
 
 	const unsigned int sample_rate =
@@ -159,7 +159,7 @@ bool FMODStudioModule::initialize_fmod()
 	const unsigned int speaker_mode =
 			static_cast<unsigned int>(get_platform_project_setting(settings_path + String("speaker_mode")));
 
-	if (!ERROR_CHECK(core_system->setSoftwareFormat(sample_rate, static_cast<FMOD_SPEAKERMODE>(speaker_mode), 0)))
+	if (!ERROR_CHECK(FMOD_System_SetSoftwareFormat(core_system, sample_rate, static_cast<FMOD_SPEAKERMODE>(speaker_mode), 0)))
 	{
 		return false;
 	}
@@ -170,7 +170,7 @@ bool FMODStudioModule::initialize_fmod()
 
 	if (buffer_length > 0 && num_buffers > 0)
 	{
-		core_system->setDSPBufferSize(buffer_length, num_buffers);
+		FMOD_System_SetDSPBufferSize(core_system, buffer_length, num_buffers);
 	}
 
 	FMOD_ADVANCEDSETTINGS fmod_advanced_settings{};
@@ -187,7 +187,7 @@ bool FMODStudioModule::initialize_fmod()
 		fmod_advanced_settings.maxFADPCMCodecs = real_channels;
 	}
 
-	if (!ERROR_CHECK(core_system->setSoftwareChannels(real_channels)))
+	if (!ERROR_CHECK(FMOD_System_SetSoftwareChannels(core_system, real_channels)))
 	{
 		return false;
 	}
@@ -205,7 +205,7 @@ bool FMODStudioModule::initialize_fmod()
 		fmod_advanced_settings.profilePort = profile_port;
 	}
 
-	if (!ERROR_CHECK(core_system->setAdvancedSettings(&fmod_advanced_settings)))
+	if (!ERROR_CHECK(FMOD_System_SetAdvancedSettings(core_system, &fmod_advanced_settings)))
 	{
 		return false;
 	}
@@ -228,7 +228,7 @@ bool FMODStudioModule::initialize_fmod()
 
 		fmod_studio_advanced_settings.encryptionkey = encryption_key.utf8().get_data();
 
-		if (!ERROR_CHECK(studio_system->setAdvancedSettings(&fmod_studio_advanced_settings)))
+		if (!ERROR_CHECK(FMOD_Studio_System_SetAdvancedSettings(studio_system, &fmod_studio_advanced_settings)))
 		{
 			return false;
 		}
@@ -248,7 +248,7 @@ bool FMODStudioModule::initialize_fmod()
 
 	distance_scale_2d = static_cast<float>(get_platform_project_setting(settings_path + String("distance_scale_2d")));
 
-	if (!ERROR_CHECK(studio_system->initialize(virtual_channels, studio_init_flags, core_init_flags, nullptr)))
+	if (!ERROR_CHECK(FMOD_Studio_System_Initialize(studio_system, virtual_channels, studio_init_flags, core_init_flags, nullptr)))
 	{
 		return false;
 	}
@@ -258,7 +258,7 @@ bool FMODStudioModule::initialize_fmod()
 
 #ifdef FMOD_OSX
 	AudioUnit audio_unit;
-	core_system->getOutputHandle((void**)&audio_unit);
+	FMOD_System_GetOutputHandle(core_system, (void**)&audio_unit);
 	AudioDeviceID device_id;
 	UInt32 audio_device_id_size = sizeof(device_id);
 	AudioUnitGetProperty(audio_unit, kAudioOutputUnitProperty_CurrentDevice, kAudioUnitScope_Global, 0, &device_id,
@@ -282,18 +282,18 @@ void FMODStudioModule::initialize_debug_functions()
 	unsigned int fmod_debug_mode =
 			static_cast<unsigned int>(get_platform_project_setting(settings_path + String("fmod_debug_mode")));
 
-	ERROR_CHECK(FMOD::Debug_Initialize((FMOD_DEBUG_FLAGS)fmod_debug_flags, (FMOD_DEBUG_MODE)fmod_debug_mode,
+	ERROR_CHECK(FMOD_Debug_Initialize((FMOD_DEBUG_FLAGS)fmod_debug_flags, (FMOD_DEBUG_MODE)fmod_debug_mode,
 			(FMOD_DEBUG_CALLBACK)debug_monitor, "fmod.log"));
 }
 
 bool FMODStudioModule::shutdown_fmod()
 {
-	if (studio_system->isValid())
+	if (FMOD_Studio_System_IsValid(studio_system))
 	{
-		ERROR_CHECK(studio_system->unloadAll());
-		ERROR_CHECK(studio_system->update());
+		ERROR_CHECK(FMOD_Studio_System_UnloadAll(studio_system));
+		ERROR_CHECK(FMOD_Studio_System_Update(studio_system));
 
-		if (ERROR_CHECK(studio_system->release()))
+		if (ERROR_CHECK(FMOD_Studio_System_Release(studio_system)))
 		{
 			return true;
 		}
@@ -316,7 +316,7 @@ FMODStudioModule::FMODStudioModule()
 	initialize_debug_functions();
 #endif
 
-	ERROR_CHECK(FMOD::Memory_Initialize(nullptr, 0, FMODGodotMemory::user_alloc, FMODGodotMemory::user_realloc,
+	ERROR_CHECK(FMOD_Memory_Initialize(nullptr, 0, FMODGodotMemory::user_alloc, FMODGodotMemory::user_realloc,
 			FMODGodotMemory::user_free, FMOD_MEMORY_ALL));
 }
 
@@ -367,14 +367,14 @@ Ref<StudioApi::StudioSystem> FMODStudioModule::get_studio_system_ref()
 	return studio_system_ref;
 }
 
-FMOD::Studio::System* FMODStudioModule::get_studio_system() const
+FMOD_STUDIO_SYSTEM* FMODStudioModule::get_studio_system() const
 {
 	return studio_system;
 }
 
-FMOD::System* FMODStudioModule::get_core_system() const
+FMOD_SYSTEM* FMODStudioModule::get_core_system() const
 {
-	FMOD::System* core_system;
-	studio_system->getCoreSystem(&core_system);
+	FMOD_SYSTEM* core_system;
+	FMOD_Studio_System_GetCoreSystem(studio_system, &core_system);
 	return core_system;
 }
