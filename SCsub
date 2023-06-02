@@ -177,39 +177,27 @@ if env["platform"] == "osx":
         if env["target"] == "debug":
             Execute(
                 Copy(
-                    env["target_path"]
-                    + "libfmod.{}.{}.framework/{}".format(
-                        env["platform"], env["target"], "libfmodL.dylib"
-                    ),
-                    fmod_api_core_libs_path + "libfmodL.dylib",
+                    env["target_path"] + "libfmodL.dylib",
+                    fmod_api_core_libs_path + "libfmodL.dylib"
                 )
             )
             Execute(
                 Copy(
-                    env["target_path"]
-                    + "libfmod.{}.{}.framework/{}".format(
-                        env["platform"], env["target"], "libfmodstudioL.dylib"
-                    ),
-                    fmod_api_studio_libs_path + "libfmodstudioL.dylib",
+                    env["target_path"] + "libfmodstudioL.dylib",
+                    fmod_api_studio_libs_path + "libfmodstudioL.dylib"
                 )
             )
         else:
             Execute(
                 Copy(
-                    env["target_path"]
-                    + "libfmod.{}.{}.framework/{}".format(
-                        env["platform"], env["target"], "libfmod.dylib"
-                    ),
-                    fmod_api_core_libs_path + "libfmod.dylib",
+                    env["target_path"] + "libfmod.dylib",
+                    fmod_api_core_libs_path + "libfmod.dylib"
                 )
             )
             Execute(
                 Copy(
-                    env["target_path"]
-                    + "libfmod.{}.{}.framework/{}".format(
-                        env["platform"], env["target"], "libfmodstudio.dylib"
-                    ),
-                    fmod_api_studio_libs_path + "libfmodstudio.dylib",
+                    env["target_path"] + "libfmodstudio.dylib",
+                    fmod_api_studio_libs_path + "libfmodstudio.dylib"
                 )
             )
 
