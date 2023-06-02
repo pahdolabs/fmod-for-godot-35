@@ -14,10 +14,16 @@ def get_fmod_paths(env: Dict) -> Dict:
     if env["platform"] == "windows":
         fmod_api_core_libs_path = fmod_api + "/api/core/lib/x64/"
         fmod_api_studio_libs_path = fmod_api + "/api/studio/lib/x64/"
-        fmodL_library = "fmodL_vc"
-        fmod_library = "fmod_vc"
-        fmodstudio_library = "fmodstudio_vc"
-        fmodstudioL_library = "fmodstudioL_vc"
+        if env.msvc:
+            fmodL_library = "fmodL_vc"
+            fmod_library = "fmod_vc"
+            fmodstudio_library = "fmodstudio_vc"
+            fmodstudioL_library = "fmodstudioL_vc"
+        else:
+            fmodL_library = "fmodL"
+            fmod_library = "fmod"
+            fmodstudio_library = "fmodstudio"
+            fmodstudioL_library = "fmodstudioL"
     elif env["platform"] == "osx":
         fmod_api_core_libs_path = fmod_api + "/api/core/lib/"
         fmod_api_studio_libs_path = fmod_api + "/api/studio/lib/"
@@ -76,6 +82,9 @@ fmod_library = fmod_paths["fmod_library"]
 fmodstudio_library = fmod_paths["fmodstudio_library"]
 fmodstudioL_library = fmod_paths["fmodstudioL_library"]
 
+if not os.path.isdir(os.path.join(env["fmod_api"], "api")):
+    exit("FMOD not located at " + env["fmod_api"])
+
 env["target_path"] = env.Dir("#bin").__str__() + "/"
 
 if env["target"] == "debug":
@@ -83,23 +92,16 @@ if env["target"] == "debug":
     env_modules.Append(CPPDEFINES=["FMOD_DEBUG"])
 
 if env["platform"] == "windows":
-    #env.Append(LINKFLAGS=["/WX"])
-
     env_modules.Append(CPPDEFINES=["FMOD_WIN"])
     env.Append(CPPDEFINES=["FMOD_WIN"])
 
 elif env["platform"] == "osx":
-    macos_install_name = "@rpath/libfmod.{}.{}.framework/libfmod.{}.{}".format(
-        env["platform"], env["target"], env["platform"], env["target"]
-    )
-
     env.Append(
         LINKFLAGS=[
             "-framework",
             "Cocoa",
             "-Wl,-undefined,dynamic_lookup",
-            "-Wl,-rpath,@loader_path",
-            "-Wl,-install_name,{}".format(macos_install_name),
+            "-Wl,-rpath,@loader_path"
         ]
     )
 
@@ -107,10 +109,6 @@ elif env["platform"] == "osx":
     env_modules.Append(CPPDEFINES=["FMOD_OSX"])
 
 elif env["platform"] == "x11" or env["platform"] == "server":
-    env.Append(CCFLAGS=["-fPIC", "-Wwrite-strings"])
-    env.Append(LINKFLAGS=["-Wl,-R,'$$ORIGIN'"])
-    env.Append(LINKFLAGS=["-m64", "-fuse-ld=gold"])
-
     env.Append(CPPDEFINES=["FMOD_LINUX"])
     env_modules.Append(CPPDEFINES=["FMOD_LINUX"])
 
@@ -120,17 +118,19 @@ env.Prepend(LIBPATH=[fmod_api_studio_libs_path, fmod_api_core_libs_path])
 if env["target"] == "debug":
     if env["platform"] == "windows":
         if env.msvc:
-            env.Prepend(LIBS=[File(os.path.join(fmod_api_core_libs_path, fmodL_library + ".lib")), File(os.path.join(fmod_api_studio_libs_path, fmodstudioL_library + ".lib"))])
+            extension = ".lib"
         else:
-            env.Prepend(LIBS=[File(os.path.join(fmod_api_core_libs_path, "fmodL.dll")), File(os.path.join(fmod_api_studio_libs_path, "fmodstudioL.dll"))])
+            extension = ".dll"
+        env.Prepend(LIBS=[File(os.path.join(fmod_api_core_libs_path, fmodL_library + extension)), File(os.path.join(fmod_api_studio_libs_path, fmodstudioL_library + extension))])
     else:
         env.Prepend(LIBS=[fmodL_library, fmodstudioL_library])
 else:
     if env["platform"] == "windows":
         if env.msvc:
-            env.Prepend(LIBS=[File(os.path.join(fmod_api_core_libs_path, fmod_library + ".lib")), File(os.path.join(fmod_api_studio_libs_path, fmodstudio_library + ".lib"))])
+            extension = ".lib"
         else:
-            env.Prepend(LIBS=[File(os.path.join(fmod_api_core_libs_path, "fmod.dll")), File(os.path.join(fmod_api_studio_libs_path, "fmodstudio.dll"))])
+            extension = ".dll"
+        env.Prepend(LIBS=[File(os.path.join(fmod_api_core_libs_path, fmod_library + extension)), File(os.path.join(fmod_api_studio_libs_path, fmodstudio_library + extension))])
     else:
         env.Prepend(LIBS=[fmod_library, fmodstudio_library])
 
