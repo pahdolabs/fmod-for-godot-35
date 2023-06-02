@@ -130,7 +130,7 @@ else:
         if env.msvc:
             env.Prepend(LIBS=[File(os.path.join(fmod_api_core_libs_path, fmod_library + ".lib")), File(os.path.join(fmod_api_studio_libs_path, fmodstudio_library + ".lib"))])
         else:
-            env.Prepend(LIBS=["fmod", "fmodstudio"])
+            env.Prepend(LIBS=[File(os.path.join(fmod_api_core_libs_path, "fmod.dll")), File(os.path.join(fmod_api_studio_libs_path, "fmodstudio.dll"))])
     else:
         env.Prepend(LIBS=[fmod_library, fmodstudio_library])
 
