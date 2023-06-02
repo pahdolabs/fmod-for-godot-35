@@ -206,7 +206,7 @@ bool FMODStudioEditorModule::initialize_fmod()
 
 #ifdef FMOD_OSX
 	AudioUnit audio_unit;
-	core_system->getOutputHandle(core_system, (void**)&audio_unit);
+	FMOD_System_GetOutputHandle(core_system, (void**)&audio_unit);
 	AudioDeviceID device_id;
 	UInt32 audio_device_id_size = sizeof(device_id);
 	AudioUnitGetProperty(audio_unit, kAudioOutputUnitProperty_CurrentDevice, kAudioUnitScope_Global, 0, &device_id,

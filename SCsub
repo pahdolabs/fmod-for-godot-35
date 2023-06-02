@@ -88,7 +88,7 @@ if env["platform"] == "windows":
     env_modules.Append(CPPDEFINES=["FMOD_WIN"])
     env.Append(CPPDEFINES=["FMOD_WIN"])
 
-elif env["platform"] == "macos":
+elif env["platform"] == "osx":
     macos_install_name = "@rpath/libfmod.{}.{}.framework/libfmod.{}.{}".format(
         env["platform"], env["target"], env["platform"], env["target"]
     )
@@ -169,7 +169,7 @@ if env["platform"] == "windows":
 
     copy_libs("", "", env)
 
-if env["platform"] == "macos":
+if env["platform"] == "osx":
     def copy_libs(self, arg, env, executor=None):
         Execute(
             Mkdir(env["target_path"])
