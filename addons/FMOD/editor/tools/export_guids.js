@@ -84,9 +84,9 @@ function guidStringToStruct(guidString) {
     // for example {1f687138-e06c-40f5-9bac-57f84bbcedd3}
     var groupedGuid = [
         guidContents.substring(0, 8), // the first 8 hexadecimal digits of the GUID   - 1f687138
-        guidContents.substring(8, 12), // the first group of 4 hexadecimal digits      - e06c
-        guidContents.substring(12, 16), // the second group of 4 hexadecimal digits     - 40f5
-        guidContents.substring(16, 32).match(/.{2}/g) // array of 8 bytes                             - [9b, ac, 57, f8, 4b, bc, ed, d3]
+        guidContents.substring(8, 12), // the first group of 4 hexadecimal digits     - e06c
+        guidContents.substring(12, 16), // the second group of 4 hexadecimal digits   - 40f5
+        guidContents.substring(16, 32).match(/.{2}/g) // array of 8 bytes             - [9b, ac, 57, f8, 4b, bc, ed, d3]
     ];
 
     function groupToStructure(group) {
