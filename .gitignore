@@ -23,6 +23,7 @@ addons/FMOD/tests/fmod_test_project/.unsaved
 addons/FMOD/editor/cache/fmod_project_cache.tres
 
 *.obj
+*.o
 *.pyc
 .vscode
 __pycache__
