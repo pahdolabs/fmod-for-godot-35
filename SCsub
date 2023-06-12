@@ -111,6 +111,7 @@ elif env["platform"] == "osx":
 elif env["platform"] == "x11" or env["platform"] == "server":
     env.Append(CPPDEFINES=["FMOD_LINUX"])
     env_modules.Append(CPPDEFINES=["FMOD_LINUX"])
+    env.Append(LINKFLAGS=['-Wl,-rpath,\$$ORIGIN'])
 
 env_modules.Prepend(CPPPATH=[fmod_api_core_headers_path, fmod_api_studio_headers_path, os.getcwd()])
 env.Prepend(LIBPATH=[fmod_api_studio_libs_path, fmod_api_core_libs_path])
