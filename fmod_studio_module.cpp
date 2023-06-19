@@ -312,7 +312,7 @@ FMODStudioModule::FMODStudioModule()
 	ERR_FAIL_COND(singleton != nullptr);
 	singleton = this;
 
-#if defined(_DEBUG)
+#if defined(DEBUG_ENABLED)
 	initialize_debug_functions();
 #endif
 

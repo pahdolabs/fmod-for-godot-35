@@ -80,7 +80,7 @@ void FMODDebugMonitor::_notification(int p_what)
 			return;
 		}
 	}
-	if (p_what == NOTIFICATION_PROCESS)
+	if (p_what == NOTIFICATION_INTERNAL_PROCESS)
 	{
 		if (Engine::get_singleton()->is_editor_hint())
 		{
@@ -151,4 +151,9 @@ int FMODDebugMonitor::get_channels()
 int FMODDebugMonitor::get_real_channels()
 {
 	return real_channels_info;
+}
+
+FMODDebugMonitor::FMODDebugMonitor()
+{
+	set_process_internal(true);
 }

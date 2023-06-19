@@ -37,6 +37,7 @@ class StudioListener2D : public Node2D
 	GDCLASS(StudioListener2D, Node2D);
 
 protected:
+	void _notification(int p_what);
 	static void _bind_methods();
 
 private:
@@ -47,7 +48,6 @@ private:
 public:
 	static float distance_to_nearest_listener(const Vector2& position);
 
-	void _notification(int p_what);
 
 	NodePath get_attenuation_object_path() const;
 	Object* get_attenuation_object() const;
@@ -59,6 +59,8 @@ public:
 
 	void set_num_listener(int num);
 	int get_num_listener();
+
+	StudioListener2D();
 };
 
 class StudioListener3D : public Spatial
@@ -66,6 +68,7 @@ class StudioListener3D : public Spatial
 	GDCLASS(StudioListener3D, Spatial);
 
 protected:
+	void _notification(int p_what);
 	static void _bind_methods();
 
 private:
@@ -78,7 +81,6 @@ public:
 	static int get_listener_count();
 	int local_get_listener_count();
 
-	void _notification(int p_what);
 
 	void set_attenuation_object_path(NodePath p_path);
 	Object* get_attenuation_object() const;
@@ -90,6 +92,8 @@ public:
 
 	void set_num_listener(int num);
 	int get_num_listener();
+
+	StudioListener3D();
 };
 
 #endif // STUDIO_LISTENER_H

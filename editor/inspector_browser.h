@@ -41,8 +41,10 @@ private:
 	InspectorBrowser* window = nullptr;
 	String filter = "";
 
-public:
+protected:
 	void _notification(int p_what) {}
+
+public:
 	void initialize(FMODStudioEditorModule::FMODAssetType item_type);
 	void populate_browser();
 	void on_text_changed(const String& text_filter);

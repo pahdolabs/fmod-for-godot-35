@@ -13,6 +13,7 @@ class StudioBankLoader : public Node
 	GDCLASS(StudioBankLoader, Node);
 
 protected:
+	void _notification(int p_what);
 	static void _bind_methods();
 	bool _set(const StringName& p_name, const Variant& p_value);
 	bool _get(const StringName& p_name, Variant& r_ret) const;
@@ -28,7 +29,6 @@ private:
 	void set_bank_ref(int index, const Variant& value);
 
 public:
-	void _notification(int p_what);
 
 	void handle_game_event(RuntimeUtils::GameEvent game_event);
 

@@ -53,6 +53,8 @@ protected:
 	static void _bind_methods();
 
 private:
+protected:
+	void _notification(int p_what) {}
 public:
 
 	TreeItem* root = nullptr;
@@ -68,7 +70,6 @@ public:
 	void populate_browser();
 	void update_project_text();
 	void on_connection_finished();
-	void _notification(int p_what) {}
 };
 
 class DiscreteParameterControl : public SpinBox

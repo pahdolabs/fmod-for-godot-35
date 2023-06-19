@@ -66,11 +66,11 @@ protected:
 	bool _property_can_revert(const StringName& p_name) const;
 	bool _property_get_revert(const StringName& p_name, Variant& r_property) const;
 	void set_rigidbody(Object* rigidbody);
+	void _notification(int p_what);
 
 public:
 	StudioEventEmitterImpl<StudioEventEmitter2D> implementation;
 
-	void _notification(int p_what);
 
 	void handle_game_event(RuntimeUtils::GameEvent game_event);
 
@@ -103,6 +103,8 @@ public:
 
 	void set_overridden_parameters(const Dictionary& overridden_parameters);
 	Dictionary get_overridden_parameters() const;
+
+	StudioEventEmitter2D();
 };
 
 class StudioEventEmitter3D : public Spatial
@@ -117,6 +119,7 @@ protected:
 	bool _property_can_revert(const StringName& p_name) const;
 	bool _property_get_revert(const StringName& p_name, Variant& r_property) const;
 	void set_rigidbody(Object* rigidbody);
+	void _notification(int p_what);
 
 public:
 	StudioEventEmitterImpl<StudioEventEmitter3D> implementation;
@@ -124,7 +127,6 @@ public:
 	void local_update_active_emitters();
 	static void update_active_emitters();
 
-	void _notification(int p_what);
 
 	void handle_game_event(RuntimeUtils::GameEvent game_event);
 
@@ -157,6 +159,8 @@ public:
 
 	void set_overridden_parameters(const Dictionary& overridden_parameters);
 	Dictionary get_overridden_parameters() const;
+
+	StudioEventEmitter3D();
 };
 
 #endif // STUDIO_EVENT_EMITTER_H

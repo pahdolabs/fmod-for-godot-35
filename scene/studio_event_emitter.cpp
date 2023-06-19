@@ -710,7 +710,7 @@ void StudioEventEmitter2D::_notification(int p_what)
 	{
 		implementation._exit_tree();
 	}
-	if (p_what == NOTIFICATION_PROCESS)
+	if (p_what == NOTIFICATION_INTERNAL_PROCESS)
 
 	{
 		implementation._process(get_process_delta_time());
@@ -861,6 +861,11 @@ Dictionary StudioEventEmitter2D::get_overridden_parameters() const
 	return implementation.overridden_parameters;
 }
 
+StudioEventEmitter2D::StudioEventEmitter2D()
+{
+	set_process_internal(true);
+}
+
 void StudioEventEmitter3D::_bind_methods()
 {
 	ClassDB::bind_method(D_METHOD("update_active_emitters"), &StudioEventEmitter3D::local_update_active_emitters);
@@ -974,7 +979,7 @@ void StudioEventEmitter3D::_notification(int p_what)
 	{
 		implementation._exit_tree();
 	}
-	if (p_what == NOTIFICATION_PROCESS)
+	if (p_what == NOTIFICATION_INTERNAL_PROCESS)
 	{
 		implementation._process(get_process_delta_time());
 	}
@@ -1124,4 +1129,9 @@ void StudioEventEmitter3D::set_overridden_parameters(const Dictionary& overridde
 Dictionary StudioEventEmitter3D::get_overridden_parameters() const
 {
 	return implementation.overridden_parameters;
+}
+
+StudioEventEmitter3D::StudioEventEmitter3D()
+{
+	set_process_internal(true);
 }

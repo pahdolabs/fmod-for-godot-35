@@ -192,7 +192,7 @@ void StudioListener2D::_notification(int p_what)
 
 		implementation._exit_tree();
 	}
-	if (p_what == NOTIFICATION_PROCESS)
+	if (p_what == NOTIFICATION_INTERNAL_PROCESS)
 	{
 		if (Engine::get_singleton()->is_editor_hint())
 		{
@@ -260,6 +260,11 @@ int StudioListener2D::get_num_listener()
 	return implementation.get_num_listener();
 }
 
+StudioListener2D::StudioListener2D()
+{
+	set_process_internal(true);
+}
+
 void StudioListener3D::_bind_methods()
 {
 	ClassDB::bind_method(D_METHOD("get_listener_count"), &StudioListener3D::local_get_listener_count);
@@ -301,7 +306,7 @@ void StudioListener3D::_notification(int p_what)
 
 		implementation._exit_tree();
 	}
-	if (p_what == NOTIFICATION_PROCESS)
+	if (p_what == NOTIFICATION_INTERNAL_PROCESS)
 	{
 		if (Engine::get_singleton()->is_editor_hint())
 		{
@@ -317,7 +322,8 @@ float StudioListener3D::distance_to_nearest_listener(const Vector3& position)
 	return ListenerImpl::distance_to_nearest_listener(position);
 }
 
-int StudioListener3D::local_get_listener_count() {
+int StudioListener3D::local_get_listener_count()
+{
 	return get_listener_count();
 }
 
@@ -332,7 +338,7 @@ void StudioListener3D::set_attenuation_object_path(NodePath path)
 	set_attenuation_object(get_node(path));
 }
 
-void StudioListener3D::set_attenuation_object(Object *object)
+void StudioListener3D::set_attenuation_object(Object* object)
 {
 	implementation.attenuation_object = object;
 }
@@ -347,7 +353,8 @@ Object* StudioListener3D::get_attenuation_object() const
 	return implementation.attenuation_object;
 }
 
-void StudioListener3D::set_rigidbody_path(NodePath p_path) {
+void StudioListener3D::set_rigidbody_path(NodePath p_path)
+{
 	implementation.rigidbody_path = p_path;
 	set_rigidbody(get_node(p_path));
 }
@@ -375,4 +382,9 @@ void StudioListener3D::set_num_listener(int num)
 int StudioListener3D::get_num_listener()
 {
 	return implementation.get_num_listener();
+}
+
+StudioListener3D::StudioListener3D()
+{
+	set_process_internal(true);
 }

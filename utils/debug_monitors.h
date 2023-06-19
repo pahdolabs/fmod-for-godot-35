@@ -10,6 +10,7 @@ class FMODDebugMonitor : public Node
 	GDCLASS(FMODDebugMonitor, Node);
 
 protected:
+	void _notification(int p_what);
 	static void _bind_methods();
 
 private:
@@ -24,7 +25,6 @@ private:
 	FMOD_SYSTEM* core_system = nullptr;
 
 public:
-	void _notification(int p_what);
 
 	void process_debug_info();
 	float get_cpu_dsp_usage();
@@ -33,6 +33,8 @@ public:
 	int get_max_memory_alloc();
 	int get_channels();
 	int get_real_channels();
+
+	FMODDebugMonitor();
 };
 
 #endif // FMOD_DEBUG_MONITOR_H

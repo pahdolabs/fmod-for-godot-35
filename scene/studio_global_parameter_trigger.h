@@ -19,6 +19,7 @@ protected:
 	void _get_property_list(List<PropertyInfo>* p_list) const;
 	bool _property_can_revert(const StringName& p_name) const;
 	bool _property_get_revert(const StringName& p_name, Variant& r_property) const;
+	void _notification(int p_what);
 
 private:
 	RuntimeUtils::GameEvent trigger_on = RuntimeUtils::GameEvent::GAMEEVENT_NONE;
@@ -27,7 +28,6 @@ private:
 	float parameter_value = 0.0f;
 
 public:
-	void _notification(int p_what);
 
 	void handle_game_event(RuntimeUtils::GameEvent game_event);
 	void trigger();
