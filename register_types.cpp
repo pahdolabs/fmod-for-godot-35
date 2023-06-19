@@ -73,6 +73,7 @@ void register_fmod_types()
 
 		// Custom nodes
 		ClassDB::register_class<StudioEventEmitter3D>();
+		ClassDB::register_class<FMODEmitterUpdateTriggerer>();
 		ClassDB::register_class<StudioEventEmitter2D>();
 		ClassDB::register_class<StudioParameterTrigger>();
 		ClassDB::register_class<StudioGlobalParameterTrigger>();

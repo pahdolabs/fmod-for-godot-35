@@ -16,6 +16,7 @@
 #include "fmod_studio_module.h"
 #include "scene/studio_bank_loader.h"
 #include "scene/studio_event_emitter.h"
+#include "scene/fmod_emitter_update_triggerer.h"
 #include "scene/studio_global_parameter_trigger.h"
 #include "scene/studio_listener.h"
 #include "scene/studio_parameter_trigger.h"
