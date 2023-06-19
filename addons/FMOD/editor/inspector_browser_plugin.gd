@@ -4,11 +4,11 @@
 extends EditorInspectorPlugin
 
 
-func _can_handle(object):
-	return object != null
+func can_handle(object):
+	return true
 
 
-func _parse_property(object, type, name, hint_type, hint_string, usage_flags, wide):
+func parse_property(object, type, name, hint_type, hint_string, usage_flags):
 	if object != null && type == TYPE_OBJECT:
 		if hint_string == "BankAsset":
 			var inspector_property: InspectorBrowserProperty = InspectorBrowserProperty.new()

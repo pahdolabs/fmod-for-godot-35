@@ -1,15 +1,15 @@
-@tool
+tool
 extends EditorPlugin
 
 # Plugins
 var inspector_browser: EditorInspectorPlugin
-var studio_event_emitter_3d_gizmo_plugin: EditorNode3DGizmoPlugin
+var studio_event_emitter_3d_gizmo_plugin: EditorSpatialGizmoPlugin
 
 # Icon for the custom nodes
-var fmod_icon: Texture2D
+var fmod_icon: Texture
 
 # Project Browser in the Toolbar
-var project_preview_browser: Window
+var project_preview_browser: WindowDialog
 var project_preview_button: Button
 
 var banks_loaded_timer: Timer
@@ -30,8 +30,8 @@ func _enter_tree():
 	# note(alex): When we start loading the editor banks, we setup a timer so we can poll the loading
 	# state of the banks. Once the banks are loaded, the banks_loaded signal will be called and the
 	# timer will be freed.
-	if !FMODStudioEditorModule.is_connected("banks_loading", Callable(self, "on_banks_loading")):
-		FMODStudioEditorModule.connect("banks_loading", Callable(self, "on_banks_loading"))
+	if !FMODStudioEditorModule.is_connected("banks_loading", self, "on_banks_loading"):
+		FMODStudioEditorModule.connect("banks_loading", self, "on_banks_loading")
 
 	# Load all banks
 	FMODStudioEditorModule.load_all_banks()
@@ -44,7 +44,7 @@ func _enter_tree():
 	# Add the Gizmo plugin for the StudioEventEmitter3D Node to Godot. Not possible
 	# from godot-cpp directly
 	studio_event_emitter_3d_gizmo_plugin = StudioEventEmitter3DGizmoPlugin.new()
-	add_node_3d_gizmo_plugin(studio_event_emitter_3d_gizmo_plugin)
+	add_spatial_gizmo_plugin(studio_event_emitter_3d_gizmo_plugin)
 
 	# Add the Project Browser Button to the Container Toolbar
 	project_preview_button = ProjectBrowserPreviewButton.new()
@@ -58,17 +58,20 @@ func _enter_tree():
 		project_preview_browser.set_visible(false)
 
 	# Set the Project Browser visible when pressed
-	project_preview_button.connect("pressed",
-	func():
-		if project_preview_browser.visible == false:
-			project_preview_browser.popup_centered()
-		else:
-			project_preview_browser.set_visible(false))
+	project_preview_button.connect("pressed", self, "_on_project_preview_button_pressed")
+
+
+func _on_project_preview_button_pressed():
+	if project_preview_browser.visible == false:
+		project_preview_browser.popup_centered()
+	else:
+		project_preview_browser.set_visible(false)
+
 
 func _exit_tree():
 	remove_control_from_container(EditorPlugin.CONTAINER_TOOLBAR, project_preview_button)
 	remove_inspector_plugin(inspector_browser)
-	remove_node_3d_gizmo_plugin(studio_event_emitter_3d_gizmo_plugin)
+	remove_spatial_gizmo_plugin(studio_event_emitter_3d_gizmo_plugin)
 	FMODStudioEditorModule.shutdown()
 
 
@@ -112,13 +115,13 @@ func setup_custom_nodes_icon():
 	# considerably. We duplicate the theme to avoid this here.
 	var theme := get_editor_interface().get_base_control().get_theme().duplicate()
 	if theme:
-		theme.set_icon(&"StudioEventEmitter3D", &"EditorIcons", fmod_icon)
-		theme.set_icon(&"StudioEventEmitter2D", &"EditorIcons", fmod_icon)
-		theme.set_icon(&"StudioParameterTrigger", &"EditorIcons", fmod_icon)
-		theme.set_icon(&"StudioGlobalParameterTrigger", &"EditorIcons", fmod_icon)
-		theme.set_icon(&"StudioBankLoader", &"EditorIcons", fmod_icon)
-		theme.set_icon(&"StudioListener3D", &"EditorIcons", fmod_icon)
-		theme.set_icon(&"StudioListener2D", &"EditorIcons", fmod_icon)
+		theme.set_icon("StudioEventEmitter3D", "EditorIcons", fmod_icon)
+		theme.set_icon("StudioEventEmitter2D", "EditorIcons", fmod_icon)
+		theme.set_icon("StudioParameterTrigger", "EditorIcons", fmod_icon)
+		theme.set_icon("StudioGlobalParameterTrigger", "EditorIcons", fmod_icon)
+		theme.set_icon("StudioBankLoader", "EditorIcons", fmod_icon)
+		theme.set_icon("StudioListener3D", "EditorIcons", fmod_icon)
+		theme.set_icon("StudioListener2D", "EditorIcons", fmod_icon)
 		get_editor_interface().get_base_control().set_theme(theme)
 
 
@@ -128,7 +131,5 @@ func on_banks_loading():
 	add_child(banks_loaded_timer)
 	banks_loaded_timer.set_wait_time(1)
 	banks_loaded_timer.set_one_shot(false)
-	var poll_func = Callable(FMODStudioEditorModule, "poll_banks_loading_state")
-	poll_func = poll_func.bind(banks_loaded_timer)
-	banks_loaded_timer.connect("timeout", poll_func)
+	banks_loaded_timer.connect("timeout", FMODStudioEditorModule, "poll_banks_loading_state", [banks_loaded_timer])
 	banks_loaded_timer.start()
